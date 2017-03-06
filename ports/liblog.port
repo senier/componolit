@@ -1,0 +1,8 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := liblog.git
+
+URL(liblog) := https://android.googlesource.com/platform/system/core
+DIR(liblog) := system/core
+REV(liblog) := master
+

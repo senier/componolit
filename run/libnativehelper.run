@@ -1,0 +1,5 @@
+set build_components {
+	libnativehelper
+}
+
+build $build_components

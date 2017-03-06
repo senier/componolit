@@ -1,0 +1,10 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := libnativehelper.git
+
+URL(libnativehelper) := https://android.googlesource.com/platform/libnativehelper
+DIR(libnativehelper) := libnativehelper
+REV(libnativehelper) := master
+
+PATCH_OPT := -p1 -d libnativehelper
+PATCHES   := src/lib/libnativehelper/libnativehelper.patch
