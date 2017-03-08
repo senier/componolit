@@ -9,10 +9,10 @@ from pyparsing import *
 # Android.rb file grammar
 #
 
-quote       = Literal ('"')
 comma       = Literal (',')
 colon       = Literal (':')
 plus        = Literal ('+')
+equals      = Literal ('=')
 true        = Literal ('true')
 false       = Literal ('false')
 name        = Word (alphanums + "_")
@@ -26,33 +26,33 @@ boolean     = true | false
 #
 # String
 #
-string      = quote + Regex ('[^"]*') + quote
-stringjoin  = string + ZeroOrMore (plus + string)
+string      = QuotedString ('"', escChar='\\')
+stringjoin  = string + ZeroOrMore (plus + (string|variable))
 
 #
 # List of strings
 #
-stringlist     = Literal ("[") + delimitedList (stringjoin) + Optional (comma) + Literal ("]")
-stringlistjoin = stringlist + ZeroOrMore (plus + (stringlist))
+stringlist     = Literal ("[") + Optional (delimitedList (stringjoin)) + Optional (comma) + Literal ("]")
+stringlistjoin = (stringlist|variable) + ZeroOrMore (plus + (stringlist|variable))
 
 #
 # Dictionary
 #
 dictelem    = Forward()
-dictionary  = Literal ("{") + delimitedList (dictelem) + Optional (comma) + Literal ("}")
+dictionary  = Literal ("{") + Optional (delimitedList (dictelem)) + Optional (comma) + Literal ("}")
 
 # Element
 element   = stringjoin | stringlistjoin | boolean | dictionary | variable
-dictelem << name + colon + element
+dictelem << name + (colon|equals) + element
 
 block       = name + element
 assignment  = name + Literal ("=") + element
+extension   = name + Literal ("+=") + element
 
-soong       = ZeroOrMore (block | assignment) + StringEnd()
+soong       = ZeroOrMore (block | assignment | extension) + StringEnd()
 
-# C++ style comments
-soongComment = Literal ("//") + restOfLine
-soong.ignore (soongComment)
+# C and C++ style comments
+soong.ignore (cppStyleComment | cStyleComment)
 
 good = 0
 fail = 0
