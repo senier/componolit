@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+
+from pyparsing import *
+
+#
+# Android.rb file grammar
+#
+
+quote       = Literal ('"')
+comma       = Literal (',')
+colon       = Literal (':')
+plus        = Literal ('+')
+true        = Literal ('true')
+false       = Literal ('false')
+name        = Word (alphanums + "_")
+variable    = name
+
+#
+# Boolean literal true/false
+#
+boolean     = true | false
+
+#
+# String
+#
+string      = quote + Regex ('[^"]*') + quote
+stringjoin  = string + ZeroOrMore (plus + string)
+
+#
+# List of strings
+#
+stringlist     = Literal ("[") + delimitedList (stringjoin) + Optional (comma) + Literal ("]")
+stringlistjoin = stringlist + ZeroOrMore (plus + (stringlist))
+
+#
+# Dictionary
+#
+dictelem    = Forward()
+dictionary  = Literal ("{") + delimitedList (dictelem) + Optional (comma) + Literal ("}")
+
+# Element
+element   = stringjoin | stringlistjoin | boolean | dictionary | variable
+dictelem << name + colon + element
+
+block       = name + element
+assignment  = name + Literal ("=") + element
+
+soong       = ZeroOrMore (block | assignment) + StringEnd()
+
+# C++ style comments
+soongComment = Literal ("//") + restOfLine
+soong.ignore (soongComment)
+
+good = 0
+fail = 0
+
+# parse input file
+for arg in sys.argv[1:]:
+    try:
+        soong.parseFile (arg)
+        good += 1
+    except ParseException as e:
+        print ("Parse error in %s: %s" % (arg, str(e)))
+        fail += 1
+
+print ("good: %d, fail: %d (%2.1f)" % (good, fail, 100 * fail / (good + fail)))

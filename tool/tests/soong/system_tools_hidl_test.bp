@@ -1,0 +1,56 @@
+subdirs = [
+    "vendor/1.0",
+    "java_test",
+]
+
+cc_test {
+    name: "hidl_test",
+    cflags: hidl_flags,
+    gtest: false,
+    srcs: ["main.cpp", "FooCallback.cpp"],
+
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libcutils",
+        "libhidlbase",
+        "libhidltransport",
+        "libhidlmemory",
+        "libfootest",
+        "libhwbinder",
+        "libnativehelper",
+        "libpointertest",
+        "libutils",
+        "android.hardware.tests.foo@1.0",
+        "android.hardware.tests.bar@1.0",
+        "android.hardware.tests.inheritance@1.0",
+        "android.hardware.tests.pointer@1.0",
+        "android.hardware.tests.memory@1.0",
+        "android.hidl.memory@1.0",
+        "android.hidl.token@1.0",
+    ],
+    static_libs: ["libgtest"],
+
+    required: [
+        // Warning, these should never be specified explicitly for anything else
+        // as for a given device, what hal implementation is used is determined
+        // by what is specified/available in a device.mk. However, this test
+        // actually depends on these test implementations (which should never be
+        // included on a device.mk).
+        "android.hardware.tests.foo@1.0-impl",
+        "android.hardware.tests.bar@1.0-impl",
+        "android.hardware.tests.inheritance@1.0-impl",
+        "android.hardware.tests.pointer@1.0-impl",
+        "android.hardware.tests.memory@1.0-impl",
+    ],
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+}
