@@ -1,0 +1,7 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := libart.git
+
+URL(libart) := https://android.googlesource.com/platform/art
+DIR(libart) := art
+REV(libart) := master

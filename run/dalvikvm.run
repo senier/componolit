@@ -60,6 +60,7 @@ set boot_modules {
 	libm.lib.so
 	stdcxx.lib.so pthread.lib.so
 	libnativehelper.lib.so liblog.lib.so
+	libart.lib.so
 	dalvikvm
 }
 
