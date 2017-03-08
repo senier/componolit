@@ -11,7 +11,6 @@ from pyparsing import *
 
 comma       = Literal (',')
 colon       = Literal (':')
-plus        = Literal ('+')
 equals      = Literal ('=')
 true        = Literal ('true')
 false       = Literal ('false')
@@ -26,14 +25,14 @@ boolean     = true | false
 #
 # String
 #
-string      = QuotedString ('"', escChar='\\')
-stringjoin  = string + ZeroOrMore (plus + (string|variable))
+string     = QuotedString ('"', escChar='\\')
+stringjoin = delimitedList (string, delim='+')
 
 #
 # List of strings
 #
 stringlist     = Literal ("[") + Optional (delimitedList (stringjoin)) + Optional (comma) + Literal ("]")
-stringlistjoin = (stringlist|variable) + ZeroOrMore (plus + (stringlist|variable))
+stringlistjoin = delimitedList (stringlist|variable, delim='+')
 
 #
 # Dictionary
