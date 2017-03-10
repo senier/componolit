@@ -1,65 +1,120 @@
 #!/usr/bin/env python3
 
 import sys
-import re
-
+import pprint
 from pyparsing import *
 
-#
-# Android.rb file grammar
-#
+class SoongParser:
 
-comma       = Literal (',')
-colon       = Literal (':')
-equals      = Literal ('=')
-true        = Literal ('true')
-false       = Literal ('false')
-name        = Word (alphanums + "_")
-variable    = name
+    def stringListAction (self, string, location, tokens):
+        last = -2 if tokens[-2] == ',' else -1
+        return [tokens[1:last]]
 
-#
-# Boolean literal true/false
-#
-boolean     = true | false
+    def stringListJoinAction (self, string, location, tokens):
+        result = []
+        for token in tokens:
+            result += token
+        return [result]
 
-#
-# String
-#
-string     = QuotedString ('"', escChar='\\')
-stringjoin = delimitedList (string, delim='+')
+    def dictelemAction (self, string, location, tokens):
+        return {tokens[0]: tokens[2]}
 
-#
-# List of strings
-#
-stringlist     = Literal ("[") + Optional (delimitedList (stringjoin)) + Optional (comma) + Literal ("]")
-stringlistjoin = delimitedList (stringlist|variable, delim='+')
+    def variableAction (self, string, location, tokens):
+        self.variables[tokens[0]] = [tokens[2]]
 
-#
-# Dictionary
-#
-dictelem    = Forward()
-dictionary  = Literal ("{") + Optional (delimitedList (dictelem)) + Optional (comma) + Literal ("}")
+    def rnameAction (self, string, location, tokens):
+        return self.variables[tokens[0]]
 
-# Element
-element   = stringjoin | stringlistjoin | boolean | dictionary | variable
-dictelem << name + (colon|equals) + element
+    def dictionaryAction (self, string, location, tokens):
+        result = {}
+        last = -2 if tokens[-2] == ',' else -1
+        for token in tokens[1:last]:
+            result.update (token)
+        return result
 
-block       = name + element
-assignment  = name + Literal ("=") + element
-extension   = name + Literal ("+=") + element
+    def soongAction (self, string, location, tokens):
+        #print ("soongAction:")
+        #pp = pprint.PrettyPrinter (indent=4)
+        #pp.pprint (tokens[:-1])
+        pass
 
-soong       = ZeroOrMore (block | assignment | extension) + StringEnd()
+    def __init__ (self):
 
-# C and C++ style comments
-soong.ignore (cppStyleComment | cStyleComment)
+        self.variables = {}
 
-good = 0
-fail = 0
+        #
+        # Android.rb file grammar
+        #
+
+        comma   = Literal (',')
+        colon   = Literal (':')
+        equals  = Literal ('=')
+        true    = Literal ('true').setParseAction (lambda v : True)
+        false   = Literal ('false').setParseAction (lambda v : False)
+        name    = Word (alphanums + "_")
+
+        # Variable reference
+        rname = Word (alphanums + "_")
+        rname.setParseAction (self.rnameAction)
+
+        #
+        # Boolean literal true/false
+        #
+        boolean     = true | false
+
+        #
+        # String
+        #
+        string     = QuotedString ('"', escChar='\\')
+        stringjoin = delimitedList (string, delim='+')
+
+        #
+        # List of strings
+        #
+        stringlist     = Literal ("[") + Optional (delimitedList (stringjoin)) + Optional (comma) + Literal ("]")
+        stringlist.setParseAction (self.stringListAction)
+
+        stringlistjoin = delimitedList (stringlist|rname, delim='+')
+        stringlistjoin.setParseAction (self.stringListJoinAction)
+
+        #
+        # Dictionary
+        #
+        dictelem    = Forward()
+        dictelem.setParseAction (self.dictelemAction)
+
+        dictionary  = Literal ("{") + Optional (delimitedList (dictelem)) + Optional (comma) + Literal ("}")
+        dictionary.setParseAction (self.dictionaryAction)
+
+        # Element
+        element   = boolean | rname | stringlistjoin | stringjoin | dictionary
+
+        dictelem << name + (colon|equals) + element
+
+        block = name + element
+        block.setParseAction (lambda s, l, t: {t[0]: t[1]})
+
+        variable = name + Literal ("=") + element
+        variable.setParseAction (self.variableAction)
+
+        extension   = name + Literal ("+=") + element
+
+        self.grammar = ZeroOrMore (block | variable.suppress() | extension) + StringEnd()
+        self.grammar.setParseAction (self.soongAction)
+
+        # C and C++ style comments
+        self.grammar.ignore (cppStyleComment | cStyleComment)
+
+    def parse (self, infile):
+        self.grammar.parseFile (infile)
 
 # parse input file
+good  = 0
+fail  = 0
+soong = SoongParser()
 for arg in sys.argv[1:]:
     try:
-        soong.parseFile (arg)
+        soong.parse (arg)
         good += 1
     except ParseException as e:
         print ("Parse error in %s: %s" % (arg, str(e)))
