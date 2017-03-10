@@ -11,19 +11,22 @@ class SoongParser:
         return [tokens[1:last]]
 
     def stringListJoinAction (self, string, location, tokens):
-        result = []
-        for token in tokens:
-            result += token
-        return [result]
+        result = tokens[0]
+        if len(tokens) == 2:
+            result += tokens[1]
+        return result
 
     def dictelemAction (self, string, location, tokens):
-        return {tokens[0]: tokens[2]}
+        return {tokens[0]: tokens[2:]}
 
     def variableAction (self, string, location, tokens):
-        self.variables[tokens[0]] = [tokens[2]]
+        self.variables[tokens[0]] = [tokens[2:]]
 
     def rnameAction (self, string, location, tokens):
-        return self.variables[tokens[0]]
+        varname = tokens[0]
+        if not varname in self.variables:
+            raise Exeception ("Error: %s: Variable '%s' no found" % (self.file, varname))
+        return self.variables[varname]
 
     def dictionaryAction (self, string, location, tokens):
         result = {}
@@ -33,18 +36,12 @@ class SoongParser:
         return result
 
     def soongAction (self, string, location, tokens):
-        #print ("soongAction:")
-        #pp = pprint.PrettyPrinter (indent=4)
-        #pp.pprint (tokens[:-1])
-        pass
+        self.data = tokens
 
     def __init__ (self):
 
         self.variables = {}
-
-        #
-        # Android.rb file grammar
-        #
+        self.file = None
 
         comma   = Literal (',')
         colon   = Literal (':')
@@ -57,29 +54,21 @@ class SoongParser:
         rname = Word (alphanums + "_")
         rname.setParseAction (self.rnameAction)
 
-        #
         # Boolean literal true/false
-        #
         boolean     = true | false
 
-        #
         # String
-        #
         string     = QuotedString ('"', escChar='\\')
         stringjoin = delimitedList (string, delim='+')
 
-        #
         # List of strings
-        #
         stringlist     = Literal ("[") + Optional (delimitedList (stringjoin)) + Optional (comma) + Literal ("]")
         stringlist.setParseAction (self.stringListAction)
 
         stringlistjoin = delimitedList (stringlist|rname, delim='+')
         stringlistjoin.setParseAction (self.stringListJoinAction)
 
-        #
         # Dictionary
-        #
         dictelem    = Forward()
         dictelem.setParseAction (self.dictelemAction)
 
@@ -87,7 +76,7 @@ class SoongParser:
         dictionary.setParseAction (self.dictionaryAction)
 
         # Element
-        element   = boolean | rname | stringlistjoin | stringjoin | dictionary
+        element   = boolean | stringlistjoin | rname | stringjoin | dictionary
 
         dictelem << name + (colon|equals) + element
 
@@ -106,6 +95,7 @@ class SoongParser:
         self.grammar.ignore (cppStyleComment | cStyleComment)
 
     def parse (self, infile):
+        self.file = infile
         self.grammar.parseFile (infile)
 
 # parse input file
