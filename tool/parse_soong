@@ -2,6 +2,7 @@
 
 import sys
 import pprint
+import argparse
 from pyparsing import *
 
 class SoongParser:
@@ -38,7 +39,7 @@ class SoongParser:
     def soongAction (self, string, location, tokens):
         self.data = tokens
 
-    def __init__ (self):
+    def __init__ (self, infile):
 
         self.variables = {}
         self.file = None
@@ -93,21 +94,18 @@ class SoongParser:
 
         # C and C++ style comments
         self.grammar.ignore (cppStyleComment | cStyleComment)
-
-    def parse (self, infile):
-        self.file = infile
         self.grammar.parseFile (infile)
 
-# parse input file
-good  = 0
-fail  = 0
-soong = SoongParser()
-for arg in sys.argv[1:]:
-    try:
-        soong.parse (arg)
-        good += 1
-    except ParseException as e:
-        print ("Parse error in %s: %s" % (arg, str(e)))
-        fail += 1
+    def data (self):
+        return self.data
 
-print ("good: %d, fail: %d (%2.1f)" % (good, fail, 100 * fail / (good + fail)))
+parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
+parser.add_argument ('input')
+args = parser.parse_args()
+
+try:
+    soong = SoongParser (args.input)
+except ParseException as e:
+    print ("Parse error in %s: %s" % (arg, str(e)))
+
+print (str(soong.data))
