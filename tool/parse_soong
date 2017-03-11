@@ -5,6 +5,32 @@ import pprint
 import argparse
 from pyparsing import *
 
+def make_error (message):
+    print ("$(error " + message + ")")
+
+class QueryParser:
+
+    def queryAction (self, string, location, tokens):
+        self.target = tokens[0]
+
+    def __init__ (self, data, query):
+
+        self.target = None
+        self.data   = ""
+
+        colon       = Literal (':')
+        name        = Word (alphanums + "_")
+
+        self.query = name + colon
+        self.query.setParseAction (self.queryAction)
+
+        self.query.parseString (query[0])
+
+        for d in data:
+            for target in d.keys():
+                if target == self.target:
+                    self.data += ("SRCS = " + "".join (d[target]['srcs']))
+
 class SoongParser:
 
     def stringListAction (self, string, location, tokens):
@@ -39,10 +65,11 @@ class SoongParser:
     def soongAction (self, string, location, tokens):
         self.data = tokens
 
-    def __init__ (self, infile):
+    def __init__ (self, dir):
 
         self.variables = {}
         self.file = None
+        self.data = None
 
         comma   = Literal (',')
         colon   = Literal (':')
@@ -94,18 +121,24 @@ class SoongParser:
 
         # C and C++ style comments
         self.grammar.ignore (cppStyleComment | cStyleComment)
-        self.grammar.parseFile (infile)
+        try:
+            self.grammar.parseFile (dir + "/Android.bp")
+        except Exception as e:
+            make_error (str (e))
+            raise
 
-    def data (self):
-        return self.data
+    def query (self, query):
+        q = QueryParser (self.data, query)
 
 parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
-parser.add_argument ('input')
+parser.add_argument ('dir')
+parser.add_argument ('query', nargs=argparse.REMAINDER)
 args = parser.parse_args()
 
 try:
-    soong = SoongParser (args.input)
+    soong = SoongParser (args.dir)
+    soong.query (args.query)
 except ParseException as e:
     print ("Parse error in %s: %s" % (arg, str(e)))
-
-print (str(soong.data))
+except Exception:
+    pass
