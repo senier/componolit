@@ -6,7 +6,7 @@ import argparse
 from pyparsing import *
 
 def make_error (message):
-    print ("$(error " + message + ")")
+    print ("$(error " + sys.argv[0] + ": " + message + ")")
 
 class QueryParser:
 
@@ -121,11 +121,7 @@ class SoongParser:
 
         # C and C++ style comments
         self.grammar.ignore (cppStyleComment | cStyleComment)
-        try:
-            self.grammar.parseFile (dir + "/Android.bp")
-        except Exception as e:
-            make_error (str (e))
-            raise
+        self.grammar.parseFile (dir + "/Android.bp")
 
     def query (self, query):
         q = QueryParser (self.data, query)
@@ -140,5 +136,6 @@ try:
     soong.query (args.query)
 except ParseException as e:
     print ("Parse error in %s: %s" % (arg, str(e)))
-except Exception:
-    pass
+except Exception as e:
+    make_error (e.__class__.__name__ + ": " + str(e))
+    raise
