@@ -160,7 +160,10 @@ class SoongParser:
 
     def parse (self, subdirs):
         for subdir in subdirs:
-            self.grammar.parseFile (self.basedir + "/" + subdir + "/Android.bp")
+            bp = Path (self.basedir + "/" + subdir + "/Android.bp")
+            if not bp.is_file():
+                raise Exception ("File " + str(bp) + " does no exist")
+            self.grammar.parseFile (bp.open())
 
     def query (self, query):
         q = QueryParser (query)
@@ -168,7 +171,7 @@ class SoongParser:
 parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
 parser.add_argument ('--verbose', help='Verbose output')
 parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
-parser.add_argument ('--include', help='Directory to load Android.bp from', action='append')
+parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
 parser.add_argument ('query', nargs=argparse.REMAINDER)
 args = parser.parse_args()
 
