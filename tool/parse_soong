@@ -4,39 +4,69 @@ import sys
 import pprint
 import argparse
 from pyparsing import *
+from pathlib import Path
+
+colon  = Literal (':')
+name   = Word (alphanums + "_")
+equals = Literal ('=')
+
 
 def make_error (message):
     print ("$(error " + sys.argv[0] + ": " + message + ")")
 
+class Attr:
+
+    def __init__ (self, name, value):
+        self.name  = name
+        self.value = value
+
+    def __repr__ (self):
+        return "[@" + self.name + "=" + self.value + "]"
+
+class NullAttr:
+
+    def __repr__ (self):
+        return ""
+
+class Subquery:
+
+    def __init__ (self, name, attr):
+        self.name = name
+        self.attr = attr
+
+    def __repr__ (self):
+        return "/" + self.name + repr(self.attr)
+
 class QueryParser:
 
     def queryAction (self, string, location, tokens):
+        print (str(tokens))
         self.section = tokens[0]
 
-    def __init__ (self, data, query):
+    def attributeAction (self, string, location, tokens):
+        return Attr (tokens[0], tokens[1])
 
-        self.section = None
-        self.data    = ""
+    def subqueryAction (self, string, location, tokens):
+        attribute = tokens[1] if len(tokens) > 1 else NullAttr()
+        return Subquery (tokens[0], attribute)
 
-        colon       = Literal (':')
-        name        = Word (alphanums + "_")
+    def __init__ (self, query):
 
-        self.query = name + colon
+        slash = Literal ('/')
+        lbrak = Literal ('[')
+        rbrak = Literal (']')
+        at    = Literal ('@')
+
+        attribute = Suppress(lbrak + at) + name + Suppress(equals) + name + Suppress(rbrak)
+        attribute.setParseAction (self.attributeAction)
+
+        subquery = Suppress(slash) + name + Optional(attribute)
+        subquery.setParseAction (self.subqueryAction)
+
+        self.query = OneOrMore(subquery) + StringEnd()
         self.query.setParseAction (self.queryAction)
 
         self.query.parseString (query[0])
-
-        section_found = False
-        for d in data:
-            for section in d.keys():
-                if section == self.section:
-                    self.data += str(d[section])
-                    section_found = True
-
-        if not section_found:
-            raise Exception ("No section found")
-
-        print (self.data)
 
 class SoongParser:
 
@@ -81,11 +111,8 @@ class SoongParser:
         self.basedir = basedir
 
         comma   = Literal (',')
-        colon   = Literal (':')
-        equals  = Literal ('=')
         true    = Literal ('true').setParseAction (lambda v : True)
         false   = Literal ('false').setParseAction (lambda v : False)
-        name    = Word (alphanums + "_")
 
         # Variable reference
         rname = Word (alphanums + "_")
@@ -136,7 +163,7 @@ class SoongParser:
             self.grammar.parseFile (self.basedir + "/" + subdir + "/Android.bp")
 
     def query (self, query):
-        q = QueryParser (self.data, query)
+        q = QueryParser (query)
 
 parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
 parser.add_argument ('--verbose', help='Verbose output')
