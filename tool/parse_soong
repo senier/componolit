@@ -11,12 +11,12 @@ def make_error (message):
 class QueryParser:
 
     def queryAction (self, string, location, tokens):
-        self.target = tokens[0]
+        self.section = tokens[0]
 
     def __init__ (self, data, query):
 
-        self.target = None
-        self.data   = ""
+        self.section = None
+        self.data    = ""
 
         colon       = Literal (':')
         name        = Word (alphanums + "_")
@@ -26,10 +26,17 @@ class QueryParser:
 
         self.query.parseString (query[0])
 
+        section_found = False
         for d in data:
-            for target in d.keys():
-                if target == self.target:
-                    self.data += ("SRCS = " + "".join (d[target]['srcs']))
+            for section in d.keys():
+                if section == self.section:
+                    self.data += str(d[section])
+                    section_found = True
+
+        if not section_found:
+            raise Exception ("No section found")
+
+        print (self.data)
 
 class SoongParser:
 
