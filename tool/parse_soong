@@ -127,6 +127,7 @@ class SoongParser:
         q = QueryParser (self.data, query)
 
 parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
+parser.add_argument ('--verbose', help='Verbose output')
 parser.add_argument ('dir')
 parser.add_argument ('query', nargs=argparse.REMAINDER)
 args = parser.parse_args()
@@ -138,4 +139,4 @@ except ParseException as e:
     print ("Parse error in %s: %s" % (arg, str(e)))
 except Exception as e:
     make_error (e.__class__.__name__ + ": " + str(e))
-    raise
+    if args.verbose: raise
