@@ -169,7 +169,7 @@ class SoongParser:
         q = QueryParser (query)
 
 parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
-parser.add_argument ('--verbose', help='Verbose output')
+parser.add_argument ('--verbose', help='Verbose output', action='store_true')
 parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
 parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
 parser.add_argument ('query', nargs=argparse.REMAINDER)
@@ -179,8 +179,6 @@ try:
     soong = SoongParser (args.basedir)
     soong.parse (args.include)
     soong.query (args.query)
-except ParseException as e:
-    print ("Parse error in %s: %s" % (arg, str(e)))
 except Exception as e:
     make_error (e.__class__.__name__ + ": " + str(e))
     if args.verbose: raise
