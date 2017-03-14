@@ -12,7 +12,7 @@ equals = Literal ('=')
 
 
 def make_error (message):
-    print ("$(error " + sys.argv[0] + ": " + message + ")")
+    print ("$(error " + sys.argv[0] + ": " + message + ")\n")
 
 class Attr:
 
@@ -39,10 +39,6 @@ class Subquery:
 
 class QueryParser:
 
-    def queryAction (self, string, location, tokens):
-        print (str(tokens))
-        self.section = tokens[0]
-
     def attributeAction (self, string, location, tokens):
         return Attr (tokens[0], tokens[1])
 
@@ -50,7 +46,9 @@ class QueryParser:
         attribute = tokens[1] if len(tokens) > 1 else NullAttr()
         return Subquery (tokens[0], attribute)
 
-    def __init__ (self, query):
+    def __init__ (self, soong, query_text):
+
+        self.soong = soong
 
         slash = Literal ('/')
         lbrak = Literal ('[')
@@ -63,10 +61,13 @@ class QueryParser:
         subquery = Suppress(slash) + name + Optional(attribute)
         subquery.setParseAction (self.subqueryAction)
 
-        self.query = OneOrMore(subquery) + StringEnd()
-        self.query.setParseAction (self.queryAction)
+        query = OneOrMore(subquery) + StringEnd()
 
-        self.query.parseString (query[0])
+        print ("text: " + str(query_text))
+        self.query = query.parseString (query_text)
+
+    def result (self):
+        print ("Query: " + str(self.query))
 
 class SoongParser:
 
@@ -162,23 +163,23 @@ class SoongParser:
         for subdir in subdirs:
             bp = Path (self.basedir + "/" + subdir + "/Android.bp")
             if not bp.is_file():
-                raise Exception ("File " + str(bp) + " does no exist")
+                raise Exception ("File " + str(bp) + " does not exist")
             self.grammar.parseFile (bp.open())
-
-    def query (self, query):
-        q = QueryParser (query)
 
 parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
 parser.add_argument ('--verbose', help='Verbose output', action='store_true')
 parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
 parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
-parser.add_argument ('query', nargs=argparse.REMAINDER)
+parser.add_argument ('query', help='Query data from soong file')
 args = parser.parse_args()
 
 try:
     soong = SoongParser (args.basedir)
     soong.parse (args.include)
-    soong.query (args.query)
+
+    query = QueryParser (soong, args.query)
+    make_error (str(query.result()))
+
 except Exception as e:
     make_error (e.__class__.__name__ + ": " + str(e))
     if args.verbose: raise
