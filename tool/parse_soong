@@ -17,11 +17,17 @@ def make_error (message):
 class Attr:
 
     def __init__ (self, name, value):
-        self.name  = name
-        self.value = value
+        self._name  = name
+        self._value = value
 
     def __repr__ (self):
-        return "[@" + self.name + "=" + self.value + "]"
+        return "[@" + self._name + "=" + self._value + "]"
+
+    def name (self):
+        return self._name
+
+    def value (self):
+        return self._value
 
 class NullAttr:
 
@@ -31,11 +37,21 @@ class NullAttr:
 class Subquery:
 
     def __init__ (self, name, attr):
-        self.name = name
-        self.attr = attr
+        self._name = name
+        self._attr = attr
 
     def __repr__ (self):
-        return "/" + self.name + repr(self.attr)
+        return "/" + self._name + repr(self._attr)
+
+    def name (self):
+        return self._name
+
+    def attr (self):
+        if isinstance (self._attr, NullAttr):
+            return None
+        return self._attr
+
+class QueryError (Exception): pass
 
 class QueryParser:
 
@@ -63,11 +79,51 @@ class QueryParser:
 
         query = OneOrMore(subquery) + StringEnd()
 
-        print ("text: " + str(query_text))
         self.query = query.parseString (query_text)
 
     def result (self):
-        print ("Query: " + str(self.query))
+
+        path = ""
+        data = self.soong
+        for subquery in self.query:
+            path += "/" + subquery.name()
+            results = [e for e in data if e.match (subquery)]
+            resultlen = len (results)
+
+            if resultlen == 0:
+                raise QueryError ('Query "' + path + '" did not match')
+
+            if resultlen > 1:
+                raise QueryError ('Query "' + path + '" is ambiguous (' + str(resultlen) + ' results)')
+
+            data = results[0].data()
+
+        return results
+
+class NamedElem:
+
+    def __init__ (self, name, data):
+        self._name = name
+        self._data = data
+
+    def name (self):
+        return self._name
+
+    def data (self):
+        return self._data
+
+    def match (self, subquery):
+        if self._name == subquery.name():
+            attr = subquery.attr()
+            if attr == None:
+                return True
+            attrs = [a for a in self._data if attr.name() == a.name() and attr.value() in a.data()]
+            if len(attrs) > 0:
+                return True
+        return False
+
+    def __repr__ (self):
+        return self._name + ": " + repr(self._data)
 
 class SoongParser:
 
@@ -79,25 +135,34 @@ class SoongParser:
         result = tokens[0]
         if len(tokens) == 2:
             result += tokens[1]
-        return result
+        return [result]
 
     def dictelemAction (self, string, location, tokens):
-        return {tokens[0]: tokens[2:]}
+        return NamedElem (tokens[0], tokens[2:])
+
+    def elementAction (self, string, location, tokens):
+        return tokens
+
+    def blockAction (self, string, location, tokens):
+        return NamedElem (tokens[0], tokens[1:])
 
     def variableAction (self, string, location, tokens):
-        self.variables[tokens[0]] = [tokens[2:]]
+        self.variables[tokens[0]] = tokens[2]
+
+    def extensionAction (self, string, location, tokens):
+        print ("WARNING: Extension not supported: " + str(tokens))
 
     def rnameAction (self, string, location, tokens):
         varname = tokens[0]
         if not varname in self.variables:
-            raise Exeception ("Error: %s: Variable '%s' no found" % (self.file, varname))
+            raise Exception ("Error: %s: Variable '%s' no found" % (self.file, varname))
         return self.variables[varname]
 
-    def dictionaryAction (self, string, location, tokens):
-        result = {}
+    def sectionAction (self, string, location, tokens):
+        result = []
         last = -2 if tokens[-2] == ',' else -1
         for token in tokens[1:last]:
-            result.update (token)
+            result.append (token)
         return result
 
     def soongAction (self, string, location, tokens):
@@ -123,7 +188,7 @@ class SoongParser:
         boolean     = true | false
 
         # String
-        string     = QuotedString ('"', escChar='\\')
+        string     = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
         stringjoin = delimitedList (string, delim='+')
 
         # List of strings
@@ -137,23 +202,25 @@ class SoongParser:
         dictelem    = Forward()
         dictelem.setParseAction (self.dictelemAction)
 
-        dictionary  = Literal ("{") + Optional (delimitedList (dictelem)) + Optional (comma) + Literal ("}")
-        dictionary.setParseAction (self.dictionaryAction)
+        section = Literal ("{") + Optional (delimitedList (dictelem)) + Optional (comma) + Literal ("}")
+        section.setParseAction (self.sectionAction)
+
+        block = name + section
+        block.setParseAction (self.blockAction)
 
         # Element
-        element   = boolean | stringlistjoin | rname | stringjoin | dictionary
+        element   = boolean | string | rname | stringlist | stringlistjoin | stringjoin | section
+        element.setParseAction (self.elementAction)
 
         dictelem << name + (colon|equals) + element
-
-        block = name + element
-        block.setParseAction (lambda s, l, t: {t[0]: t[1]})
 
         variable = name + Literal ("=") + element
         variable.setParseAction (self.variableAction)
 
-        extension   = name + Literal ("+=") + element
+        extension = name + Literal ("+=") + element
+        extension.setParseAction (self.extensionAction)
 
-        self.grammar = ZeroOrMore (block | variable.suppress() | extension) + StringEnd()
+        self.grammar = ZeroOrMore (block | Suppress (variable) | Suppress (extension)) + StringEnd()
         self.grammar.setParseAction (self.soongAction)
 
         # C and C++ style comments
@@ -165,6 +232,7 @@ class SoongParser:
             if not bp.is_file():
                 raise Exception ("File " + str(bp) + " does not exist")
             self.grammar.parseFile (bp.open())
+        return self.data
 
 parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
 parser.add_argument ('--verbose', help='Verbose output', action='store_true')
@@ -174,8 +242,7 @@ parser.add_argument ('query', help='Query data from soong file')
 args = parser.parse_args()
 
 try:
-    soong = SoongParser (args.basedir)
-    soong.parse (args.include)
+    soong = SoongParser (args.basedir).parse (args.include)
 
     query = QueryParser (soong, args.query)
     make_error (str(query.result()))
