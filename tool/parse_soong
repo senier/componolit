@@ -53,7 +53,7 @@ class Subquery:
 
 class QueryError (Exception): pass
 
-class QueryParser:
+class SoongQuery:
 
     def attributeAction (self, string, location, tokens):
         return Attr (tokens[0], tokens[1])
@@ -78,14 +78,15 @@ class QueryParser:
         subquery.setParseAction (self.subqueryAction)
 
         query = OneOrMore(subquery) + StringEnd()
-
         self.query = query.parseString (query_text)
 
-    def result (self):
+    def __repr__ (self):
 
         path = ""
+        varname = []
         data = self.soong
-        for subquery in self.query:
+
+        for subquery in query:
             path += "/" + subquery.name()
             results = [e for e in data if e.match (subquery)]
             resultlen = len (results)
@@ -98,7 +99,26 @@ class QueryParser:
 
             data = results[0].data()
 
-        return results
+            name = [d.data()[0] for d in data if d.name() == "name"]
+            if len(name) == 1:
+                varname.append(name[0].upper())
+
+        result = ""
+        for d in data:
+            name = d.name().upper()
+            data = d.data()[0]
+
+            # Skip section name and defaults
+            if name == "NAME": continue
+            if name == "DEFAULTS": continue
+
+            # Skip sub-entries
+            if not isinstance (data, list): continue
+
+            result += "_".join (varname + [name]) + " += "
+            result += " ".join (data) + "\n"
+
+        return result
 
 class NamedElem:
 
@@ -238,14 +258,13 @@ parser = argparse.ArgumentParser (description = 'Translate soong file to make st
 parser.add_argument ('--verbose', help='Verbose output', action='store_true')
 parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
 parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
-parser.add_argument ('query', help='Query data from soong file')
+parser.add_argument ('query',     help='Query data from soong file')
 args = parser.parse_args()
 
 try:
-    soong = SoongParser (args.basedir).parse (args.include)
-
-    query = QueryParser (soong, args.query)
-    make_error (str(query.result()))
+    soong  = SoongParser (args.basedir).parse (args.include)
+    query  = SoongQuery (soong, args.query)
+    print (query)
 
 except Exception as e:
     make_error (e.__class__.__name__ + ": " + str(e))
