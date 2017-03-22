@@ -67,21 +67,22 @@ class SoongQuery:
         self.soong  = soong
         self.prefix = prefix
 
-        slash = Literal ('/')
-        lbrak = Literal ('[')
-        rbrak = Literal (']')
-        at    = Literal ('@')
+        slash    = Literal ('/')
+        lbrak    = Literal ('[')
+        rbrak    = Literal (']')
+        at       = Literal ('@')
+        asterisk = Literal ('*')
 
         attribute = Suppress(lbrak + at) + name + Suppress(equals) + name + Suppress(rbrak)
         attribute.setParseAction (self.attributeAction)
 
-        subquery = Suppress(slash) + name + Optional(attribute)
+        subquery = Suppress(slash) + (name|asterisk) + Optional(attribute)
         subquery.setParseAction (self.subqueryAction)
 
         query = OneOrMore(subquery) + StringEnd()
         self.query = query.parseString (query_text)
 
-    def __repr__ (self):
+    def variables (self):
 
         path = ""
         data = self.soong
@@ -100,20 +101,31 @@ class SoongQuery:
             data = results[0].data()
 
         result = ""
-        for d in data:
-            name = d.name().upper()
-            data = d.data()[0]
 
-            # Skip section name and defaults
-            if name == "NAME": continue
-            if name == "DEFAULTS": continue
+        for d in data:
+
+            elem = d.data()[0]
+
+            # Store section name and continue
+            if d.name() == "name": continue
+
+            if d.name() == "defaults":
+                for default in elem:
+                    depquery = "/*[@name=" + default + "]"
+                    dep = SoongQuery (self.soong, depquery)
+                    result += dep.variables()
+                continue
 
             # Skip sub-entries
-            if not isinstance (data, list): continue
+            if not isinstance (elem, list): continue
 
-            result += self.prefix + name + " += " + " ".join (data) + "\n"
+            result += self.prefix + d.name().upper() + " += " + " ".join (elem) + "\n"
 
         return result
+
+    def __repr__ (self):
+
+        return self.variables ()
 
 class NamedElem:
 
@@ -128,7 +140,7 @@ class NamedElem:
         return self._data
 
     def match (self, subquery):
-        if self._name == subquery.name():
+        if subquery.name() == '*' or self._name == subquery.name():
             attr = subquery.attr()
             if attr == None:
                 return True
@@ -181,13 +193,12 @@ class SoongParser:
         return result
 
     def soongAction (self, string, location, tokens):
-        self.data = tokens
+        self._data.extend (tokens)
 
     def __init__ (self, basedir):
 
         self.variables = {}
-        self.file = None
-        self.data = None
+        self._data = []
 
         self.basedir = basedir
 
@@ -247,21 +258,22 @@ class SoongParser:
             if not bp.is_file():
                 raise Exception ("File " + str(bp) + " does not exist")
             self.grammar.parseFile (bp.open())
-        return self.data
+        return self._data
 
-parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
-parser.add_argument ('--verbose', help='Verbose output', action='store_true')
-parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
-parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
-parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
-parser.add_argument ('query',     help='Query data from soong file')
-args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
+    parser.add_argument ('--verbose', help='Verbose output', action='store_true')
+    parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
+    parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
+    parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
+    parser.add_argument ('query',     help='Query data from soong file')
+    args = parser.parse_args()
 
-try:
-    soong  = SoongParser (args.basedir).parse (args.include)
-    query  = SoongQuery (soong, args.query, args.prefix)
-    print (query)
+    try:
+        soong  = SoongParser (args.basedir).parse (args.include)
+        query  = SoongQuery (soong, args.query, args.prefix)
+        print (query)
 
-except Exception as e:
-    make_error (e.__class__.__name__ + ": " + str(e))
-    if args.verbose: raise
+    except Exception as e:
+        make_error (e.__class__.__name__ + ": " + str(e))
+        if args.verbose: raise
