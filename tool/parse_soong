@@ -52,6 +52,7 @@ class Subquery:
         return self._attr
 
 class QueryError (Exception): pass
+class InputError (Exception): pass
 
 class SoongQuery:
 
@@ -82,7 +83,42 @@ class SoongQuery:
         query = OneOrMore(subquery) + StringEnd()
         self.query = query.parseString (query_text)
 
-    def variables (self):
+    def merge (self, left, right):
+
+        result = left
+        for elem in right:
+
+            if elem == 'name': continue
+            if elem == 'defaults': continue
+
+            # Just copy entries not present in left dict
+            if not elem in result:
+                result[elem] = right[elem]
+                continue
+
+            relem = right[elem][0]
+            lelem = left[elem][0]
+
+            if type(lelem) != type(relem):
+                raise InputError ("Incompatible elements in defaults section")
+
+            if isinstance (lelem, list):
+                lelem.extend (relem)
+                continue
+
+            if isinstance (lelem, bool):
+                lelem = relem
+                continue
+
+            if isinstance (lelem, dict):
+                lelem = self.merge (lelem, relem)
+                continue
+
+            raise Exception ("Unhandled element " + elem + " type=" + str(type(lelem)))
+
+        return result
+
+    def match (self):
 
         path = ""
         data = self.soong
@@ -100,8 +136,22 @@ class SoongQuery:
 
             data = results[0].data()
 
-        result  = ""
         section = data[0]
+        depsecs = {}
+
+        # Merge in defaults
+        if 'defaults' in section:
+            for default in section['defaults'][0]:
+                depquery = "/*[@name=" + default + "]"
+                dep = SoongQuery (self.soong, depquery).match()
+                depsecs = self.merge (depsecs, dep)
+
+        return self.merge (depsecs, section)
+
+    def variables (self):
+
+        result  = ""
+        section = self.match()
 
         for secname in section:
 
@@ -109,13 +159,6 @@ class SoongQuery:
 
             # Store section name and continue
             if secname == "name": continue
-
-            if secname == "defaults":
-                for default in elem:
-                    depquery = "/*[@name=" + default + "]"
-                    dep = SoongQuery (self.soong, depquery)
-                    result += dep.variables()
-                continue
 
             # Skip sub-entries
             if not isinstance (elem, list): continue
