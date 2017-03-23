@@ -100,16 +100,17 @@ class SoongQuery:
 
             data = results[0].data()
 
-        result = ""
+        result  = ""
+        section = data[0]
 
-        for d in data:
+        for secname in section:
 
-            elem = d.data()[0]
+            elem = section[secname][0]
 
             # Store section name and continue
-            if d.name() == "name": continue
+            if secname == "name": continue
 
-            if d.name() == "defaults":
+            if secname == "defaults":
                 for default in elem:
                     depquery = "/*[@name=" + default + "]"
                     dep = SoongQuery (self.soong, depquery)
@@ -119,13 +120,9 @@ class SoongQuery:
             # Skip sub-entries
             if not isinstance (elem, list): continue
 
-            result += self.prefix + d.name().upper() + " += " + " ".join (elem) + "\n"
+            result += self.prefix + secname.upper() + " += " + " ".join (elem) + "\n"
 
         return result
-
-    def __repr__ (self):
-
-        return self.variables ()
 
 class NamedElem:
 
@@ -144,13 +141,10 @@ class NamedElem:
             attr = subquery.attr()
             if attr == None:
                 return True
-            attrs = [a for a in self._data if attr.name() == a.name() and attr.value() in a.data()]
+            attrs = [a for a in self._data if attr.name() in a and attr.value() in a[attr.name()]]
             if len(attrs) > 0:
                 return True
         return False
-
-    def __repr__ (self):
-        return self._name + ": " + repr(self._data)
 
 class SoongParser:
 
@@ -186,10 +180,10 @@ class SoongParser:
         return self.variables[varname]
 
     def sectionAction (self, string, location, tokens):
-        result = []
+        result = {}
         last = -2 if tokens[-2] == ',' else -1
         for token in tokens[1:last]:
-            result.append (token)
+            result[token.name()] = token.data()
         return result
 
     def soongAction (self, string, location, tokens):
@@ -272,7 +266,7 @@ if __name__ == "__main__":
     try:
         soong  = SoongParser (args.basedir).parse (args.include)
         query  = SoongQuery (soong, args.query, args.prefix)
-        print (query)
+        print (query.variables())
 
     except Exception as e:
         make_error (e.__class__.__name__ + ": " + str(e))
