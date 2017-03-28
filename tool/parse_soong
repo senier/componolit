@@ -36,7 +36,7 @@ class NullAttr:
 
 class Subquery:
 
-    def __init__ (self, name, attr):
+    def __init__ (self, name, attr = NullAttr()):
         self._name = name
         self._attr = attr
 
@@ -63,10 +63,10 @@ class SoongQuery:
         attribute = tokens[1] if len(tokens) > 1 else NullAttr()
         return Subquery (tokens[0], attribute)
 
-    def __init__ (self, soong, query_text, prefix = ""):
+    def __init__ (self, query_text, prefix = ""):
 
-        self.soong  = soong
         self.prefix = prefix
+        self.query_text = query_text
 
         slash    = Literal ('/')
         lbrak    = Literal ('[')
@@ -83,111 +83,99 @@ class SoongQuery:
         query = OneOrMore(subquery) + StringEnd()
         self.query = query.parseString (query_text)
 
-    def merge (self, left, right):
+    def __getitem__ (self, pos):
+        return self.query[pos]
 
-        result = left
-        for elem in right:
+    def __repr__ (self):
+        return self.query_text
 
-            if elem == 'name': continue
-            if elem == 'defaults': continue
+def merge_dict (left, right):
 
-            # Just copy entries not present in left dict
-            if not elem in result:
-                result[elem] = right[elem]
-                continue
+    for elem in right:
 
-            relem = right[elem][0]
-            lelem = left[elem][0]
+        if elem == 'name': continue
+        if elem == 'defaults': continue
 
-            if type(lelem) != type(relem):
-                raise InputError ("Incompatible elements in defaults section")
+        # Just copy entries not present in result dict
+        if not elem in left:
+            left[elem] = right[elem]
+            continue
 
-            if isinstance (lelem, list):
-                lelem.extend (relem)
-                continue
+        relem = right[elem][0]
+        lelem = left[elem][0]
 
-            if isinstance (lelem, bool):
-                lelem = relem
-                continue
+        if type(lelem) != type(relem):
+            raise InputError ("Incompatible elements in defaults section")
 
-            if isinstance (lelem, dict):
-                lelem = self.merge (lelem, relem)
-                continue
+        if isinstance (lelem, list):
+            lelem.extend (relem)
+            continue
 
-            raise Exception ("Unhandled element " + elem + " type=" + str(type(lelem)))
+        if isinstance (lelem, bool):
+            lelem = relem
+            continue
 
-        return result
+        if isinstance (lelem, dict):
+            lelem = merge_dict (lelem, relem)
+            continue
 
-    def match (self):
+        raise Exception ("Unhandled element " + elem + " type=" + str(type(lelem)))
 
-        path = ""
-        data = self.soong
+    return left
 
-        for subquery in self.query:
-            path += "/" + subquery.name()
-            results = [e for e in data if e.match (subquery)]
-            resultlen = len (results)
+class NamedElem:
 
-            if resultlen == 0:
-                raise QueryError ('Query "' + path + '" did not match')
+    def __init__ (self, name, data = [{}]):
+        self._name = name
+        self._data = data
 
-            if resultlen > 1:
-                raise QueryError ('Query "' + path + '" is ambiguous (' + str(resultlen) + ' results)')
+    def __getitem__ (self, sq):
+        data = self.data()
+        if sq.name() == '*' or sq.name() == self.name():
+            if sq.attr() == None:
+                return None
+            attr_name = sq.attr().name()
+            attr_val  = sq.attr().value()
+            if attr_name in data[0] and attr_val in data[0][attr_name]:
+                return data[0]
+        return None
 
-            data = results[0].data()
+    def __contains__ (self, subquery):
+        result = self[subquery]
+        return result != None
 
-        section = data[0]
-        depsecs = {}
+    def __add__ (self, obj):
 
-        # Merge in defaults
-        if 'defaults' in section:
-            for default in section['defaults'][0]:
-                depquery = "/*[@name=" + default + "]"
-                dep = SoongQuery (self.soong, depquery).match()
-                depsecs = self.merge (depsecs, dep)
+        left  = self.data()[0]
+        right = obj.data()[0]
+        result = merge_dict (left, right)
 
-        return self.merge (depsecs, section)
+        return NamedElem (self.name(), [result])
 
-    def variables (self):
+    def __repr__ (self):
 
         result  = ""
-        section = self.match()
+        section = self.data()[0]
 
-        for secname in section:
+        for name in section:
 
-            elem = section[secname][0]
+            elem = section[name][0]
 
             # Store section name and continue
-            if secname == "name": continue
+            if name == "name": continue
 
             # Skip sub-entries
             if not isinstance (elem, list): continue
 
-            result += self.prefix + secname.upper() + " += " + " ".join (elem) + "\n"
+            result += name.upper() + " += " + " ".join (elem) + "\n"
 
         return result
-
-class NamedElem:
-
-    def __init__ (self, name, data):
-        self._name = name
-        self._data = data
 
     def name (self):
         return self._name
 
     def data (self):
         return self._data
-
-    def match (self, subquery):
-        if subquery.name() == '*' or self._name == subquery.name():
-            attr = subquery.attr()
-            if attr == None:
-                return True
-            attrs = [a for a in self._data if attr.name() in a and attr.value() in a[attr.name()]]
-            if len(attrs) > 0:
-                return True
-        return False
 
 class SoongParser:
 
@@ -295,7 +283,33 @@ class SoongParser:
             if not bp.is_file():
                 raise Exception ("File " + str(bp) + " does not exist")
             self.grammar.parseFile (bp.open())
-        return self._data
+
+    def __getitem__ (self, subquery):
+
+        sections = [sec for sec in self._data if subquery[0] in sec] 
+        if len(sections) != 1:
+            raise QueryError ("Ambigous query: " + str(subquery))
+
+        section = sections[0]
+        data    = section.data()[0]
+
+        depsec = NamedElem (section.name())
+        if 'defaults' in data:
+            for default in data['defaults'][0]:
+                depquery = SoongQuery ("/*[@name=" + default + "]")
+                depsec += self[depquery]
+
+        result = depsec + section
+
+        for query in subquery[1:]:
+            print (str(result))
+            print ("sq: " + str(query.name()))
+            print ("rt: " + str(type(result)))
+            if not query.name() in result.data()[0]:
+                raise QueryError ("NOT FOUND: " + str(query))
+            result = result.data()[0][query.name()][0]
+
+        return result
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
@@ -307,9 +321,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        soong  = SoongParser (args.basedir).parse (args.include)
-        query  = SoongQuery (soong, args.query, args.prefix)
-        print (query.variables())
+        soong = SoongParser (args.basedir)
+        soong.parse (args.include)
+
+        query = SoongQuery (args.query, args.prefix)
+        print (soong[query])
 
     except Exception as e:
         make_error (e.__class__.__name__ + ": " + str(e))
