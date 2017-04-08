@@ -328,8 +328,10 @@ class SoongParser:
     def __getitem__ (self, subquery):
 
         sections = [sec for sec in self._data if subquery[0] in sec] 
-        if len(sections) != 1:
-            raise QueryError ("Ambigous query: " + str(subquery))
+        if len(sections) < 1:
+            raise QueryError ("Not found: " + str(subquery))
+        if len(sections) > 1:
+            raise QueryError ("Ambiguous query: " + str(subquery))
 
         section = sections[0]
         data    = section.data()
