@@ -290,7 +290,7 @@ class SoongParser:
         block.setParseAction (self.blockAction)
 
         # Element
-        element   = boolean | string | rname | stringlist | stringlistjoin | stringjoin | section
+        element   = boolean | rname | stringlist | stringlistjoin | stringjoin | string | section
         element.setParseAction (self.elementAction)
 
         dictelem << name + (colon|equals) + element
