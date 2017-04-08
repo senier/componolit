@@ -208,6 +208,14 @@ class BlockElem (NamedElem): pass
 
 class SoongParser:
 
+    def getvar (self, varname):
+        if not varname in self.variables:
+            raise Exception ("Error: %s: Variable '%s' no found" % (str(self.bp), varname))
+        return self.variables[varname]
+
+    def setvar (self, varname, value):
+        self.variables[varname] = value
+
     def stringJoinAction (self, string, location, tokens):
         return "".join (tokens)
 
@@ -231,16 +239,15 @@ class SoongParser:
         return BlockElem (tokens[0], tokens[1])
 
     def variableAction (self, string, location, tokens):
-        self.variables[tokens[0]] = tokens[2]
+        self.setvar (tokens[0], tokens[2])
 
     def extensionAction (self, string, location, tokens):
-        raise NotImplemented ("WARNING: Extension not supported: " + str(tokens))
+        varname = tokens[0]
+        value = self.getvar (varname)
+        self.setvar (varname, value + tokens[2])
 
     def rnameAction (self, string, location, tokens):
-        varname = tokens[0]
-        if not varname in self.variables:
-            raise Exception ("Error: %s: Variable '%s' no found" % (str(self.bp), varname))
-        return self.variables[varname]
+        return self.getvar (tokens[0])
 
     def sectionAction (self, string, location, tokens):
         result = {}
