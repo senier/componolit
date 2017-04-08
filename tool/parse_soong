@@ -10,9 +10,19 @@ colon  = Literal (':')
 name   = Word (alphanums + "_")
 equals = Literal ('=')
 
-
 def make_error (message):
     print ("$(error " + sys.argv[0] + ": " + message + ")\n")
+
+class Bool:
+
+    def __init__ (self, value = None):
+        self._value = value
+
+    def __add__ (self, item):
+        return (Bool (item.value()))
+
+    def value (self):
+        return self._value
 
 class Attr:
 
@@ -89,43 +99,76 @@ class SoongQuery:
     def __repr__ (self):
         return self.query_text
 
-def merge_dict (left, right):
+class Elem:
 
-    for elem in right:
+    def __init__ (self, data = {}):
+        self._data = data
 
-        if elem == 'name': continue
-        if elem == 'defaults': continue
+    def __iter__ (self):
+        return self._data.__iter__()
 
-        # Just copy entries not present in result dict
-        if not elem in left:
-            left[elem] = right[elem]
-            continue
+    def __getitem__ (self, item):
+        return self._data[item]
 
-        relem = right[elem][0]
-        lelem = left[elem][0]
+    def __contains__ (self, item):
+        return item in self._data
 
-        if type(lelem) != type(relem):
-            raise InputError ("Incompatible elements in defaults section")
+    def __repr__ (self):
+        return repr(self._data)
 
-        if isinstance (lelem, list):
-            lelem.extend (relem)
-            continue
+    def data (self):
+        return self._data
 
-        if isinstance (lelem, bool):
-            lelem = relem
-            continue
+class StringlistElem (Elem):
 
-        if isinstance (lelem, dict):
-            lelem = merge_dict (lelem, relem)
-            continue
+    def __add__ (self, item):
+        return StringlistElem (self._data + item._data)
 
-        raise Exception ("Unhandled element " + elem + " type=" + str(type(lelem)))
+class SecElem (Elem):
 
-    return left
+    def __add__ (self, item):
+
+        for elem in item._data:
+
+            if elem == 'name': continue
+            if elem == 'defaults': continue
+
+            # Just copy entries not present in result dict
+            if not elem in self._data:
+                self._data[elem] = item._data[elem]
+                continue
+
+            if type(self._data[elem]) != type(item._data[elem]):
+                raise InputError ("Incompatible type in section '" + elem + \
+                    "': ltype=" + str(type(self._data[elem])) + \
+                    " rtype="+ str(type(item._data[elem])))
+
+            self._data[elem] += item._data[elem]
+
+        return SecElem (self._data)
+
+    def __repr__ (self):
+
+        result  = ""
+        section = self.data()
+
+        for name in section:
+
+            elem = section[name]
+
+            # Store section name and continue
+            if name == "name": continue
+
+            # Skip sub-entries
+            if not isinstance (elem, StringlistElem): continue
+
+            result += name.upper() + " += " + " ".join (elem) + "\n"
+
+        return result
 
 class NamedElem:
 
-    def __init__ (self, name, data = [{}]):
+    def __init__ (self, name, data = SecElem()):
         self._name = name
         self._data = data
 
@@ -133,43 +176,22 @@ class NamedElem:
         data = self.data()
         if sq.name() == '*' or sq.name() == self.name():
             if sq.attr() == None:
-                return None
+                return data
             attr_name = sq.attr().name()
             attr_val  = sq.attr().value()
-            if attr_name in data[0] and attr_val in data[0][attr_name]:
-                return data[0]
+            if attr_name in data and attr_val == data[attr_name]:
+                return data
         return None
 
     def __contains__ (self, subquery):
         result = self[subquery]
         return result != None
 
-    def __add__ (self, obj):
-
-        left  = self.data()[0]
-        right = obj.data()[0]
-        result = merge_dict (left, right)
-
-        return NamedElem (self.name(), [result])
+    def __add__ (self, item):
+        return NamedElem (self.name(), self.data() + item.data())
 
     def __repr__ (self):
-
-        result  = ""
-        section = self.data()[0]
-
-        for name in section:
-
-            elem = section[name][0]
-
-            # Store section name and continue
-            if name == "name": continue
-
-            # Skip sub-entries
-            if not isinstance (elem, list): continue
-
-            result += name.upper() + " += " + " ".join (elem) + "\n"
-
-        return result
+        return repr (self.data())
 
     def name (self):
         return self._name
@@ -177,26 +199,31 @@ class NamedElem:
     def data (self):
         return self._data
 
+class BlockElem (NamedElem): pass
+
 class SoongParser:
+
+    def stringJoinAction (self, string, location, tokens):
+        return "".join (tokens)
 
     def stringListAction (self, string, location, tokens):
         last = -2 if tokens[-2] == ',' else -1
-        return [tokens[1:last]]
+        return StringlistElem (tokens[1:last])
 
     def stringListJoinAction (self, string, location, tokens):
         result = tokens[0]
         if len(tokens) == 2:
-            result += tokens[1]
-        return [result]
+            result.extend (tokens[1])
+        return StringlistElem (result)
 
     def dictelemAction (self, string, location, tokens):
-        return NamedElem (tokens[0], tokens[2:])
+        return NamedElem (tokens[0], tokens[2])
 
     def elementAction (self, string, location, tokens):
         return tokens
 
     def blockAction (self, string, location, tokens):
-        return NamedElem (tokens[0], tokens[1:])
+        return BlockElem (tokens[0], tokens[1])
 
     def variableAction (self, string, location, tokens):
         self.variables[tokens[0]] = tokens[2]
@@ -215,7 +242,7 @@ class SoongParser:
         last = -2 if tokens[-2] == ',' else -1
         for token in tokens[1:last]:
             result[token.name()] = token.data()
-        return result
+        return SecElem (result)
 
     def soongAction (self, string, location, tokens):
         self._data.extend (tokens)
@@ -228,8 +255,8 @@ class SoongParser:
         self.basedir = basedir
 
         comma   = Literal (',')
-        true    = Literal ('true').setParseAction (lambda v : True)
-        false   = Literal ('false').setParseAction (lambda v : False)
+        true    = Literal ('true').setParseAction (lambda v : Bool(True))
+        false   = Literal ('false').setParseAction (lambda v : Bool(False))
 
         # Variable reference
         rname = Word (alphanums + "_")
@@ -240,7 +267,9 @@ class SoongParser:
 
         # String
         string     = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
+
         stringjoin = delimitedList (string, delim='+')
+        stringjoin.setParseAction (self.stringJoinAction)
 
         # List of strings
         stringlist     = Literal ("[") + Optional (delimitedList (stringjoin)) + Optional (comma) + Literal ("]")
@@ -291,23 +320,21 @@ class SoongParser:
             raise QueryError ("Ambigous query: " + str(subquery))
 
         section = sections[0]
-        data    = section.data()[0]
+        data    = section.data()
 
-        depsec = NamedElem (section.name())
+        depsec = BlockElem (section.name())
         if 'defaults' in data:
-            for default in data['defaults'][0]:
+            for default in data['defaults']:
                 depquery = SoongQuery ("/*[@name=" + default + "]")
-                depsec += self[depquery]
+                s = self[depquery]
+                depsec += s
 
         result = depsec + section
 
         for query in subquery[1:]:
-            print (str(result))
-            print ("sq: " + str(query.name()))
-            print ("rt: " + str(type(result)))
-            if not query.name() in result.data()[0]:
+            if not query.name() in result.data():
                 raise QueryError ("NOT FOUND: " + str(query))
-            result = result.data()[0][query.name()][0]
+            result = result.data()[query.name()]
 
         return result
 
@@ -325,7 +352,8 @@ if __name__ == "__main__":
         soong.parse (args.include)
 
         query = SoongQuery (args.query, args.prefix)
-        print (soong[query])
+        result = soong[query]
+        print (result)
 
     except Exception as e:
         make_error (e.__class__.__name__ + ": " + str(e))
