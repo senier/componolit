@@ -280,7 +280,7 @@ class SoongParser:
         # String
         string     = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
 
-        stringjoin = delimitedList (string, delim='+')
+        stringjoin = delimitedList (string|rname, delim='+')
         stringjoin.setParseAction (self.stringJoinAction)
 
         # List of strings
