@@ -126,7 +126,7 @@ class StringlistElem (Elem):
         return StringlistElem (self._data + item._data)
 
     def extend (self, item):
-        self._data.extend (item._data)
+        self._data.extend (item)
         return StringlistElem (self._data)
 
 class SecElem (Elem):
