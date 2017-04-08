@@ -235,7 +235,7 @@ class SoongParser:
     def rnameAction (self, string, location, tokens):
         varname = tokens[0]
         if not varname in self.variables:
-            raise Exception ("Error: %s: Variable '%s' no found" % (self.file, varname))
+            raise Exception ("Error: %s: Variable '%s' no found" % (str(self.bp), varname))
         return self.variables[varname]
 
     def sectionAction (self, string, location, tokens):
@@ -309,10 +309,10 @@ class SoongParser:
 
     def parse (self, subdirs):
         for subdir in subdirs:
-            bp = Path (self.basedir + "/" + subdir + "/Android.bp")
-            if not bp.is_file():
-                raise Exception ("File " + str(bp) + " does not exist")
-            self.grammar.parseFile (bp.open())
+            self.bp = Path (self.basedir + "/" + subdir + "/Android.bp")
+            if not self.bp.is_file():
+                raise Exception ("File " + str(self.bp) + " does not exist")
+            self.grammar.parseFile (self.bp.open())
 
     def __getitem__ (self, subquery):
 
