@@ -63,6 +63,7 @@ class Subquery:
 
 class QueryError (Exception): pass
 class InputError (Exception): pass
+class NotImplemented (Exception): pass
 
 class SoongQuery:
 
@@ -229,7 +230,7 @@ class SoongParser:
         self.variables[tokens[0]] = tokens[2]
 
     def extensionAction (self, string, location, tokens):
-        print ("WARNING: Extension not supported: " + str(tokens))
+        raise NotImplemented ("WARNING: Extension not supported: " + str(tokens))
 
     def rnameAction (self, string, location, tokens):
         varname = tokens[0]
@@ -338,7 +339,33 @@ class SoongParser:
 
         return result
 
+def test():
+    import os
+
+    count = 0
+    failed = {}
+
+    soong = SoongParser (".")
+    for root, dirs, files in os.walk ("tests/"):
+        if 'Android.bp' in files:
+            try:
+                count += 1
+                soong.parse ([root])
+                print (".", end='', flush=True)
+            except Exception as e:
+                failed[root] = e
+                print ("!", end='', flush=True)
+
+    print ("\nRan %d tests, %d failed (%2.1f%%):" % (count, len(failed), 100*len(failed)/count))
+    for bp in failed:
+        print ("%s:" % bp)
+        print ("   %s" % failed[bp])
+
 if __name__ == "__main__":
+
+    if len (sys.argv) == 2 and sys.argv[1] == 'test':
+        sys.exit (test())
+
     parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
     parser.add_argument ('--verbose', help='Verbose output', action='store_true')
     parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
