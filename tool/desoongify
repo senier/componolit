@@ -357,7 +357,7 @@ def test():
     failed = {}
 
     soong = SoongParser (".")
-    for root, dirs, files in os.walk ("tests/"):
+    for root, dirs, files in os.walk ("tests/desoongify"):
         if 'Android.bp' in files:
             try:
                 count += 1
