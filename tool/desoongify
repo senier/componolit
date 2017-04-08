@@ -6,6 +6,7 @@ import argparse
 from pyparsing import *
 from pathlib import Path
 
+prefix = ""
 colon  = Literal (':')
 name   = Word (alphanums + "_")
 equals = Literal ('=')
@@ -74,9 +75,8 @@ class SoongQuery:
         attribute = tokens[1] if len(tokens) > 1 else NullAttr()
         return Subquery (tokens[0], attribute)
 
-    def __init__ (self, query_text, prefix = ""):
+    def __init__ (self, query_text):
 
-        self.prefix = prefix
         self.query_text = query_text
 
         slash    = Literal ('/')
@@ -167,7 +167,7 @@ class SecElem (Elem):
             # Skip sub-entries
             if not isinstance (elem, StringlistElem): continue
 
-            result += name.upper() + " += " + " ".join (elem) + "\n"
+            result += prefix + name.upper() + " += " + " ".join (elem) + "\n"
 
         return result
 
@@ -391,11 +391,13 @@ if __name__ == "__main__":
     parser.add_argument ('query',     help='Query data from soong file')
     args = parser.parse_args()
 
+    prefix = args.prefix
+
     try:
         soong = SoongParser (args.basedir)
         soong.parse (args.include)
 
-        query = SoongQuery (args.query, args.prefix)
+        query = SoongQuery (args.query)
         result = soong[query]
         print (result)
 
