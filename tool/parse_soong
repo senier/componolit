@@ -125,6 +125,10 @@ class StringlistElem (Elem):
     def __add__ (self, item):
         return StringlistElem (self._data + item._data)
 
+    def extend (self, item):
+        self._data.extend (item._data)
+        return StringlistElem (self._data)
+
 class SecElem (Elem):
 
     def __add__ (self, item):
@@ -290,7 +294,7 @@ class SoongParser:
         block.setParseAction (self.blockAction)
 
         # Element
-        element   = boolean | rname | stringlist | stringlistjoin | stringjoin | string | section
+        element   = boolean | stringlistjoin | stringlist | stringjoin | string | rname | section
         element.setParseAction (self.elementAction)
 
         dictelem << name + (colon|equals) + element
