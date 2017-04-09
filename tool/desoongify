@@ -386,6 +386,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser (description = 'Translate soong file to make statements')
     parser.add_argument ('--verbose', help='Verbose output', action='store_true')
     parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
+    parser.add_argument ('--output',  help='Write result to file', action='store', required=True)
     parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
     parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
     parser.add_argument ('query',     help='Query data from soong file')
@@ -399,7 +400,9 @@ if __name__ == "__main__":
 
         query = SoongQuery (args.query)
         result = soong[query]
-        print (result)
+
+        with open (args.output, 'w') as f:
+            f.write (repr(result))
 
     except Exception as e:
         make_error (e.__class__.__name__ + ": " + str(e))
