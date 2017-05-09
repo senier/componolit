@@ -19,8 +19,11 @@ class Bool:
     def __init__ (self, value = None):
         self._value = value
 
-    def __add__ (self, item):
-        return (Bool (item.value()))
+    def __repr__ (self):
+        return repr (self._value)
+
+    def merge (self, item):
+        self._value = item.value()
 
     def value (self):
         return self._value
@@ -122,16 +125,15 @@ class Elem:
 
 class StringlistElem (Elem):
 
-    def __add__ (self, item):
-        return StringlistElem (self._data + item._data)
-
     def extend (self, item):
-        self._data.extend (item)
-        return StringlistElem (self._data)
+        self._data.extend (item._data)
+
+    def merge (self, item):
+        self._data.extend (item._data)
 
 class SecElem (Elem):
 
-    def __add__ (self, item):
+    def merge (self, item):
 
         for elem in item._data:
 
@@ -148,9 +150,7 @@ class SecElem (Elem):
                     "': ltype=" + str(type(self._data[elem])) + \
                     " rtype="+ str(type(item._data[elem])))
 
-            self._data[elem] += item._data[elem]
-
-        return SecElem (self._data)
+            self._data[elem].merge (item._data[elem])
 
     def __repr__ (self):
 
@@ -192,11 +192,11 @@ class NamedElem:
         result = self[subquery]
         return result != None
 
-    def __add__ (self, item):
-        return NamedElem (self.name(), self.data() + item.data())
-
     def __repr__ (self):
         return repr (self.data())
+
+    def merge (self, item):
+        self._data.merge (item.data())
 
     def name (self):
         return self._name
@@ -336,14 +336,13 @@ class SoongParser:
         section = sections[0]
         data    = section.data()
 
-        depsec = BlockElem (section.name())
+        result = BlockElem (section.name())
         if 'defaults' in data:
             for default in data['defaults']:
                 depquery = SoongQuery ("/*[@name=" + default + "]")
-                s = self[depquery]
-                depsec += s
+                result.merge (self[depquery])
 
-        result = depsec + section
+        result.merge (section)
 
         for query in subquery[1:]:
             if not query.name() in result.data():
