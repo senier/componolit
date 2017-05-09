@@ -388,7 +388,7 @@ if __name__ == "__main__":
     parser.add_argument ('--output',  help='Write result to file', action='store', required=True)
     parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
     parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
-    parser.add_argument ('query',     help='Query data from soong file')
+    parser.add_argument ('queries',   help='Query data from soong file', nargs='+')
     args = parser.parse_args()
 
     prefix = args.prefix
@@ -397,11 +397,10 @@ if __name__ == "__main__":
         soong = SoongParser (args.basedir)
         soong.parse (args.include)
 
-        query = SoongQuery (args.query)
-        result = soong[query]
-
         with open (args.output, 'w') as f:
-            f.write (repr(result))
+            for q in args.queries:
+                query = SoongQuery (q)
+                f.write (repr(soong[query]))
 
     except Exception as e:
         make_error (e.__class__.__name__ + ": " + str(e))
