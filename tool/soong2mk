@@ -4,13 +4,17 @@ import sys
 import argparse
 import unittest
 
+from pyparsing import *
+
 class Soong:
 
     def __init__ (self):
         self._data = []
+        self._grammar = StringEnd()
 
     def parse (self, infile):
-        pass
+        with open (infile, 'r') as f:
+            self._grammar.parseFile (f)
 
     def data (self):
         return self._data
@@ -21,7 +25,7 @@ class TestSoong (unittest.TestCase):
         self.testdir = "tests/soong2mk"
 
     def test_empty_input (self):
-        infile = self.testdir + "001_empty_file.bp"
+        infile = self.testdir + "/001_empty_file.bp"
         soong = Soong()
         soong.parse (infile)
         data = soong.data()
