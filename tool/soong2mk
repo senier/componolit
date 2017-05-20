@@ -6,9 +6,11 @@ import unittest
 
 class Soong:
 
-    def __init__ (self, infile):
-        self._data = {}
-        self._data[infile] = []
+    def __init__ (self):
+        self._data = []
+
+    def parse (self, infile):
+        pass
 
     def data (self):
         return self._data
@@ -20,9 +22,12 @@ class TestSoong (unittest.TestCase):
 
     def test_empty_input (self):
         infile = self.testdir + "001_empty_file.bp"
-        data = Soong (infile).data()
+        soong = Soong()
+        soong.parse (infile)
+        data = soong.data()
+
         # Expect empty result data for empty file
-        self.assertFalse (data[infile])
+        self.assertFalse (data)
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
