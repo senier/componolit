@@ -2,7 +2,7 @@
 
 # TODO
 #
-# - Variables
+# - Variable use
 # - Concatenation
 
 import sys
@@ -188,12 +188,22 @@ class TestSoong (unittest.TestCase):
 
     def test_single_variable (self):
         """
-        File with one single variable assignment. Variables
+        File with one single variable assignment. Variables are stored in the 'variables' element
+        of self._data
         """
         infile = self.testdir + "/010_single_variable.bp"
         soong = Soong()
         soong.parse (infile)
         self.assertEqual (soong.variables(), {'some_variable': 'data10'})
+
+    def test_single_variable_list (self):
+        """
+        File with one single variable assignment of a string list.
+        """
+        infile = self.testdir + "/011_single_variable_list.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.variables(), {'variable_2': ['data1', 'data2']})
 
 if __name__ == "__main__":
 
