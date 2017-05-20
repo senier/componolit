@@ -152,5 +152,27 @@ class TestSoong (unittest.TestCase):
                                          ('section6', {'element3': 'data3', 'element4': 'data4'})])
 
 if __name__ == "__main__":
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
-    unittest.TextTestRunner().run(suite)
+
+    if len (sys.argv) == 2 and sys.argv[1] == 'test':
+        suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
+        unittest.TextTestRunner().run(suite)
+        sys.exit (0)
+
+    parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
+    parser.add_argument ('--verbose', help='Verbose output', action='store_true')
+    parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
+    parser.add_argument ('--output',  help='Write result to file', action='store', required=True)
+    parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
+    parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
+    parser.add_argument ('queries',   help='Query data from soong file', nargs='+')
+    args = parser.parse_args()
+
+    soong = Soong (args.basedir)
+    for bp in args.include:
+        soong.parse (bp)
+
+    with open (args.output, 'w') as f:
+        for q in args.queries:
+            query = SoongQuery (q)
+            f.write (repr(soong[query]))
+
