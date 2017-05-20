@@ -109,50 +109,45 @@ class TestSoong (unittest.TestCase):
     def setUp (self):
         self.testdir = "tests/soong2mk"
 
+    def parse (self, filename):
+        infile = self.testdir + "/" + filename + ".bp"
+        soong = Soong()
+        soong.parse (infile)
+        return soong
+
     def test_empty_input (self):
         """
         Parsing an empty file must yield an empty list.
         """
-        infile = self.testdir + "/001_empty_file.bp"
-        soong = Soong()
-        soong.parse (infile)
-        self.assertFalse (soong.data())
+        self.assertFalse (self.parse ("001_empty_file").data())
 
     def test_cpp_comment_only (self):
         """
         Parsing a file with only a C++ style comment must yield an empty list.
         """
-        infile = self.testdir + "/002_cpp_comment_only.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("002_cpp_comment_only")
         self.assertFalse (soong.data())
 
     def test_c_comment_only (self):
         """
         Parsing a file with only a C style comment must yield an empty list.
         """
-        infile = self.testdir + "/003_c_comment_only.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("003_c_comment_only")
         self.assertFalse (soong.data())
 
     def test_mixed_comment_only (self):
         """
         Parsing a file with only C and C++ style comments must yield an empty list.
         """
-        infile = self.testdir + "/004_mixed_comment_only.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("004_mixed_comment_only")
         self.assertFalse (soong.data())
 
     def test_single_empty_section (self):
         """
         An empty section must raise an exception
         """
-        infile = self.testdir + "/005_single_empty_section.bp"
-        soong = Soong()
         try:
-            soong.parse (infile)
+            self.parse ("005_single_empty_section")
         except Exception:
             return
         self.fail("Empty section not detected")
@@ -163,9 +158,7 @@ class TestSoong (unittest.TestCase):
         a dict mapping that section name to dict. This dict must contain only that
         element name which is mapped to the correct string value.
         """
-        infile = self.testdir + "/006_single_simple_section.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("006_single_simple_section")
         self.assertEqual (soong.data(), [('section2', {'foo': 'bar'})])
 
     def test_trailing_comma (self):
@@ -173,18 +166,14 @@ class TestSoong (unittest.TestCase):
         A section with multiple elements where the last element has a trailing
         comma (without a further element) must be parsed correctly.
         """
-        infile = self.testdir + "/007_trailing_comma.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("007_trailing_comma")
         self.assertEqual (soong.data(), [('section3', {'element1': 'data1', 'element2': 'data2'})])
 
     def test_multiple_simple_sections (self):
         """
         Two sections with simple data.
         """
-        infile = self.testdir + "/008_multiple_simple_sections.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("008_multiple_simple_sections")
         self.assertEqual (soong.data(), [('section5', {'element1': 'data1', 'element2': 'data2'}),
                                          ('section6', {'element3': 'data3', 'element4': 'data4'})])
 
@@ -192,9 +181,7 @@ class TestSoong (unittest.TestCase):
         """
         A section containing lists of strings
         """
-        infile = self.testdir + "/009_section_with_lists.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("009_section_with_lists")
         self.assertEqual (soong.data(), [('section8', {'element8':  ['data1', 'data2', 'data3'],
                                                        'element9':  ['data4', 'data5'],
                                                        'element10': ['data6']})])
@@ -204,18 +191,14 @@ class TestSoong (unittest.TestCase):
         File with one single variable assignment. Variables are stored in the 'variables' element
         of self._data
         """
-        infile = self.testdir + "/010_single_variable.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("010_single_variable")
         self.assertEqual (soong.variables(), {'some_variable': 'data10'})
 
     def test_single_variable_list (self):
         """
         File with one single variable assignment of a string list.
         """
-        infile = self.testdir + "/011_single_variable_list.bp"
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("011_single_variable_list")
         self.assertEqual (soong.variables(), {'variable_2': ['data1', 'data2']})
 
     @unittest.skip ("FIXME: String list variable do not work, yet")
@@ -223,21 +206,16 @@ class TestSoong (unittest.TestCase):
         """
         Use variable in a section. Eventually, the section must contain the variable value.
         """
-        infile = self.testdir + "/012_variable_use.bp"
-
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("012_variable_use")
         self.assertEqual (soong.data(), [('section_10', {'data5': ['data3', 'data4']})])
 
     def test_missing_variable (self):
         """
         Use non-existing variable in a section. Must raise an exception.
         """
-        infile = self.testdir + "/013_missing_variable.bp"
 
-        soong = Soong()
         try:
-            soong.parse (infile)
+            self.parse ("013_missing_variable")
         except Exception:
             return
         self.fail("Missing variable not detected")
@@ -246,20 +224,14 @@ class TestSoong (unittest.TestCase):
         """
         Concatenate string from two constants
         """
-        infile = self.testdir + "/014_string_const_cat.bp"
-
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("014_string_const_cat")
         self.assertEqual (soong.data(), [('section_11', {'data6': 'leftright'})])
 
     def test_string_var_concatenation (self):
         """
         Concatenate string from a constant and a variable.
         """
-        infile = self.testdir + "/015_string_var_cat.bp"
-
-        soong = Soong()
-        soong.parse (infile)
+        soong = self.parse ("015_string_var_cat")
         self.assertEqual (soong.data(), [('section_12', {'data7': 'leftVARIABLE1', 'data8': 'VARIABLE2right'})])
 
 
