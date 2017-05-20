@@ -12,6 +12,9 @@ class Soong:
         self._data = []
         self._grammar = StringEnd()
 
+        # C and C++ style comments
+        self._grammar.ignore (cppStyleComment | cStyleComment)
+
     def parse (self, infile):
         with open (infile, 'r') as f:
             self._grammar.parseFile (f)
@@ -25,13 +28,40 @@ class TestSoong (unittest.TestCase):
         self.testdir = "tests/soong2mk"
 
     def test_empty_input (self):
+        """
+        Parsing an empty file must yield an empty list.
+        """
         infile = self.testdir + "/001_empty_file.bp"
         soong = Soong()
         soong.parse (infile)
-        data = soong.data()
+        self.assertFalse (soong.data())
 
-        # Expect empty result data for empty file
-        self.assertFalse (data)
+    def test_cpp_comment_only (self):
+        """
+        Parsing a file with only a C++ style comment must yield an empty list.
+        """
+        infile = self.testdir + "/002_cpp_comment_only.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertFalse (soong.data())
+
+    def test_c_comment_only (self):
+        """
+        Parsing a file with only a C style comment must yield an empty list.
+        """
+        infile = self.testdir + "/003_c_comment_only.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertFalse (soong.data())
+
+    def test_mixed_comment_only (self):
+        """
+        Parsing a file with only C and C++ style comments must yield an empty list.
+        """
+        infile = self.testdir + "/004_mixed_comment_only.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertFalse (soong.data())
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
