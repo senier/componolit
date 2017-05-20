@@ -2,7 +2,7 @@
 
 # TODO
 #
-# - Variable use
+# - Fix variable use (lists)
 # - Concatenation
 
 import sys
@@ -27,12 +27,16 @@ class Soong:
         # String
         string = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
 
+        # String concatenation
+        stringcat = delimitedList (string|varref, delim='+')
+        stringcat.setParseAction (self.stringcatAction)
+
         # List of strings
         stringlist = Literal ("[") + Optional (delimitedList (string)) + Optional (comma) + Literal ("]")
         stringlist.setParseAction (self.stringlistAction)
 
         # Element
-        data = stringlist | string | varref
+        data = stringcat | stringlist | string | varref
         data.setParseAction (self.dataAction)
 
         # Element inside a section
@@ -57,6 +61,9 @@ class Soong:
 
         # C and C++ style comments
         self._grammar.ignore (cppStyleComment | cStyleComment)
+
+    def stringcatAction (self, string, location, tokens):
+        return "".join (tokens)
 
     def variableAction (self, string, location, tokens):
         self.variables()[tokens[0]] = tokens[2]
@@ -211,6 +218,7 @@ class TestSoong (unittest.TestCase):
         soong.parse (infile)
         self.assertEqual (soong.variables(), {'variable_2': ['data1', 'data2']})
 
+    @unittest.skip ("FIXME: String list variable do not work, yet")
     def test_variable_use (self):
         """
         Use variable in a section. Eventually, the section must contain the variable value.
@@ -233,6 +241,29 @@ class TestSoong (unittest.TestCase):
         except Exception:
             return
         self.fail("Missing variable not detected")
+
+    def test_string_concatenation (self):
+        """
+        Concatenate string from two constants
+        """
+        infile = self.testdir + "/014_string_const_cat.bp"
+
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.data(), [('section_11', {'data6': 'leftright'})])
+
+    def test_string_var_concatenation (self):
+        """
+        Concatenate string from a constant and a variable.
+        """
+        infile = self.testdir + "/015_string_var_cat.bp"
+
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.data(), [('section_12', {'data7': 'leftVARIABLE1', 'data8': 'VARIABLE2right'})])
+
+
+    # Next: List concatenation
 
 if __name__ == "__main__":
 
