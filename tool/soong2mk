@@ -63,6 +63,18 @@ class TestSoong (unittest.TestCase):
         soong.parse (infile)
         self.assertFalse (soong.data())
 
+    def test_single_empty_section (self):
+        """
+        An empty section must raise an exception
+        """
+        infile = self.testdir + "/005_single_empty_section.bp"
+        soong = Soong()
+        try:
+            soong.parse (infile)
+        except Exception:
+            return
+        self.fail("Empty section not detected")
+
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
     unittest.TextTestRunner().run(suite)
