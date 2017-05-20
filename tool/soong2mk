@@ -213,13 +213,26 @@ class TestSoong (unittest.TestCase):
 
     def test_variable_use (self):
         """
-        Use variable in a section. Eventually, the section should contain the variable value.
+        Use variable in a section. Eventually, the section must contain the variable value.
         """
         infile = self.testdir + "/012_variable_use.bp"
 
         soong = Soong()
         soong.parse (infile)
         self.assertEqual (soong.data(), [('section_10', {'data5': ['data3', 'data4']})])
+
+    def test_missing_variable (self):
+        """
+        Use non-existing variable in a section. Must raise an exception.
+        """
+        infile = self.testdir + "/013_missing_variable.bp"
+
+        soong = Soong()
+        try:
+            soong.parse (infile)
+        except Exception:
+            return
+        self.fail("Missing variable not detected")
 
 if __name__ == "__main__":
 
