@@ -172,7 +172,9 @@ class TestSoong (unittest.TestCase):
         infile = self.testdir + "/009_section_with_lists.bp"
         soong = Soong()
         soong.parse (infile)
-        self.assertEqual (soong.data(), [('section8', {'element8': ['data1', 'data2', 'data3'], 'element9': ['data4', 'data5']})])
+        self.assertEqual (soong.data(), [('section8', {'element8':  ['data1', 'data2', 'data3'],
+                                                       'element9':  ['data4', 'data5'],
+                                                       'element10': ['data6']})])
 
 if __name__ == "__main__":
 
