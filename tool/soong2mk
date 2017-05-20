@@ -18,7 +18,6 @@ class Soong:
         self._basedir = basedir
 
         name  = Word (alphanums + "_")
-        colon = Literal (':')
         comma = Literal (',')
 
         # String
@@ -33,7 +32,7 @@ class Soong:
         data.setParseAction (self.dataAction)
 
         # Element inside a section
-        dictelem = name + colon + data
+        dictelem = name + Suppress (Literal (':')) + data
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
@@ -66,7 +65,7 @@ class Soong:
         return tokens
 
     def dictelemAction (self, string, location, tokens):
-        return (tokens[0], tokens[2])
+        return (tokens[0], tokens[1])
 
     def sectionAction (self, string, location, tokens):
         result = {}
