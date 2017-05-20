@@ -10,10 +10,55 @@ class Soong:
 
     def __init__ (self):
         self._data = []
-        self._grammar = StringEnd()
+
+        name  = Word (alphanums + "_")
+        colon = Literal (':')
+        comma = Literal (',')
+
+        # String
+        string = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
+
+        # Element
+        dictdata = string
+        dictdata.setParseAction (self.dictdataAction)
+
+        # Element inside a section
+        dictelem = name + colon + dictdata
+        dictelem.setParseAction (self.dictelemAction)
+
+        # Section (unnamed)
+        section = Literal ("{") + delimitedList (dictelem) + Optional (comma) + Literal ("}")
+        section.setParseAction (self.sectionAction)
+
+        # Named section
+        namedsection = name + section
+        namedsection.setParseAction (self.namedsectionAction)
+
+        # Soong file
+        self._grammar = Optional (namedsection) + StringEnd()
+        self._grammar.setParseAction (self.soongAction)
 
         # C and C++ style comments
         self._grammar.ignore (cppStyleComment | cStyleComment)
+
+    def dictdataAction (self, string, location, tokens):
+        return tokens
+
+    def dictelemAction (self, string, location, tokens):
+        return (tokens[0], tokens[2])
+
+    def sectionAction (self, string, location, tokens):
+        result = {}
+        last = -2 if tokens[-2] == ',' else -1
+        for token in tokens[1:last]:
+            result[token[0]] = token[1]
+        return result
+
+    def namedsectionAction (self, string, location, tokens):
+        return {tokens[0]: tokens[1]}
+
+    def soongAction (self, string, location, tokens):
+        self._data.extend (tokens)
 
     def parse (self, infile):
         with open (infile, 'r') as f:
@@ -74,6 +119,27 @@ class TestSoong (unittest.TestCase):
         except Exception:
             return
         self.fail("Empty section not detected")
+
+    def test_single_simple_section (self):
+        """
+        An single section mapping a name to a scalar string value must result in
+        a dict mapping that section name to dict. This dict must contain only that
+        element name which is mapped to the correct string value.
+        """
+        infile = self.testdir + "/006_single_simple_section.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.data(), [{'section2': {'foo': 'bar'}}])
+
+    def test_trailing_comma (self):
+        """
+        A section with multiple elements where the last element has a trailing
+        comma (without a further element) must be parsed correctly.
+        """
+        infile = self.testdir + "/007_trailing_comma.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.data(), [{'section3': {'element1': 'data1', 'element2': 'data2'}}])
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
