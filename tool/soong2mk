@@ -14,7 +14,7 @@ from pyparsing import *
 class Soong:
 
     def __init__ (self, basedir = '.'):
-        self._data    = []
+        self._data    = {'variables': {}, 'sections': []}
         self._basedir = basedir
 
         name  = Word (alphanums + "_")
@@ -29,11 +29,11 @@ class Soong:
         stringlist.setParseAction (self.stringlistAction)
 
         # Element
-        dictdata = stringlist | string
-        dictdata.setParseAction (self.dictdataAction)
+        data = stringlist | string
+        data.setParseAction (self.dataAction)
 
         # Element inside a section
-        dictelem = name + colon + dictdata
+        dictelem = name + colon + data
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
@@ -44,18 +44,25 @@ class Soong:
         namedsection = name + section
         namedsection.setParseAction (self.namedsectionAction)
 
+        # Variable
+        variable = name + Literal ("=") + data
+        variable.setParseAction (self.variableAction)
+
         # Soong file
-        self._grammar = ZeroOrMore (namedsection) + StringEnd()
+        self._grammar = ZeroOrMore (namedsection | Suppress (variable)) + StringEnd()
         self._grammar.setParseAction (self.soongAction)
 
         # C and C++ style comments
         self._grammar.ignore (cppStyleComment | cStyleComment)
 
+    def variableAction (self, string, location, tokens):
+        self.variables()[tokens[0]] = tokens[2]
+
     def stringlistAction (self, string, location, tokens):
         last = -2 if tokens[-2] == ',' else -1
         return [tokens[1:last]]
 
-    def dictdataAction (self, string, location, tokens):
+    def dataAction (self, string, location, tokens):
         return tokens
 
     def dictelemAction (self, string, location, tokens):
@@ -72,14 +79,17 @@ class Soong:
         return (tokens[0], tokens[1])
 
     def soongAction (self, string, location, tokens):
-        self._data.extend (tokens)
+        self._data['sections'].extend (tokens)
 
     def parse (self, infile):
         with open (infile, 'r') as f:
             self._grammar.parseFile (f)
 
     def data (self):
-        return self._data
+        return self._data['sections']
+
+    def variables (self):
+        return self._data['variables']
 
 class TestSoong (unittest.TestCase):
 
@@ -175,6 +185,15 @@ class TestSoong (unittest.TestCase):
         self.assertEqual (soong.data(), [('section8', {'element8':  ['data1', 'data2', 'data3'],
                                                        'element9':  ['data4', 'data5'],
                                                        'element10': ['data6']})])
+
+    def test_single_variable (self):
+        """
+        File with one single variable assignment. Variables
+        """
+        infile = self.testdir + "/010_single_variable.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.variables(), {'some_variable': 'data10'})
 
 if __name__ == "__main__":
 
