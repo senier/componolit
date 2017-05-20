@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# TODO
+#
+# - Variables
+# - Concatenation
+
 import sys
 import argparse
 import unittest
@@ -8,8 +13,9 @@ from pyparsing import *
 
 class Soong:
 
-    def __init__ (self):
-        self._data = []
+    def __init__ (self, basedir = '.'):
+        self._data    = []
+        self._basedir = basedir
 
         name  = Word (alphanums + "_")
         colon = Literal (':')
@@ -18,8 +24,12 @@ class Soong:
         # String
         string = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
 
+        # List of strings
+        stringlist = Literal ("[") + Optional (delimitedList (string)) + Optional (comma) + Literal ("]")
+        stringlist.setParseAction (self.stringlistAction)
+
         # Element
-        dictdata = string
+        dictdata = stringlist | string
         dictdata.setParseAction (self.dictdataAction)
 
         # Element inside a section
@@ -40,6 +50,10 @@ class Soong:
 
         # C and C++ style comments
         self._grammar.ignore (cppStyleComment | cStyleComment)
+
+    def stringlistAction (self, string, location, tokens):
+        last = -2 if tokens[-2] == ',' else -1
+        return [tokens[1:last]]
 
     def dictdataAction (self, string, location, tokens):
         return tokens
@@ -150,6 +164,15 @@ class TestSoong (unittest.TestCase):
         soong.parse (infile)
         self.assertEqual (soong.data(), [('section5', {'element1': 'data1', 'element2': 'data2'}),
                                          ('section6', {'element3': 'data3', 'element4': 'data4'})])
+
+    def test_section_with_lists (self):
+        """
+        A section containing lists of strings
+        """
+        infile = self.testdir + "/009_section_with_lists.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.data(), [('section8', {'element8': ['data1', 'data2', 'data3'], 'element9': ['data4', 'data5']})])
 
 if __name__ == "__main__":
 
