@@ -35,7 +35,7 @@ class Soong:
         namedsection.setParseAction (self.namedsectionAction)
 
         # Soong file
-        self._grammar = Optional (namedsection) + StringEnd()
+        self._grammar = ZeroOrMore (namedsection) + StringEnd()
         self._grammar.setParseAction (self.soongAction)
 
         # C and C++ style comments
@@ -140,6 +140,16 @@ class TestSoong (unittest.TestCase):
         soong = Soong()
         soong.parse (infile)
         self.assertEqual (soong.data(), [('section3', {'element1': 'data1', 'element2': 'data2'})])
+
+    def test_multiple_simple_sections (self):
+        """
+        Two sections with simple data.
+        """
+        infile = self.testdir + "/008_multiple_simple_sections.bp"
+        soong = Soong()
+        soong.parse (infile)
+        self.assertEqual (soong.data(), [('section5', {'element1': 'data1', 'element2': 'data2'}),
+                                         ('section6', {'element3': 'data3', 'element4': 'data4'})])
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
