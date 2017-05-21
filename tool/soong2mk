@@ -55,8 +55,12 @@ class Soong:
         variable = name + Literal ("=") + data
         variable.setParseAction (self.variableAction)
 
+        # Extension
+        extension = name + Literal ("+=") + data
+        extension.setParseAction (self.extensionAction)
+
         # Soong file
-        self._grammar = ZeroOrMore (namedsection | Suppress (variable)) + StringEnd()
+        self._grammar = ZeroOrMore (namedsection | Suppress (variable) | Suppress (extension)) + StringEnd()
         self._grammar.setParseAction (self.soongAction)
 
         # C and C++ style comments
@@ -70,6 +74,12 @@ class Soong:
 
     def varrefAction (self, string, location, tokens):
         return self.variables()[tokens[0]]
+
+    def extensionAction (self, string, location, tokens):
+        varname   = tokens[0]
+        variables = self.variables()
+        value     = variables[varname]
+        variables[varname] = value + tokens[2]
 
     def stringlistAction (self, string, location, tokens):
         last = -2 if tokens[-2] == ',' else -1
@@ -234,6 +244,19 @@ class TestSoong (unittest.TestCase):
         soong = self.parse ("015_string_var_cat")
         self.assertEqual (soong.data(), [('section_12', {'data7': 'leftVARIABLE1', 'data8': 'VARIABLE2right'})])
 
+    def test_var_stringlist_extension (self):
+        """
+        Assign a string list to a variable and extend it by another list.
+        """
+        soong = self.parse ("016_var_stringlist_ext")
+        self.assertEqual (soong.variables(), {'variable_12': ['data15', 'data16']})
+
+    def test_var_string_extension (self):
+        """
+        Assign a string to a variable and extend it by another string.
+        """
+        soong = self.parse ("017_var_string_ext")
+        self.assertEqual (soong.variables(), {'variable_19': 'data20data21'})
 
     # Next: List concatenation
 
