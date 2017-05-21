@@ -11,6 +11,14 @@ import unittest
 
 from pyparsing import *
 
+class Wrap:
+
+    def __init__ (self, data):
+        self.__data = data
+
+    def unwrap (self):
+        return self.__data
+
 class Soong:
 
     def __init__ (self, basedir = '.'):
@@ -27,20 +35,16 @@ class Soong:
         # String
         string = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
 
-        # String concatenation
-        stringcat = delimitedList (string|varref, delim='+')
-        stringcat.setParseAction (self.stringcatAction)
-
         # List of strings
         stringlist = Literal ("[") + Optional (delimitedList (string)) + Optional (comma) + Literal ("]")
         stringlist.setParseAction (self.stringlistAction)
 
         # Element
-        data = stringcat | stringlist | string | varref
-        data.setParseAction (self.dataAction)
+        wrapped_data = delimitedList (stringlist|string|varref, delim='+')
+        wrapped_data.setParseAction (self.dataAction)
 
         # Element inside a section
-        dictelem = name + Suppress (Literal (':')) + data
+        dictelem = name + Suppress (Literal (':')) + wrapped_data
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
@@ -52,11 +56,11 @@ class Soong:
         namedsection.setParseAction (self.namedsectionAction)
 
         # Variable
-        variable = name + Literal ("=") + data
+        variable = name + Suppress (Literal ("=")) + wrapped_data
         variable.setParseAction (self.variableAction)
 
         # Extension
-        extension = name + Literal ("+=") + data
+        extension = name + Suppress (Literal ("+=")) + wrapped_data
         extension.setParseAction (self.extensionAction)
 
         # Soong file
@@ -66,11 +70,8 @@ class Soong:
         # C and C++ style comments
         self._grammar.ignore (cppStyleComment | cStyleComment)
 
-    def stringcatAction (self, string, location, tokens):
-        return "".join (tokens)
-
     def variableAction (self, string, location, tokens):
-        self.variables()[tokens[0]] = tokens[2]
+        self.variables()[tokens[0]] = tokens[1].unwrap()
 
     def varrefAction (self, string, location, tokens):
         return self.variables()[tokens[0]]
@@ -79,17 +80,23 @@ class Soong:
         varname   = tokens[0]
         variables = self.variables()
         value     = variables[varname]
-        variables[varname] = value + tokens[2]
+        variables[varname] = value + tokens[1].unwrap()
 
     def stringlistAction (self, string, location, tokens):
         last = -2 if tokens[-2] == ',' else -1
         return [tokens[1:last]]
 
     def dataAction (self, string, location, tokens):
-        return tokens
+        result = tokens[0]
+        for token in tokens[1:]:
+            if type (token) is list:
+                result.extend (token)
+            else:
+                result += token
+        return Wrap (result)
 
     def dictelemAction (self, string, location, tokens):
-        return (tokens[0], tokens[1])
+        return (tokens[0], tokens[1].unwrap())
 
     def sectionAction (self, string, location, tokens):
         result = {}
@@ -211,7 +218,6 @@ class TestSoong (unittest.TestCase):
         soong = self.parse ("011_single_variable_list")
         self.assertEqual (soong.variables(), {'variable_2': ['data1', 'data2']})
 
-    @unittest.skip ("FIXME: String list variable do not work, yet")
     def test_variable_use (self):
         """
         Use variable in a section. Eventually, the section must contain the variable value.
@@ -253,10 +259,17 @@ class TestSoong (unittest.TestCase):
 
     def test_var_string_extension (self):
         """
-        Assign a string to a variable and extend it by another string.
+        Concatenate two strings
         """
         soong = self.parse ("017_var_string_ext")
         self.assertEqual (soong.variables(), {'variable_19': 'data20data21'})
+
+    def test_stringlist_cat (self):
+        """
+        Concatenate two string lists
+        """
+        soong = self.parse ("018_stringlist_const_cat")
+        self.assertEqual (soong.data(), [('section_21', {'data7': ['data30', 'data32', 'data33', 'data34', 'data35']})])
 
     # Next: List concatenation
 
