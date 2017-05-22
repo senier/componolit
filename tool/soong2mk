@@ -126,38 +126,45 @@ class TestSoong (unittest.TestCase):
     def setUp (self):
         self.testdir = "tests/soong2mk"
 
+    def fullpath (self, testfile):
+        return self.testdir + "/" + testfile + ".bp"
+
     def parse (self, filename):
-        infile = self.testdir + "/" + filename + ".bp"
         soong = Soong()
-        soong.parse (infile)
+        soong.parse (self.fullpath (filename))
         return soong
+
+    def assert_data (self, filename, data):
+        soong = self.parse (filename)
+        self.assertEqual (soong.data(), data, self.fullpath (filename))
+
+    def assert_variables (self, filename, variables):
+        soong = self.parse (filename)
+        self.assertEqual (soong.variables(), variables, self.fullpath (filename))
 
     def test_empty_input (self):
         """
         Parsing an empty file must yield an empty list.
         """
-        self.assertFalse (self.parse ("001_empty_file").data())
+        self.assert_data ("001_empty_file", [])
 
     def test_cpp_comment_only (self):
         """
         Parsing a file with only a C++ style comment must yield an empty list.
         """
-        soong = self.parse ("002_cpp_comment_only")
-        self.assertFalse (soong.data())
+        self.assert_data ("002_cpp_comment_only", [])
 
     def test_c_comment_only (self):
         """
         Parsing a file with only a C style comment must yield an empty list.
         """
-        soong = self.parse ("003_c_comment_only")
-        self.assertFalse (soong.data())
+        self.assert_data ("003_c_comment_only", [])
 
     def test_mixed_comment_only (self):
         """
         Parsing a file with only C and C++ style comments must yield an empty list.
         """
-        soong = self.parse ("004_mixed_comment_only")
-        self.assertFalse (soong.data())
+        self.assert_data ("004_mixed_comment_only", [])
 
     def test_single_empty_section (self):
         """
@@ -175,55 +182,50 @@ class TestSoong (unittest.TestCase):
         a dict mapping that section name to dict. This dict must contain only that
         element name which is mapped to the correct string value.
         """
-        soong = self.parse ("006_single_simple_section")
-        self.assertEqual (soong.data(), [('section2', {'foo': 'bar'})])
+        self.assert_data ("006_single_simple_section", [('section2', {'foo': 'bar'})])
 
     def test_trailing_comma (self):
         """
         A section with multiple elements where the last element has a trailing
         comma (without a further element) must be parsed correctly.
         """
-        soong = self.parse ("007_trailing_comma")
-        self.assertEqual (soong.data(), [('section3', {'element1': 'data1', 'element2': 'data2'})])
+        self.assert_data("007_trailing_comma", [('section3', {'element1': 'data1', 'element2': 'data2'})])
 
     def test_multiple_simple_sections (self):
         """
         Two sections with simple data.
         """
-        soong = self.parse ("008_multiple_simple_sections")
-        self.assertEqual (soong.data(), [('section5', {'element1': 'data1', 'element2': 'data2'}),
-                                         ('section6', {'element3': 'data3', 'element4': 'data4'})])
+        self.assert_data ("008_multiple_simple_sections",
+            [('section5', {'element1': 'data1', 'element2': 'data2'}),
+             ('section6', {'element3': 'data3', 'element4': 'data4'})])
 
     def test_section_with_lists (self):
         """
         A section containing lists of strings
         """
-        soong = self.parse ("009_section_with_lists")
-        self.assertEqual (soong.data(), [('section8', {'element8':  ['data1', 'data2', 'data3'],
-                                                       'element9':  ['data4', 'data5'],
-                                                       'element10': ['data6']})])
+        self.assert_data ("009_section_with_lists",
+            [('section8', {'element8':  ['data1', 'data2', 'data3'],
+                           'element9':  ['data4', 'data5'],
+                           'element10': ['data6']})])
 
     def test_single_variable (self):
         """
         File with one single variable assignment. Variables are stored in the 'variables' element
         of self._data
         """
-        soong = self.parse ("010_single_variable")
-        self.assertEqual (soong.variables(), {'some_variable': 'data10'})
+        self.assert_variables ("010_single_variable", {'some_variable': 'data10'})
 
     def test_single_variable_list (self):
         """
         File with one single variable assignment of a string list.
         """
-        soong = self.parse ("011_single_variable_list")
-        self.assertEqual (soong.variables(), {'variable_2': ['data1', 'data2']})
+        self.assert_variables ("011_single_variable_list", {'variable_2': ['data1', 'data2']})
 
     def test_variable_use (self):
         """
         Use variable in a section. Eventually, the section must contain the variable value.
         """
-        soong = self.parse ("012_variable_use")
-        self.assertEqual (soong.data(), [('section_10', {'data5': ['data3', 'data4']})])
+        self.assert_data ("012_variable_use", [('section_10', {'data5': ['data3', 'data4']})])
 
     def test_missing_variable (self):
         """
@@ -240,36 +242,31 @@ class TestSoong (unittest.TestCase):
         """
         Concatenate string from two constants
         """
-        soong = self.parse ("014_string_const_cat")
-        self.assertEqual (soong.data(), [('section_11', {'data6': 'leftright'})])
+        self.assert_data ("014_string_const_cat", [('section_11', {'data6': 'leftright'})])
 
     def test_string_var_concatenation (self):
         """
         Concatenate string from a constant and a variable.
         """
-        soong = self.parse ("015_string_var_cat")
-        self.assertEqual (soong.data(), [('section_12', {'data7': 'leftVARIABLE1', 'data8': 'VARIABLE2right'})])
+        self.assert_data ("015_string_var_cat", [('section_12', {'data7': 'leftVARIABLE1', 'data8': 'VARIABLE2right'})])
 
     def test_var_stringlist_extension (self):
         """
         Assign a string list to a variable and extend it by another list.
         """
-        soong = self.parse ("016_var_stringlist_ext")
-        self.assertEqual (soong.variables(), {'variable_12': ['data15', 'data16']})
+        self.assert_variables ("016_var_stringlist_ext", {'variable_12': ['data15', 'data16']})
 
     def test_var_string_extension (self):
         """
         Concatenate two strings
         """
-        soong = self.parse ("017_var_string_ext")
-        self.assertEqual (soong.variables(), {'variable_19': 'data20data21'})
+        self.assert_variables ("017_var_string_ext", {'variable_19': 'data20data21'})
 
     def test_stringlist_cat (self):
         """
         Concatenate two string lists
         """
-        soong = self.parse ("018_stringlist_const_cat")
-        self.assertEqual (soong.data(), [('section_21', {'data7': ['data30', 'data32', 'data33', 'data34', 'data35']})])
+        self.assert_data ("018_stringlist_const_cat", [('section_21', {'data7': ['data30', 'data32', 'data33', 'data34', 'data35']})])
 
     # Next: List concatenation
 
