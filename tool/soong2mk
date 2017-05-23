@@ -314,6 +314,12 @@ class TestSoong (unittest.TestCase):
             return
         self.fail("Boolean concatenation not detected")
 
+    def test_stringlist_with_embedded_comma (self):
+        """
+        Parse string list where comma is embedded into an element
+        """
+        self.assert_variables ("024_stringlist_with_embedded_comma", {'variable': ['data12,data13']})
+
 
 if __name__ == "__main__":
 
