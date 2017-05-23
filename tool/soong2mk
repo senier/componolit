@@ -74,7 +74,7 @@ class Soong:
         self.variables()[tokens[0]] = tokens[1].unwrap()
 
     def varrefAction (self, string, location, tokens):
-        return self.variables()[tokens[0]]
+        return [self.variables()[tokens[0]]]
 
     def extensionAction (self, string, location, tokens):
         varname   = tokens[0]
