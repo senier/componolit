@@ -268,7 +268,17 @@ class TestSoong (unittest.TestCase):
         """
         self.assert_data ("018_stringlist_const_cat", [('section_21', {'data7': ['data30', 'data32', 'data33', 'data34', 'data35']})])
 
-    # Next: List concatenation
+    def test_stringlist_var_cat1 (self):
+        """
+        Assign a string lists to a variable and concatenate it with a constant string list
+        """
+        self.assert_data ("019_stringlist_var_cat", [('section_21', {'data8': ['data30', 'data32', 'data33', 'data34', 'data35']})])
+
+    def test_stringlist_var_cat2 (self):
+        """
+        Assign two concatenated string lists to a variable
+        """
+        self.assert_data ("020_stringlist_var_cat", [('section_22', {'data9': ['data50', 'data51', 'data52', 'data53', 'data54']})])
 
 if __name__ == "__main__":
 
