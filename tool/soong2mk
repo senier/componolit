@@ -2,14 +2,14 @@
 
 # TODO
 #
-# - Fix variable use (lists)
-# - Concatenation
 
 import sys
 import argparse
 import unittest
 
 from pyparsing import *
+
+class MissingVariable (Exception): pass
 
 class Wrap:
 
@@ -74,7 +74,10 @@ class Soong:
         self.variables()[tokens[0]] = tokens[1].unwrap()
 
     def varrefAction (self, string, location, tokens):
-        return [self.variables()[tokens[0]]]
+        varname = tokens[0]
+        if not varname in self.variables():
+            raise MissingVariable ("Variable '" + varname + "' not found [line " + str(location) + "]")
+        return [self.variables()[varname]]
 
     def extensionAction (self, string, location, tokens):
         varname   = tokens[0]
@@ -234,7 +237,7 @@ class TestSoong (unittest.TestCase):
 
         try:
             self.parse ("013_missing_variable")
-        except Exception:
+        except MissingVariable:
             return
         self.fail("Missing variable not detected")
 
