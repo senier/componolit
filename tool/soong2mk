@@ -53,11 +53,12 @@ class Soong:
         data.setParseAction (lambda s, l, t: t)
 
         # Element inside a section
-        dictelem = name + Suppress (Literal (':')) + data
+        section = Forward()
+        dictelem = name + Suppress (Literal (':')) + (data|section)
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
-        section = Literal ("{") + delimitedList (dictelem) + Optional (comma) + Literal ("}")
+        section << Literal ("{") + delimitedList (dictelem) + Optional (comma) + Literal ("}")
         section.setParseAction (self.sectionAction)
 
         # Named section
@@ -80,7 +81,8 @@ class Soong:
         self._grammar.ignore (cppStyleComment | cStyleComment)
 
     def variableAction (self, string, location, tokens):
-        self.variables()[tokens[0]] = tokens[1].unwrap()
+        data = tokens[1].unwrap()
+        self.variables()[tokens[0]] = data
 
     def varrefAction (self, string, location, tokens):
         varname = tokens[0]
@@ -115,10 +117,10 @@ class Soong:
         last = -2 if tokens[-2] == ',' else -1
         for token in tokens[1:last]:
             result[token[0]] = token[1]
-        return result
+        return Wrap (result)
 
     def namedsectionAction (self, string, location, tokens):
-        return (tokens[0], tokens[1])
+        return (tokens[0], tokens[1].unwrap())
 
     def soongAction (self, string, location, tokens):
         self._data['sections'].extend (tokens)
@@ -319,6 +321,13 @@ class TestSoong (unittest.TestCase):
         Parse string list where comma is embedded into an element
         """
         self.assert_variables ("024_stringlist_with_embedded_comma", {'variable': ['data12,data13']})
+
+    def test_nested_section (self):
+        """
+        Nested sections
+        """
+        self.assert_data ("025_nested_sections", [('section_outer', {'section_inner': {'data_inner': 'data56'}, 'data_outer': 'data57'})])
+
 
 
 if __name__ == "__main__":
