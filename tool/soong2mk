@@ -27,10 +27,15 @@ class Soong:
 
         name  = Word (alphanums + "_")
         comma = Literal (',')
+        true  = Literal ('true').setParseAction (lambda v : Wrap (True))
+        false = Literal ('false').setParseAction (lambda v : Wrap (False))
 
         # Variable reference
         varref = Word (alphanums + "_")
         varref.setParseAction (self.varrefAction)
+
+        # Boolean literal true/false
+        boolean = true | false
 
         # String
         string = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
@@ -43,8 +48,12 @@ class Soong:
         wrapped_data = delimitedList (stringlist|string|varref, delim='+')
         wrapped_data.setParseAction (self.dataAction)
 
+        # Data
+        data = boolean | wrapped_data
+        data.setParseAction (lambda s, l, t: t)
+
         # Element inside a section
-        dictelem = name + Suppress (Literal (':')) + wrapped_data
+        dictelem = name + Suppress (Literal (':')) + data
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
@@ -56,11 +65,11 @@ class Soong:
         namedsection.setParseAction (self.namedsectionAction)
 
         # Variable
-        variable = name + Suppress (Literal ("=")) + wrapped_data
+        variable = name + Suppress (Literal ("=")) + data
         variable.setParseAction (self.variableAction)
 
         # Extension
-        extension = name + Suppress (Literal ("+=")) + wrapped_data
+        extension = name + Suppress (Literal ("+=")) + data
         extension.setParseAction (self.extensionAction)
 
         # Soong file
@@ -282,6 +291,29 @@ class TestSoong (unittest.TestCase):
         Assign two concatenated string lists to a variable
         """
         self.assert_data ("020_stringlist_var_cat", [('section_22', {'data9': ['data50', 'data51', 'data52', 'data53', 'data54']})])
+
+    def test_boolean_const (self):
+        """
+        Assign boolean constants
+        """
+        self.assert_data ("021_boolean_const", [('section_49', {'truevar': True, 'falsevar': False})])
+
+    def test_boolean_var (self):
+        """
+        Assign boolean variable
+        """
+        self.assert_data ("022_boolean_var", [('section_123', {'boolean': True})])
+
+    def test_boolean_cat_error (self):
+        """
+        Erroneously concatenate boolean variables
+        """
+        try:
+            self.parse ("023_boolean_cat_error")
+        except Exception:
+            return
+        self.fail("Boolean concatenation not detected")
+
 
 if __name__ == "__main__":
 
