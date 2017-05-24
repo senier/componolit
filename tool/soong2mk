@@ -64,7 +64,7 @@ class Soong:
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
-        section << Literal ("{") + delimitedList (dictelem) + Optional (comma) + Literal ("}")
+        section << Literal ("{") + Optional (delimitedList (dictelem)) + Optional (comma) + Literal ("}")
         section.setParseAction (self.sectionAction)
 
         # Named section
@@ -196,10 +196,9 @@ class TestSoong (unittest.TestCase):
 
     def test_single_empty_section (self):
         """
-        An empty section must raise an exception
+        An empty section must result in empty dict
         """
-        with self.assertRaises (Exception):
-            self.parse ("005_single_empty_section")
+        self.assert_data ("005_single_empty_section", [("section1", {})])
 
     def test_single_simple_section (self):
         """
