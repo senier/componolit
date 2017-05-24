@@ -12,6 +12,7 @@ from pyparsing import *
 
 class MissingVariable (Exception): pass
 class DuplicateVariable (Exception): pass
+class IncompatibleConcatenation (Exception): pass
 
 class Wrap:
 
@@ -111,6 +112,8 @@ class Soong:
     def dataAction (self, string, location, tokens):
         result = tokens[0]
         for token in tokens[1:]:
+            if type (token) != type (tokens[0]):
+                raise IncompatibleConcatenation
             if type (token) is list:
                 result.extend (token)
             else:
@@ -345,6 +348,13 @@ class TestSoong (unittest.TestCase):
         """
         with self.assertRaises (DuplicateVariable):
             self.parse ("027_conflicting_vars")
+
+    def test_conflicting_concatenation (self):
+        """
+        Concatenating variables of conflicting types (e.g. string list and string) should raise an exception.
+        """
+        with self.assertRaises (IncompatibleConcatenation):
+            self.parse ("028_conflicting_concatenation")
 
 
 if __name__ == "__main__":
