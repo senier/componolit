@@ -46,16 +46,20 @@ class Soong:
         # String
         string = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
 
+        # Concatenation of strings
+        stringcat = delimitedList (string|varref, delim='+')
+        stringcat.setParseAction (self.stringcatAction)
+
         # List of strings
         stringlist = Literal ("[") + Optional (delimitedList (string)) + Optional (comma) + Literal ("]")
         stringlist.setParseAction (self.stringlistAction)
 
-        # Element
-        wrapped_data = delimitedList (stringlist|string|varref, delim='+')
-        wrapped_data.setParseAction (self.dataAction)
+        # Concatenation of string lists
+        stringlistcat = delimitedList (stringlist|varref, delim='+')
+        stringlistcat.setParseAction (self.stringlistcatAction)
 
         # Data
-        data = boolean | wrapped_data
+        data = boolean | stringcat | stringlistcat
         data.setParseAction (lambda s, l, t: t)
 
         # Element inside a section
@@ -105,19 +109,24 @@ class Soong:
         value     = variables[varname]
         variables[varname] = value + tokens[1].unwrap()
 
-    def stringlistAction (self, string, location, tokens):
-        last = -2 if tokens[-2] == ',' else -1
-        return [tokens[1:last]]
-
-    def dataAction (self, string, location, tokens):
+    def stringcatAction (self, string, location, tokens):
         result = tokens[0]
         for token in tokens[1:]:
             if type (token) != type (tokens[0]):
                 raise IncompatibleConcatenation
-            if type (token) is list:
-                result.extend (token)
-            else:
-                result += token
+            result += token
+        return Wrap (result)
+
+    def stringlistAction (self, string, location, tokens):
+        last = -2 if tokens[-2] == ',' else -1
+        return [tokens[1:last]]
+
+    def stringlistcatAction (self, string, location, tokens):
+        result = tokens[0]
+        for token in tokens[1:]:
+            if type (token) != type (tokens[0]):
+                raise IncompatibleConcatenation
+            result.extend (token)
         return Wrap (result)
 
     def dictelemAction (self, string, location, tokens):
