@@ -20,6 +20,9 @@ class Wrap:
     def unwrap (self):
         return self.__data
 
+#
+# Soong parser
+#
 class Soong:
 
     def __init__ (self, basedir = '.'):
@@ -136,6 +139,9 @@ class Soong:
     def variables (self):
         return self._data['variables']
 
+#
+# Soong parsers test cases
+#
 class TestSoong (unittest.TestCase):
 
     def setUp (self):
@@ -185,11 +191,8 @@ class TestSoong (unittest.TestCase):
         """
         An empty section must raise an exception
         """
-        try:
+        with self.assertRaises (Exception):
             self.parse ("005_single_empty_section")
-        except Exception:
-            return
-        self.fail("Empty section not detected")
 
     def test_single_simple_section (self):
         """
@@ -246,12 +249,8 @@ class TestSoong (unittest.TestCase):
         """
         Use non-existing variable in a section. Must raise an exception.
         """
-
-        try:
+        with self.assertRaises (MissingVariable):
             self.parse ("013_missing_variable")
-        except MissingVariable:
-            return
-        self.fail("Missing variable not detected")
 
     def test_string_concatenation (self):
         """
@@ -311,11 +310,8 @@ class TestSoong (unittest.TestCase):
         """
         Erroneously concatenate boolean variables
         """
-        try:
+        with self.assertRaises (Exception):
             self.parse ("023_boolean_cat_error")
-        except Exception:
-            return
-        self.fail("Boolean concatenation not detected")
 
     def test_stringlist_with_embedded_comma (self):
         """
