@@ -325,6 +325,13 @@ class TestSoong (unittest.TestCase):
         """
         self.assert_data ("025_nested_sections", [('section_outer', {'section_inner': {'data_inner': 'data56'}, 'data_outer': 'data57'})])
 
+    def test_multiple_files (self):
+        """
+        Parse multiple files that reference each other
+        """
+        soong = self.parse ("026_multi_file-1")
+        soong.parse (self.fullpath ("026_multi_file-2"))
+        self.assertEqual (soong.data(), [('section65', {'elem5': ['data54', 'data23', 'data87']})])
 
 
 if __name__ == "__main__":
