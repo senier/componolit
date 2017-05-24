@@ -11,6 +11,7 @@ import unittest
 from pyparsing import *
 
 class MissingVariable (Exception): pass
+class DuplicateVariable (Exception): pass
 
 class Wrap:
 
@@ -85,8 +86,11 @@ class Soong:
         self._grammar.ignore (cppStyleComment | cStyleComment)
 
     def variableAction (self, string, location, tokens):
+        varname = tokens[0]
+        if varname in self.variables():
+            raise DuplicateVariable
         data = tokens[1].unwrap()
-        self.variables()[tokens[0]] = data
+        self.variables()[varname] = data
 
     def varrefAction (self, string, location, tokens):
         varname = tokens[0]
@@ -332,6 +336,15 @@ class TestSoong (unittest.TestCase):
         soong = self.parse ("026_multi_file-1")
         soong.parse (self.fullpath ("026_multi_file-2"))
         self.assertEqual (soong.data(), [('section65', {'elem5': ['data54', 'data23', 'data87']})])
+
+    def test_conflicting_vars (self):
+        """
+        Assign to the same variables twice. NB: I'm not entirely sure whether this is legal or not.
+        For now, I assume this should not happen and must be detected as an error. We will see when
+        validating against real-world data.
+        """
+        with self.assertRaises (DuplicateVariable):
+            self.parse ("027_conflicting_vars")
 
 
 if __name__ == "__main__":
