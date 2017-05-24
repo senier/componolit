@@ -378,6 +378,12 @@ class TestSoong (unittest.TestCase):
         """
         self.assert_variables ("030_string_cat_in_stringlist", {'variable_b': ['data996', 'data997', 'data998data995']})
 
+    def test_multi_variable_stringlist_concatenation (self):
+        """
+        Cocatenate multiple variables with a string list
+        """
+        self.assert_data ("031_multi_var_stringlist_cat", [('section', {'data': ["data1", "data2", "data3", "data4", "data5", "data6"]})])
+
 
 if __name__ == "__main__":
 
