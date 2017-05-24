@@ -356,6 +356,14 @@ class TestSoong (unittest.TestCase):
         with self.assertRaises (IncompatibleConcatenation):
             self.parse ("028_conflicting_concatenation")
 
+    def test_multiple_files (self):
+        """
+        Parse multiple files with multiple sections
+        """
+        soong = self.parse ("029_multi_file_sections-1")
+        soong.parse (self.fullpath ("029_multi_file_sections-2"))
+        self.assertEqual (soong.data(), [('section_645', {'elem64': 'data545'}), ('section_223', {'elem845': ['data1246', 'data659']})])
+
 
 if __name__ == "__main__":
 
