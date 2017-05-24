@@ -55,7 +55,7 @@ class Soong:
 
         # Element inside a section
         section = Forward()
-        dictelem = name + Suppress (Literal (':')) + (data|section)
+        dictelem = name + Suppress (Literal (':')|Literal ('=')) + (data|section)
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
