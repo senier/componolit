@@ -363,6 +363,12 @@ class TestSoong (unittest.TestCase):
         soong.parse (self.fullpath ("029_multi_file_sections-2"))
         self.assertEqual (soong.data(), [('section_645', {'elem64': 'data545'}), ('section_223', {'elem845': ['data1246', 'data659']})])
 
+    def test_string_concatenation_in_stringlist (self):
+        """
+        Concatenate an element of a string list with a variable
+        """
+        self.assert_variables ("030_string_cat_in_stringlist", {'variable_b': ['data996', 'data997', 'data998data995']})
+
 
 if __name__ == "__main__":
 
