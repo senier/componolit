@@ -402,7 +402,7 @@ if __name__ == "__main__":
 
         print ("Testing Android build files ", end='')
         no_files=0
-        for root, dirs, files in os.walk ('tests/desoongify'):
+        for root, dirs, files in os.walk ('tests/android'):
             for filename in files:
                 print ('.', end='', flush=True)
                 no_files += 1
