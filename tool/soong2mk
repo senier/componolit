@@ -46,8 +46,12 @@ class Soong:
         # String
         string = QuotedString ('"', escChar='\\').setParseAction (lambda s, l, t: t[0])
 
+        # String concatenation
+        stringcat = delimitedList (string|varref, delim='+')
+        stringcat.setParseAction (self.stringcatAction)
+
         # List of strings
-        stringlist = Literal ("[") + Optional (delimitedList (string)) + Optional (comma) + Literal ("]")
+        stringlist = Literal ("[") + Optional (delimitedList (stringcat)) + Optional (comma) + Literal ("]")
         stringlist.setParseAction (self.stringlistAction)
 
         # Concatenation of strings, strings lists and variables
@@ -119,6 +123,12 @@ class Soong:
             else:
                 result += token
         return Wrap (result)
+
+    def stringcatAction (self, string, location, tokens):
+        result = tokens[0]
+        for token in tokens[1:]:
+            result += token
+        return result
 
     def dictelemAction (self, string, location, tokens):
         return (tokens[0], tokens[1].unwrap())
@@ -367,7 +377,7 @@ class TestSoong (unittest.TestCase):
         """
         Concatenate an element of a string list with a variable
         """
-        self.assert_variables ("030_string_cat_in_stringlist", {'variable_b': ['data996', 'data997', 'data998data995']})
+        self.assert_variables ("030_string_cat_in_stringlist", {'variable_a': 'data995', 'variable_b': ['data996', 'data997', 'data998data995']})
 
     def test_multi_variable_stringlist_concatenation (self):
         """
