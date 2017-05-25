@@ -51,7 +51,7 @@ class Soong:
         stringcat.setParseAction (self.stringcatAction)
 
         # List of strings
-        stringlist = Literal ("[") + Optional (delimitedList (stringcat)) + Optional (comma) + Literal ("]")
+        stringlist = Suppress (Literal ("[")) + Optional (delimitedList (stringcat)) + Suppress (Optional (comma)) + Literal ("]")
         stringlist.setParseAction (self.stringlistAction)
 
         # Concatenation of strings, strings lists and variables
@@ -110,8 +110,7 @@ class Soong:
         variables[varname] = value + tokens[1].unwrap()
 
     def stringlistAction (self, string, location, tokens):
-        last = -2 if tokens[-2] == ',' else -1
-        return [tokens[1:last]]
+        return [tokens[:-1]]
 
     def elementAction (self, string, location, tokens):
         result = tokens[0]
