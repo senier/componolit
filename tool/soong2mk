@@ -68,7 +68,7 @@ class Soong:
         dictelem.setParseAction (self.dictelemAction)
 
         # Section (unnamed)
-        section << Literal ("{") + Optional (delimitedList (dictelem)) + Optional (comma) + Literal ("}")
+        section << Suppress (Literal ("{")) + Optional (delimitedList (dictelem)) + Suppress (Optional (comma) + Literal ("}"))
         section.setParseAction (self.sectionAction)
 
         # Named section
@@ -135,8 +135,7 @@ class Soong:
 
     def sectionAction (self, string, location, tokens):
         result = {}
-        last = -2 if tokens[-2] == ',' else -1
-        for token in tokens[1:last]:
+        for token in tokens:
             result[token[0]] = token[1]
         return Wrap (result)
 
