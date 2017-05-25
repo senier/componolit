@@ -16,6 +16,7 @@ cc_library_shared {
     name: "android.hidl.memory@1.0-impl",
     compile_multilib: "both",
     relative_install_path: "hw",
+    cflags: libhidl_flags,
     srcs: [
         "AshmemMapper.cpp",
         "AshmemMemory.cpp",
@@ -31,29 +32,6 @@ cc_library_shared {
         "libutils",
         "libhidlbase",
         "libhidltransport",
-        "android.hidl.base@1.0",
         "android.hidl.memory@1.0",
-    ],
-}
-
-cc_binary {
-    name: "android.hidl.memory@1.0-service",
-    relative_install_path: "hw",
-    srcs: [
-        "AshmemAllocator.cpp",
-        "service.cpp"
-    ],
-    init_rc: ["android.hidl.memory@1.0-service.rc"],
-
-    shared_libs: [
-        "android.hidl.base@1.0",
-        "android.hidl.memory@1.0",
-        "libhidlbase",
-        "libhidltransport",
-        "libhwbinder",
-        "libbase",
-        "liblog",
-        "libutils",
-        "libcutils",
     ],
 }

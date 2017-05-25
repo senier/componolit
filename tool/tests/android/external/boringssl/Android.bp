@@ -8,6 +8,7 @@ build = ["sources.bp"]
 // Used by libcrypto, libssl, bssl tool, and native tests
 cc_defaults {
     name: "boringssl_flags",
+    vendor_available: true,
 
     cflags: [
         "-fvisibility=hidden",
@@ -42,8 +43,8 @@ cc_defaults {
 
 // This should be removed when clang can compile everything.
 libcrypto_sources_no_clang = [
-    "linux-arm/crypto/aes/aes-armv4.S",
-    "linux-arm/crypto/aes/bsaes-armv7.S",
+    "linux-arm/crypto/fipsmodule/aes-armv4.S",
+    "linux-arm/crypto/fipsmodule/bsaes-armv7.S",
 ]
 
 cc_defaults {
@@ -146,21 +147,6 @@ cc_library {
     unique_host_soname: true,
 
     shared_libs: ["libcrypto"],
-}
-
-// Host static library
-cc_library_host_static {
-    name: "libssl_static-host",
-    defaults: ["libssl_sources", "boringssl_defaults", "boringssl_flags"],
-
-    // TODO: b/26160319. ASAN breaks use of this library in JVM.
-    // Re-enable sanitization when the issue with making clients of this library
-    // preload ASAN runtime is resolved. Without that, clients are getting runtime
-    // errors due to unresolved ASAN symbols, such as
-    // __asan_option_detect_stack_use_after_return.
-    sanitize: {
-        never: true,
-    },
 }
 
 // Tool

@@ -23,6 +23,7 @@ cc_library_static {
         "external/aac/libAACenc/include",
         "external/aac/libSYS/include",
         "external/libldac/inc",
+        "external/libldac/abr/inc",
         "system/bt",
         "system/bt/btcore/include",
         "system/bt/vnd/include",
@@ -49,6 +50,7 @@ cc_library_static {
         "a2dp/a2dp_vendor_aptx_encoder.cc",
         "a2dp/a2dp_vendor_aptx_hd_encoder.cc",
         "a2dp/a2dp_vendor_ldac.cc",
+        "a2dp/a2dp_vendor_ldac_abr.cc",
         "a2dp/a2dp_vendor_ldac_encoder.cc",
         "avct/avct_api.cc",
         "avct/avct_bcb_act.cc",
@@ -176,6 +178,7 @@ cc_library_static {
     ],
     required: [
         "libldacBT_enc",
+        "libldacBT_abr",
     ]
 }
 
@@ -267,5 +270,53 @@ cc_test {
     static_libs: [
         "liblog",
         "libgmock",
+    ],
+}
+
+// Bluetooth stack advertise data parsing unit tests for target
+// =============================================================
+cc_test {
+    name: "net_test_stack_ad_parser",
+    defaults: ["fluoride_defaults"],
+    local_include_dirs: [
+        "include",
+    ],
+    srcs: [
+        "test/ad_parser_unittest.cc",
+    ],
+    static_libs: [
+        "liblog",
+        "libgmock",
+    ],
+}
+
+// Bluetooth stack message loop tests for target
+// ========================================================
+cc_test {
+    name: "net_test_btu_message_loop",
+    defaults: ["fluoride_defaults"],
+    local_include_dirs: [
+        "include",
+        "btm",
+    ],
+    include_dirs: [
+        "system/bt/",
+        "system/bt/include",
+        "system/bt/btcore/include",
+        "system/bt/bta/include",
+    ],
+    srcs: [
+        "btu/btu_task.cc",
+        "test/stack_btu_test.cc",
+    ],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+        "libgmock",
+        "libosi",
+        "libbt-protos",
     ],
 }

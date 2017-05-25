@@ -16,15 +16,20 @@ subdirs = [
     "test"
 ]
 
+libvintf_flags = [
+    "-Wall",
+    "-Werror",
+]
+
 cc_library {
     name: "libvintf",
+    host_supported: true,
+    cflags: libvintf_flags,
     shared_libs: [
         "libbase",
         "liblog",
         "libselinux",
         "libtinyxml2",
-        "libutils",
-        "libz",
     ],
     export_include_dirs: ["include"],
     local_include_dirs: ["include/vintf"],
@@ -33,21 +38,97 @@ cc_library {
         "parse_string.cpp",
         "parse_xml.cpp",
         "CompatibilityMatrix.cpp",
-        "KernelInfo.cpp",
+        "HalManifest.cpp",
+        "HalInterface.cpp",
+        "KernelConfigTypedValue.cpp",
+        "RuntimeInfo.cpp",
         "ManifestHal.cpp",
         "MatrixHal.cpp",
         "MatrixKernel.cpp",
-        "VendorManifest.cpp",
+        "TransportArch.cpp",
+        "VintfObject.cpp",
+        "utils.cpp",
     ],
+
+    target: {
+        host: {
+            srcs: [
+                "RuntimeInfo-host.cpp"
+            ]
+        },
+        android: {
+            shared_libs: [
+                "libcutils",
+                "libutils",
+                "libz"
+            ],
+            srcs: [
+                "RuntimeInfo-target.cpp"
+            ],
+            cflags: ["-DLIBVINTF_TARGET"],
+        },
+    }
 }
 
 cc_binary {
     name: "vintf",
+    cflags: libvintf_flags,
     shared_libs: [
         "libvintf",
-        "libselinux",
     ],
     srcs: [
         "main.cpp"
     ],
+}
+
+cc_binary_host {
+    name: "assemble_vintf",
+    cflags: libvintf_flags,
+    shared_libs: [
+        "libvintf"
+    ],
+    srcs: [
+        "assemble_vintf.cpp"
+    ],
+}
+
+cc_library {
+    name: "libvintftest",
+    host_supported: true,
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libselinux",
+        "libtinyxml2",
+    ],
+    export_include_dirs: ["include/vintf", "include", "test", "."],
+    local_include_dirs: ["include/vintf", "test", "."],
+
+    srcs: [
+        "parse_string.cpp",
+        "parse_xml.cpp",
+        "CompatibilityMatrix.cpp",
+        "HalManifest.cpp",
+        "HalInterface.cpp",
+        "KernelConfigTypedValue.cpp",
+        "RuntimeInfo.cpp",
+        "ManifestHal.cpp",
+        "MatrixHal.cpp",
+        "MatrixKernel.cpp",
+        "TransportArch.cpp",
+        "VintfObject.cpp",
+        "test/RuntimeInfo-fake.cpp",
+        "test/utils-fake.cpp",
+    ],
+
+    target: {
+        android: {
+            shared_libs: [
+                "libcutils",
+                "libutils",
+                "libz"
+            ],
+            cflags: ["-DLIBVINTF_TARGET"],
+        },
+    }
 }

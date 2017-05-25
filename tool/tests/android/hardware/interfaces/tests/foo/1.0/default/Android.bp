@@ -2,7 +2,9 @@
 
 cc_library_shared {
     name: "android.hardware.tests.foo@1.0-impl",
+    defaults: ["hidl_defaults"],
     relative_install_path: "hw",
+    proprietary: true,
     srcs: [
         "Foo.cpp",
     ],
@@ -13,7 +15,6 @@ cc_library_shared {
         "libhidlbase",
         "libhidltransport",
         "libfootest",
-        "libhwbinder",
         "liblog",
         "libutils",
         "android.hardware.tests.foo@1.0",

@@ -32,7 +32,6 @@ cc_library_shared {
         "system/bt/vnd/include",
         "system/bt/embdrv/sbc/encoder/include",
         "system/bt/embdrv/sbc/decoder/include",
-        "system/bt/audio_a2dp_hw",
         "system/bt/utils/include",
     ],
     logtags: ["../EventLogTags.logtags"],
@@ -77,8 +76,8 @@ cc_library_shared {
         "bt_did.conf",
         "bt_stack.conf",
         "libbt-hci",
-        "libbt-vendor",
         "libldacBT_enc",
+        "libldacBT_abr",
     ],
     cflags: [
         "-DBUILDCFG",

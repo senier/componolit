@@ -39,6 +39,7 @@ LIBUNWIND_CPPFLAGS = [
     "-Wextra",
     "-Wno-unused-function",
     "-Wno-unused-parameter",
+    "-Wno-unused-local-typedef",
     "-Werror",
 ]
 
@@ -46,6 +47,7 @@ cc_library_static {
     name: "libunwind_llvm",
     clang: true,
     sdk_version: "21",
+    vendor_available: true,
     srcs: LIBUNWIND_SRC_FILES,
     include_dirs: LIBUNWIND_INCLUDES,
     local_include_dirs: LIBUNWIND_LOCAL_INCLUDES,

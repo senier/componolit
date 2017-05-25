@@ -26,6 +26,7 @@ cc_defaults {
         "-Werror",
         "-std=c++11",
         "-DGOOGLE_PROTOBUF_NO_RTTI",
+        "-UNDEBUG"
     ],
 
     target: {
@@ -79,6 +80,19 @@ cc_defaults {
     ],
 }
 
+cc_defaults {
+    name: "header-abi-linker-lib-defaults",
+
+    static_libs: [
+        "libLLVMSupport",
+        "libheader-abi-util",
+    ],
+
+    shared_libs: [
+        "libprotobuf-cpp-full",
+    ],
+}
+
 cc_library_static {
     name: "libheader-checker-proto",
     host_supported: true,
@@ -86,10 +100,12 @@ cc_library_static {
 
     srcs: [
         "proto/abi_dump.proto",
+        "proto/abi_diff.proto",
     ],
 
     proto: {
         export_proto_headers: true,
+        type: "full",
     },
 
     cflags: [
@@ -113,6 +129,7 @@ cc_binary_host {
 
     static_libs: [
         "libheader-checker-proto",
+        "libheader-abi-util",
     ],
 
     target: {
@@ -129,4 +146,122 @@ cc_binary_host {
             ],
         },
     },
+}
+
+cc_binary_host {
+    name: "header-abi-linker",
+
+    defaults: [
+        "header-checker-defaults",
+        "header-abi-linker-lib-defaults",
+    ],
+
+    srcs: [
+        "header-abi-linker/src/*.cpp",
+    ],
+
+    static_libs: [
+        "libheader-checker-proto",
+    ],
+
+    target: {
+        linux: {
+            host_ldlibs: [
+                "-ldl",
+                "-lpthread",
+            ],
+        },
+        darwin: {
+            host_ldlibs: [
+                "-ldl",
+                "-lpthread",
+            ],
+        },
+    },
+}
+
+cc_binary_host {
+    name: "header-abi-diff",
+
+    defaults: [
+        "header-checker-defaults",
+        "header-abi-linker-lib-defaults",
+    ],
+
+    srcs: [
+        "header-abi-diff/src/*.cpp",
+    ],
+
+    static_libs: [
+        "libheader-checker-proto",
+    ],
+
+    target: {
+        linux: {
+            host_ldlibs: [
+                "-ldl",
+                "-lpthread",
+            ],
+        },
+        darwin: {
+            host_ldlibs: [
+                "-ldl",
+                "-lpthread",
+            ],
+        },
+    },
+}
+
+cc_binary_host {
+    name: "merge-abi-diff",
+
+    defaults: [
+        "header-checker-defaults",
+        "header-abi-linker-lib-defaults",
+    ],
+
+    srcs: [
+        "merge-abi-diff/src/*.cpp",
+    ],
+
+    static_libs: [
+        "libheader-checker-proto",
+    ],
+
+    target: {
+        linux: {
+            host_ldlibs: [
+                "-ldl",
+                "-lpthread",
+            ],
+        },
+        darwin: {
+            host_ldlibs: [
+                "-ldl",
+                "-lpthread",
+            ],
+        },
+    },
+}
+
+cc_library_static {
+    name: "libheader-abi-util",
+    defaults: [
+        "header-checker-defaults",
+    ],
+    host_supported: true,
+    export_include_dirs: ["header-abi-util/include"],
+    local_include_dirs: ["header-abi-util/include"],
+
+    srcs: [
+        "header-abi-util/src/*.cpp"
+    ],
+    static_libs: [
+        "libLLVMSupport",
+    ],
+    cflags: [
+        "-Wcast-qual",
+        "-Wno-long-long",
+        "-Wno-unused-parameter",
+    ],
 }

@@ -15,11 +15,12 @@
 cc_library_shared {
     name: "libhidl-gen-utils",
     host_supported: true,
+    vendor_available: true,
     cflags: hidl_flags,
     srcs: [
+        "FQName.cpp",
         "Formatter.cpp",
         "StringHelper.cpp",
-        "FQName.cpp"
     ],
     shared_libs: [
         "libbase",
@@ -28,4 +29,5 @@ cc_library_shared {
 
     local_include_dirs: ["include/hidl-util"],
     export_include_dirs: ["include"],
+    compile_multilib: "both",
 }

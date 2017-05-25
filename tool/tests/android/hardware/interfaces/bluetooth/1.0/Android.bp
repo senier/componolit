@@ -12,11 +12,9 @@ filegroup {
 genrule {
     name: "android.hardware.bluetooth@1.0_genc++",
     tools: ["hidl-gen"],
-    cmd: "$(location hidl-gen) -o $(genDir) -Lc++ -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.bluetooth@1.0",
+    cmd: "$(location hidl-gen) -o $(genDir) -Lc++-sources -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.bluetooth@1.0",
     srcs: [
-        "types.hal",
-        "IBluetoothHci.hal",
-        "IBluetoothHciCallbacks.hal",
+        ":android.hardware.bluetooth@1.0_hal",
     ],
     out: [
         "android/hardware/bluetooth/1.0/types.cpp",
@@ -28,14 +26,13 @@ genrule {
 genrule {
     name: "android.hardware.bluetooth@1.0_genc++_headers",
     tools: ["hidl-gen"],
-    cmd: "$(location hidl-gen) -o $(genDir) -Lc++ -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.bluetooth@1.0",
+    cmd: "$(location hidl-gen) -o $(genDir) -Lc++-headers -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.bluetooth@1.0",
     srcs: [
-        "types.hal",
-        "IBluetoothHci.hal",
-        "IBluetoothHciCallbacks.hal",
+        ":android.hardware.bluetooth@1.0_hal",
     ],
     out: [
         "android/hardware/bluetooth/1.0/types.h",
+        "android/hardware/bluetooth/1.0/hwtypes.h",
         "android/hardware/bluetooth/1.0/IBluetoothHci.h",
         "android/hardware/bluetooth/1.0/IHwBluetoothHci.h",
         "android/hardware/bluetooth/1.0/BnHwBluetoothHci.h",
@@ -51,9 +48,11 @@ genrule {
 
 cc_library_shared {
     name: "android.hardware.bluetooth@1.0",
+    defaults: ["hidl-module-defaults"],
     generated_sources: ["android.hardware.bluetooth@1.0_genc++"],
     generated_headers: ["android.hardware.bluetooth@1.0_genc++_headers"],
     export_generated_headers: ["android.hardware.bluetooth@1.0_genc++_headers"],
+    vendor_available: true,
     shared_libs: [
         "libhidlbase",
         "libhidltransport",
@@ -61,13 +60,11 @@ cc_library_shared {
         "liblog",
         "libutils",
         "libcutils",
-        "android.hidl.base@1.0",
     ],
     export_shared_lib_headers: [
         "libhidlbase",
         "libhidltransport",
         "libhwbinder",
         "libutils",
-        "android.hidl.base@1.0",
     ],
 }

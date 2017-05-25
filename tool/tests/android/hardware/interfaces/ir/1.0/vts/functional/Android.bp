@@ -15,26 +15,21 @@
 //
 
 cc_test {
-    name: "ir_hidl_hal_test",
-    gtest: true,
-    srcs: ["ir_hidl_hal_test.cpp"],
+    name: "VtsHalIrV1_0TargetTest",
+    defaults: ["hidl_defaults"],
+    srcs: ["VtsHalIrV1_0TargetTest.cpp"],
     shared_libs: [
         "libbase",
         "liblog",
         "libcutils",
         "libhidlbase",
         "libhidltransport",
-        "libhwbinder",
         "libutils",
         "android.hardware.ir@1.0",
     ],
-    static_libs: ["libgtest"],
+    static_libs: ["VtsHalHidlTargetTestBase"],
     cflags: [
-        "--coverage",
         "-O0",
         "-g",
     ],
-    ldflags: [
-        "--coverage"
-    ]
 }

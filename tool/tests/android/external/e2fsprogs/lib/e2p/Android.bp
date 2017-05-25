@@ -2,6 +2,7 @@
 
 cc_library {
     name: "libext2_e2p",
+    vendor_available: true,
     host_supported: true,
     unique_host_soname: true,
     srcs: [
@@ -32,6 +33,7 @@ cc_library {
     cflags: [
         "-W",
         "-Wall",
+        "-Wno-macro-redefined",
     ],
 
     header_libs: ["libext2-headers"],

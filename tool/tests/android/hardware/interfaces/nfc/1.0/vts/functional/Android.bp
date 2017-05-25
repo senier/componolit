@@ -15,27 +15,22 @@
 //
 
 cc_test {
-    name: "nfc_hidl_hal_test",
-    gtest: true,
-    srcs: ["nfc_hidl_hal_test.cpp"],
+    name: "VtsHalNfcV1_0TargetTest",
+    defaults: ["hidl_defaults"],
+    srcs: ["VtsHalNfcV1_0TargetTest.cpp"],
     shared_libs: [
         "libbase",
         "liblog",
         "libcutils",
         "libhidlbase",
         "libhidltransport",
-        "libhwbinder",
         "libnativehelper",
         "libutils",
         "android.hardware.nfc@1.0",
     ],
-    static_libs: ["libgtest"],
+    static_libs: ["VtsHalHidlTargetTestBase"],
     cflags: [
-        "--coverage",
         "-O0",
         "-g",
     ],
-    ldflags: [
-        "--coverage"
-    ]
 }

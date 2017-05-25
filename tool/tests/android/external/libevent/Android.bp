@@ -15,6 +15,7 @@
 cc_library {
     name: "libevent",
     host_supported: true,
+    vendor_available: true,
     unique_host_soname: true,
 
     arch: {
@@ -30,7 +31,6 @@ cc_library {
         "-Wno-unused-parameter",
         "-Werror",
     ],
-    local_include_dirs: ["include"],
     export_include_dirs: ["include"],
 
     srcs: [
@@ -68,6 +68,10 @@ cc_library {
         linux: {
             srcs: ["epoll.c"],
             host_ldlibs: ["-lrt"],
+        },
+        linux_bionic: {
+            enabled: true,
+            srcs: ["epoll.c"],
         },
         darwin: {
             srcs: ["kqueue.c"],

@@ -19,16 +19,16 @@ cc_library_shared {
     srcs: [
         "ProtoFuzzerUtils.cpp",
         "ProtoFuzzerMutator.cpp",
-        "type_mutators/ProtoFuzzerEnumMutator.cpp",
-        "type_mutators/ProtoFuzzerScalarMutator.cpp",
-        "type_mutators/ProtoFuzzerStructMutator.cpp",
+        "ProtoFuzzerMutateFns.cpp",
+        "ProtoFuzzerRunner.cpp",
     ],
     include_dirs: [
-        "test/vts/sysfuzzer/common/include",
+        "test/vts/drivers/hal/common/include",
         "test/vts-testcase/fuzz/iface_fuzzer/include",
     ],
     shared_libs: [
         "libprotobuf-cpp-full",
+        "libvintf",
         "libvts_common",
         "libvts_multidevice_proto",
         "libvts_proto_fuzzer_proto",
@@ -45,7 +45,7 @@ cc_binary {
     ],
     include_dirs: [
         "external/llvm/lib/Fuzzer",
-        "test/vts/sysfuzzer/common/include",
+        "test/vts/drivers/hal/common/include",
         "test/vts-testcase/fuzz/iface_fuzzer/include",
     ],
     shared_libs: [
@@ -56,7 +56,7 @@ cc_binary {
         "libvts_proto_fuzzer_proto",
     ],
     static_libs: [
-        "libLLVMFuzzer",
+        "libFuzzer",
     ],
     cflags: [
         "-Wno-unused-parameter",

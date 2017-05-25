@@ -28,7 +28,6 @@ cc_library_static {
         "dsp/cost_mips32.c",
         "dsp/cost_mips_dsp_r2.c",
         "dsp/cost_sse2.c",
-        "dsp/cpu-features.c",
         "dsp/cpu.c",
         "dsp/enc.c",
         "dsp/enc_avx2.c",
@@ -68,6 +67,10 @@ cc_library_static {
         "enc/tree_enc.c",
         "enc/vp8l_enc.c",
         "enc/webp_enc.c",
+        "mux/anim_encode.c",
+        "mux/muxedit.c",
+        "mux/muxinternal.c",
+        "mux/muxread.c",
         "utils/bit_reader_utils.c",
         "utils/bit_writer_utils.c",
         "utils/color_cache_utils.c",
@@ -84,6 +87,9 @@ cc_library_static {
     arch: {
         arm: {
             instruction_set: "arm",
+        },
+        mips: {
+            cflags: ["-fno-integrated-as",],
         },
     },
     cflags: [
@@ -117,7 +123,6 @@ cc_library_static {
         "dsp/alpha_processing_mips_dsp_r2.c",
         "dsp/alpha_processing_sse2.c",
         "dsp/alpha_processing_sse41.c",
-        "dsp/cpu-features.c",
         "dsp/cpu.c",
         "dsp/dec.c",
         "dsp/dec_clip_tables.c",

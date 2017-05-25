@@ -1,13 +1,14 @@
 subdirs = [
     "vendor/1.0",
     "java_test",
+    "hash_test",
 ]
 
 cc_test {
-    name: "hidl_test",
+    name: "hidl_test_client",
+    vendor: true,
     cflags: hidl_flags,
-    gtest: false,
-    srcs: ["main.cpp", "FooCallback.cpp"],
+    srcs: ["hidl_test_client.cpp", "FooCallback.cpp"],
 
     shared_libs: [
         "libbase",
@@ -18,18 +19,19 @@ cc_test {
         "libhidlmemory",
         "libfootest",
         "libhwbinder",
-        "libnativehelper",
         "libpointertest",
         "libutils",
         "android.hardware.tests.foo@1.0",
         "android.hardware.tests.bar@1.0",
+        "android.hardware.tests.baz@1.0",
+        "android.hardware.tests.hash@1.0",
         "android.hardware.tests.inheritance@1.0",
         "android.hardware.tests.pointer@1.0",
         "android.hardware.tests.memory@1.0",
+        "android.hidl.allocator@1.0",
         "android.hidl.memory@1.0",
         "android.hidl.token@1.0",
     ],
-    static_libs: ["libgtest"],
 
     required: [
         // Warning, these should never be specified explicitly for anything else
@@ -39,18 +41,35 @@ cc_test {
         // included on a device.mk).
         "android.hardware.tests.foo@1.0-impl",
         "android.hardware.tests.bar@1.0-impl",
+        "android.hardware.tests.baz@1.0-impl",
+        "android.hardware.tests.hash@1.0-impl",
         "android.hardware.tests.inheritance@1.0-impl",
         "android.hardware.tests.pointer@1.0-impl",
         "android.hardware.tests.memory@1.0-impl",
     ],
+}
 
-    compile_multilib: "both",
-    multilib: {
-        lib32: {
-            suffix: "32",
-        },
-        lib64: {
-            suffix: "64",
-        },
-    },
+cc_test {
+    name: "hidl_test_servers",
+    vendor: true,
+    srcs: ["hidl_test_servers.cpp"],
+    gtest: false,
+
+    shared_libs: [
+        "libbase",
+        "libhidlbase",
+        "libhidltransport",
+        "libhwbinder",
+        "liblog",
+        "libutils",
+        "android.hardware.tests.foo@1.0",
+        "android.hardware.tests.bar@1.0",
+        "android.hardware.tests.baz@1.0",
+        "android.hardware.tests.hash@1.0",
+        "android.hardware.tests.inheritance@1.0",
+        "android.hardware.tests.pointer@1.0",
+        "android.hardware.tests.memory@1.0",
+        "android.hidl.memory@1.0",
+        "android.hidl.token@1.0",
+    ],
 }

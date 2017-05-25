@@ -49,6 +49,8 @@ cc_library_static {
 cc_library_shared {
     name: "libspeexresampler",
 
+    vendor_available: true,
+
     arch: {
         arm: {
             instruction_set: "arm",

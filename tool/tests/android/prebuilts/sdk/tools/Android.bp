@@ -1,4 +1,4 @@
-cc_prebuilt_shared_library {
+cc_prebuilt_library_shared {
     name: "libLLVM",
     host_supported: true,
     target: {
@@ -17,7 +17,7 @@ cc_prebuilt_shared_library {
     },
 }
 
-cc_prebuilt_shared_library {
+cc_prebuilt_library_shared {
     name: "libclang",
     host_supported: true,
     target: {

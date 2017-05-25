@@ -14,7 +14,7 @@
 
 // Headers module is in frameworks/native/vulkan/Android.bp.
 ndk_library {
-    name: "libvulkan.ndk",
+    name: "libvulkan",
     symbol_file: "libvulkan.map.txt",
     first_version: "24",
     unversioned_until: "current",
@@ -69,6 +69,7 @@ cc_library_shared {
         "libziparchive",
     ],
     shared_libs: [
+        "libgui",
         "libhardware",
         "libsync",
         "libbase",

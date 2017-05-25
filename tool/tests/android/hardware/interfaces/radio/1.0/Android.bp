@@ -15,14 +15,9 @@ filegroup {
 genrule {
     name: "android.hardware.radio@1.0_genc++",
     tools: ["hidl-gen"],
-    cmd: "$(location hidl-gen) -o $(genDir) -Lc++ -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.radio@1.0",
+    cmd: "$(location hidl-gen) -o $(genDir) -Lc++-sources -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.radio@1.0",
     srcs: [
-        "types.hal",
-        "IRadio.hal",
-        "IRadioIndication.hal",
-        "IRadioResponse.hal",
-        "ISap.hal",
-        "ISapCallback.hal",
+        ":android.hardware.radio@1.0_hal",
     ],
     out: [
         "android/hardware/radio/1.0/types.cpp",
@@ -37,17 +32,13 @@ genrule {
 genrule {
     name: "android.hardware.radio@1.0_genc++_headers",
     tools: ["hidl-gen"],
-    cmd: "$(location hidl-gen) -o $(genDir) -Lc++ -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.radio@1.0",
+    cmd: "$(location hidl-gen) -o $(genDir) -Lc++-headers -randroid.hardware:hardware/interfaces -randroid.hidl:system/libhidl/transport android.hardware.radio@1.0",
     srcs: [
-        "types.hal",
-        "IRadio.hal",
-        "IRadioIndication.hal",
-        "IRadioResponse.hal",
-        "ISap.hal",
-        "ISapCallback.hal",
+        ":android.hardware.radio@1.0_hal",
     ],
     out: [
         "android/hardware/radio/1.0/types.h",
+        "android/hardware/radio/1.0/hwtypes.h",
         "android/hardware/radio/1.0/IRadio.h",
         "android/hardware/radio/1.0/IHwRadio.h",
         "android/hardware/radio/1.0/BnHwRadio.h",
@@ -78,9 +69,11 @@ genrule {
 
 cc_library_shared {
     name: "android.hardware.radio@1.0",
+    defaults: ["hidl-module-defaults"],
     generated_sources: ["android.hardware.radio@1.0_genc++"],
     generated_headers: ["android.hardware.radio@1.0_genc++_headers"],
     export_generated_headers: ["android.hardware.radio@1.0_genc++_headers"],
+    vendor_available: true,
     shared_libs: [
         "libhidlbase",
         "libhidltransport",
@@ -88,13 +81,11 @@ cc_library_shared {
         "liblog",
         "libutils",
         "libcutils",
-        "android.hidl.base@1.0",
     ],
     export_shared_lib_headers: [
         "libhidlbase",
         "libhidltransport",
         "libhwbinder",
         "libutils",
-        "android.hidl.base@1.0",
     ],
 }

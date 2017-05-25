@@ -27,6 +27,8 @@ cc_binary {
         "libLLVM",
     ],
 
+    header_libs: ["slang_headers"],
+
     target: {
         host: {
             host_ldlibs: ["-ldl"],
@@ -35,8 +37,6 @@ cc_binary {
             shared_libs: [
                 "libdl",
                 "liblog",
-                "libutils",
-                "libcutils",
             ],
         },
     },

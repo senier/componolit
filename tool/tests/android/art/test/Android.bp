@@ -51,9 +51,9 @@ art_cc_defaults {
     // These really are gtests, but the gtest library comes from libart-gtest.so
     gtest: false,
     defaults: [
-        "art_defaults",
-        "art_debug_defaults",
         "art_test_defaults",
+        "art_debug_defaults",
+        "art_defaults",
     ],
 
     shared_libs: [
@@ -128,8 +128,8 @@ art_cc_defaults {
     name: "libart-gtest-defaults",
     host_supported: true,
     defaults: [
-        "art_defaults",
         "art_debug_defaults",
+        "art_defaults",
     ],
     shared_libs: [
         "libartd",
@@ -202,8 +202,8 @@ art_cc_library {
 cc_defaults {
     name: "libartagent-defaults",
     defaults: [
-        "art_defaults",
         "art_test_defaults",
+        "art_defaults",
     ],
     shared_libs: [
         "libbacktrace",
@@ -234,29 +234,31 @@ art_cc_test_library {
     name: "libartagentd",
     srcs: ["900-hello-plugin/load_unload.cc"],
     defaults: [
-        "libartagent-defaults",
         "art_debug_defaults",
+        "libartagent-defaults",
     ],
     shared_libs: ["libartd"],
 }
 
 art_cc_defaults {
-    name: "libtiagent-defaults",
+   name: "libtiagent-base-defaults",
     defaults: ["libartagent-defaults"],
     srcs: [
-        // This is to get the IsInterpreted native method.
-        "common/stack_inspect.cc",
-        "common/runtime_state.cc",
-        "ti-agent/common_load.cc",
+        // These are the ART-independent parts.
+        "ti-agent/agent_common.cc",
+        "ti-agent/agent_startup.cc",
+        "ti-agent/jni_binder.cc",
+        "ti-agent/jvmti_helper.cc",
+        "ti-agent/test_env.cc",
         "ti-agent/common_helper.cc",
-        "901-hello-ti-agent/basics.cc",
+        // This is the list of non-special OnLoad things and excludes BCI and anything that depends
+        // on ART internals.
         "903-hello-tagging/tagging.cc",
         "904-object-allocation/tracking.cc",
         "905-object-free/tracking_free.cc",
         "906-iterate-heap/iterate_heap.cc",
         "907-get-loaded-classes/get_loaded_classes.cc",
         "908-gc-start-finish/gc_callbacks.cc",
-        "909-attach-agent/attach.cc",
         "910-methods/methods.cc",
         "911-get-stack-trace/stack_trace.cc",
         "912-classes/classes.cc",
@@ -272,11 +274,33 @@ art_cc_defaults {
         "929-search/search.cc",
         "931-agent-thread/agent_thread.cc",
         "933-misc-events/misc_events.cc",
-        "936-search-onload/search_onload.cc",
-        "944-transform-classloaders/classloader.cc",
+        "945-obsolete-native/obsolete_native.cc",
+        "984-obsolete-invoke/obsolete_invoke.cc",
+        "986-native-method-bind/native_bind.cc",
+        "987-agent-bind/agent_bind.cc",
     ],
     shared_libs: [
         "libbase",
+    ],
+    header_libs: ["libopenjdkjvmti_headers"],
+    include_dirs: ["art/test/ti-agent"],
+}
+
+art_cc_defaults {
+    name: "libtiagent-defaults",
+    defaults: ["libtiagent-base-defaults"],
+    srcs: [
+        // This is to get the IsInterpreted native method.
+        "common/stack_inspect.cc",
+        "common/runtime_state.cc",
+        "ti-agent/common_load.cc",
+        // This includes the remaining test functions. We should try to refactor things to
+        // make this list smaller.
+        "901-hello-ti-agent/basics.cc",
+        "909-attach-agent/attach.cc",
+        "912-classes/classes_art.cc",
+        "936-search-onload/search_onload.cc",
+        "983-source-transform-verify/source_transform.cc",
     ],
 }
 
@@ -289,17 +313,50 @@ art_cc_test_library {
 art_cc_test_library {
     name: "libtiagentd",
     defaults: [
-        "libtiagent-defaults",
         "art_debug_defaults",
+        "libtiagent-defaults",
     ],
     shared_libs: ["libartd"],
+}
+
+art_cc_defaults {
+    name: "libtistress-defaults",
+    defaults: ["libartagent-defaults"],
+    srcs: [
+        "ti-stress/stress.cc",
+    ],
+    shared_libs: [
+        "libbase",
+    ],
+    header_libs: ["libopenjdkjvmti_headers"],
+}
+
+art_cc_test_library {
+    name: "libtistress",
+    defaults: [ "libtistress-defaults"],
+    shared_libs: ["libart"],
+}
+
+art_cc_test_library {
+    name: "libtistressd",
+    defaults: [
+        "art_debug_defaults",
+        "libtistress-defaults",
+    ],
+    shared_libs: ["libartd"],
+}
+
+art_cc_test_library {
+    name: "libctstiagent",
+    defaults: ["libtiagent-base-defaults"],
+    export_include_dirs: ["ti-agent"],
 }
 
 cc_defaults {
     name: "libarttest-defaults",
     defaults: [
-        "art_defaults",
         "art_test_defaults",
+        "art_defaults",
     ],
     srcs: [
         "common/runtime_state.cc",
@@ -334,6 +391,8 @@ cc_defaults {
         "596-monitor-inflation/monitor_inflation.cc",
         "597-deopt-new-string/deopt.cc",
         "626-const-class-linking/clear_dex_cache_types.cc",
+        "642-fp-callees/fp_callees.cc",
+        "647-jni-get-field-id/get_field_id.cc",
     ],
     shared_libs: [
         "libbacktrace",
@@ -362,8 +421,8 @@ art_cc_test_library {
 art_cc_test_library {
     name: "libarttestd",
     defaults: [
-        "libarttest-defaults",
         "art_debug_defaults",
+        "libarttest-defaults",
     ],
     shared_libs: ["libartd"],
 }
@@ -372,9 +431,9 @@ art_cc_test_library {
     name: "libnativebridgetest",
     shared_libs: ["libart"],
     defaults: [
-        "art_defaults",
-        "art_debug_defaults",
         "art_test_defaults",
+        "art_debug_defaults",
+        "art_defaults",
     ],
     srcs: ["115-native-bridge/nativebridge.cc"],
     target: {

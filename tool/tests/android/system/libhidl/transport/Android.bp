@@ -13,15 +13,20 @@
 // limitations under the License.
 
 subdirs = [
+    "allocator/1.0",
+    "allocator/1.0/default",
     "base/1.0",
     "manager/1.0",
     "memory/1.0",
     "memory/1.0/default",
     "token/1.0",
+    "token/1.0/utils",
 ]
 
 cc_library_shared {
     name: "libhidltransport",
+    vendor_available: true,
+    cflags: libhidl_flags,
     shared_libs: [
         "libbase",
         "liblog",
@@ -29,7 +34,6 @@ cc_library_shared {
         "libhidlbase",
         "libhwbinder",
         "libcutils",
-        "libhidl-gen-utils"
     ],
     export_shared_lib_headers: [
         "libbase",
@@ -54,8 +58,8 @@ cc_library_shared {
 
     srcs: [
         "HidlBinderSupport.cpp",
-        "HidlPassthroughSupport.cpp",
-        "LegacySupport.cpp",
+        "HidlTransportSupport.cpp",
+        "HidlTransportUtils.cpp",
         "ServiceManagement.cpp",
         "Static.cpp"
     ],

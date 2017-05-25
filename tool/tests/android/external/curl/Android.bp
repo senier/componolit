@@ -32,9 +32,13 @@ cc_defaults {
 
 cc_library {
     name: "libcurl",
+    vendor_available: true,
     defaults: ["curl_common_defaults"],
     export_include_dirs: ["include"],
     host_supported: true,
+    cflags: [
+        "-DBUILDING_LIBCURL",
+    ],
     srcs:[
         "lib/file.c",
         "lib/timeval.c",

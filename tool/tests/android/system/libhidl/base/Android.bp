@@ -14,18 +14,17 @@
 
 cc_library_shared {
     name: "libhidlbase",
+    vendor_available: true,
+    cflags: libhidl_flags,
     shared_libs: [
         "libbase",
         "libcutils",
-        "libhidl-gen-utils",
         "liblog",
         "libutils",
-        "libvintf",
     ],
     export_shared_lib_headers: [
-        "libbase",
         "libutils",
-        "libvintf",
+        "libcutils", // for native_handle.h
     ],
     local_include_dirs: ["include"],
     export_include_dirs: ["include"],
