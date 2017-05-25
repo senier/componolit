@@ -76,7 +76,7 @@ class Soong:
         namedsection.setParseAction (self.namedsectionAction)
 
         # Variable
-        variable = name + Suppress (Literal ("=")) + data
+        variable = name + Suppress (Literal ("=")) + (data|section)
         variable.setParseAction (self.variableAction)
 
         # Extension
@@ -382,6 +382,13 @@ class TestSoong (unittest.TestCase):
         Cocatenate multiple variables with a string list
         """
         self.assert_data ("031_multi_var_stringlist_cat", [('section', {'data': ["data1", "data2", "data3", "data4", "data5", "data6"]})])
+
+    def test_section_variable (self):
+        """
+        Store section to variable
+        """
+        self.assert_data ("032_section_variable", [('section', {'subsection': {'elem_327': 'data345'}})])
+
 
 
 if __name__ == "__main__":
