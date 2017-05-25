@@ -400,15 +400,22 @@ if __name__ == "__main__":
         if len(result.failures) > 0 or len(result.errors) > 0:
             sys.exit (1)
 
+        print ("Testing Android build files ", end='')
+        no_files=0
         for root, dirs, files in os.walk ('tests/desoongify'):
             for filename in files:
+                print ('.', end='', flush=True)
+                no_files += 1
                 full = root + "/" + filename
-                print (full)
                 soong = Soong (".")
                 try:
                     soong.parse (full)
                 except MissingVariable: pass
+                except Exception:
+                    print (full)
+                    sys.exit (1)
 
+        print ("\n%d files tests" % (no_files))
         sys.exit (0)
 
     parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
