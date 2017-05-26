@@ -44,7 +44,7 @@ class SoongQuery:
         subquery = Suppress(Literal ('/')) + (name|Literal ('*')) + Optional(attribute)
         subquery.setParseAction (self.subqueryAction)
 
-        query = Combine (Group (OneOrMore(subquery))) + StringEnd()
+        query = OneOrMore(subquery) + StringEnd()
         self.__query = query.parseString (querytext)
 
     def query (self):
@@ -183,10 +183,14 @@ class Soong:
         return self._data['variables']
 
     def query (self, querytext):
+        result = []
         query = SoongQuery (querytext).query()
         for q in query:
-            print (str(q))
-        return None;
+            for section in self._data['sections']:
+                if q[0] == section[0]:
+                    result.append (section)
+
+        return result
 
 #
 # Soong parsers test cases

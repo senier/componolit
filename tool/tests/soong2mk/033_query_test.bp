@@ -5,3 +5,7 @@ section {
 section {
 	name: "second"
 }
+
+section_2 {
+	name: "third"
+}
