@@ -193,10 +193,17 @@ class Soong:
             raise InvalidQuery
 
         query = soong_query.query()
-        for q in query:
+        print ("Query: " + str(query))
+        for (queryname, attr) in query:
             for section in self._data['sections']:
-                if q[0] == section[0]:
-                    result.append (section)
+                (secname, secdata) = section
+                if queryname == secname:
+                    if attr == None:
+                        result.append (section)
+                    else:
+                        (attrname, attrdata) = attr
+                        if (attrname in secdata and secdata[attrname] == attrdata):
+                            result.append (section)
 
         if not result:
             raise NotFound
@@ -461,6 +468,19 @@ class TestSoong (unittest.TestCase):
         """
         with self.assertRaises (NotFound):
             self.assert_query ("033_query_test", "/section_non_existent", None)
+
+    def test_invalid_query (self):
+        """
+        An invalid query must raise an exception
+        """
+        with self.assertRaises (InvalidQuery):
+            self.assert_query ("033_query_test", "Invalid", None)
+
+    def test_query_by_name (self):
+        """
+        Query a section by its name
+        """
+        self.assert_query ("033_query_test", '/section[@name=second]', [('section', {'name': 'second'})])
 
 if __name__ == "__main__":
 
