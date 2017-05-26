@@ -15,6 +15,7 @@ class DuplicateVariable (Exception): pass
 class IncompatibleConcatenation (Exception): pass
 class NotFound (Exception): pass
 class InvalidQuery (Exception): pass
+class AmbiguousQuery (Exception): pass
 
 class Any: pass
 
@@ -193,7 +194,8 @@ class Soong:
         return self._data['variables']
 
     def query (self, querytext):
-        result = []
+
+        result = None
 
         try:
             soong_query = SoongQuery (querytext)
@@ -201,16 +203,21 @@ class Soong:
             raise InvalidQuery
 
         query = soong_query.query()
+        print ("Query: " + str(query))
         for (queryname, attr) in query:
             for section in self._data['sections']:
                 (secname, secdata) = section
                 if queryname == Any or queryname == secname:
                     if attr == None:
-                        result.append (section)
+                        if result != None:
+                            raise AmbiguousQuery
+                        result = section
                     else:
                         (attrname, attrdata) = attr
                         if (attrname in secdata and secdata[attrname] == attrdata):
-                            result.append (section)
+                            if result != None:
+                                raise AmbiguousQuery
+                            result = section
 
         if not result:
             raise NotFound
@@ -461,13 +468,14 @@ class TestSoong (unittest.TestCase):
         """
         Query the root of the build file
         """
-        self.assert_query ("033_query_test", "/section", [('section', {'name': 'first'}), ('section', {'name': 'second'})])
+        with self.assertRaises (AmbiguousQuery):
+            self.assert_query ("033_query_test", "/section", None)
 
     def test_query_by_section (self):
         """
         Query by section name
         """
-        self.assert_query ("033_query_test", "/section_2", [('section_2', {'name': 'third'})])
+        self.assert_query ("033_query_test", "/section_2", ('section_2', {'name': 'third'}))
 
     def test_query_not_found (self):
         """
@@ -487,11 +495,15 @@ class TestSoong (unittest.TestCase):
         """
         Query a section by its name
         """
-        self.assert_query ("033_query_test", '/section[@name=second]', [('section', {'name': 'second'})])
+        self.assert_query ("033_query_test", '/section[@name=second]', ('section', {'name': 'second'}))
 
     def test_query_by_wildcard (self):
         """
-        Query a section by its name
+        Ambiguous queries must result in an error
+        """
+        with self.assertRaises (AmbiguousQuery):
+            self.assert_query ("034_query_wildcard", '/*[@name=data2]', None)
+
         """
         self.assert_query ("034_query_wildcard", '/*[@name=data2]', [('section_1', {'name': 'data2'}), ('section_2', {'name': 'data2'})])
 
