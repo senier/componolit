@@ -14,6 +14,7 @@ class MissingVariable (Exception): pass
 class DuplicateVariable (Exception): pass
 class IncompatibleConcatenation (Exception): pass
 class NotFound (Exception): pass
+class InvalidQuery (Exception): pass
 
 class Wrap:
 
@@ -185,7 +186,13 @@ class Soong:
 
     def query (self, querytext):
         result = []
-        query = SoongQuery (querytext).query()
+
+        try:
+            soong_query = SoongQuery (querytext)
+        except ParseException:
+            raise InvalidQuery
+
+        query = soong_query.query()
         for q in query:
             for section in self._data['sections']:
                 if q[0] == section[0]:
