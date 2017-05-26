@@ -16,6 +16,8 @@ class IncompatibleConcatenation (Exception): pass
 class NotFound (Exception): pass
 class InvalidQuery (Exception): pass
 
+class Any: pass
+
 class Wrap:
 
     def __init__ (self, data):
@@ -36,6 +38,9 @@ class SoongQuery:
         attribute = tokens[1] if len(tokens) > 1 else None
         return (tokens[0], attribute)
 
+    def wildcardAction (self, string, location, tokens):
+        return Any
+
     def __init__ (self, querytext):
 
         name = Word (alphanums + "_")
@@ -43,7 +48,10 @@ class SoongQuery:
         attribute = Suppress(Literal ('[') + Literal ('@')) + name + Suppress (Literal ('=')) + name + Suppress(Literal (']'))
         attribute.setParseAction (self.attributeAction)
 
-        subquery = Suppress(Literal ('/')) + (name|Literal ('*')) + Optional(attribute)
+        wildcard = Literal ('*')
+        wildcard.setParseAction (self.wildcardAction)
+
+        subquery = Suppress(Literal ('/')) + (wildcard|name) + Optional(attribute)
         subquery.setParseAction (self.subqueryAction)
 
         query = OneOrMore(subquery) + StringEnd()
@@ -193,11 +201,10 @@ class Soong:
             raise InvalidQuery
 
         query = soong_query.query()
-        print ("Query: " + str(query))
         for (queryname, attr) in query:
             for section in self._data['sections']:
                 (secname, secdata) = section
-                if queryname == secname:
+                if queryname == Any or queryname == secname:
                     if attr == None:
                         result.append (section)
                     else:
@@ -481,6 +488,12 @@ class TestSoong (unittest.TestCase):
         Query a section by its name
         """
         self.assert_query ("033_query_test", '/section[@name=second]', [('section', {'name': 'second'})])
+
+    def test_query_by_wildcard (self):
+        """
+        Query a section by its name
+        """
+        self.assert_query ("034_query_wildcard", '/*[@name=data2]', [('section_1', {'name': 'data2'}), ('section_2', {'name': 'data2'})])
 
 if __name__ == "__main__":
 
