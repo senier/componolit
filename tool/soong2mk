@@ -23,6 +23,34 @@ class Wrap:
         return self.__data
 
 #
+# Soong query grammar
+#
+class SoongQuery:
+
+    def attributeAction (self, string, location, tokens):
+        return (tokens[0], tokens[1])
+
+    def subqueryAction (self, string, location, tokens):
+        attribute = tokens[1] if len(tokens) > 1 else None
+        return (tokens[0], attribute)
+
+    def __init__ (self, querytext):
+
+        name = Word (alphanums + "_")
+
+        attribute = Suppress(Literal ('[') + Literal ('@')) + name + Suppress (Literal ('=')) + name + Suppress(Literal (']'))
+        attribute.setParseAction (self.attributeAction)
+
+        subquery = Suppress(Literal ('/')) + (name|Literal ('*')) + Optional(attribute)
+        subquery.setParseAction (self.subqueryAction)
+
+        query = Combine (Group (OneOrMore(subquery))) + StringEnd()
+        self.__query = query.parseString (querytext)
+
+    def query (self):
+        return self.__query
+
+#
 # Soong parser
 #
 class Soong:
@@ -154,6 +182,12 @@ class Soong:
     def variables (self):
         return self._data['variables']
 
+    def query (self, querytext):
+        query = SoongQuery (querytext).query()
+        for q in query:
+            print (str(q))
+        return None;
+
 #
 # Soong parsers test cases
 #
@@ -177,6 +211,11 @@ class TestSoong (unittest.TestCase):
     def assert_variables (self, filename, variables):
         soong = self.parse (filename)
         self.assertEqual (soong.variables(), variables, self.fullpath (filename))
+
+    def assert_query (self, filename, querytext, data):
+        soong = self.parse (filename)
+        query = soong.query (querytext)
+        self.assertEqual (query, data, self.fullpath (filename))
 
     def test_empty_input (self):
         """
@@ -389,7 +428,11 @@ class TestSoong (unittest.TestCase):
         """
         self.assert_data ("032_section_variable", [('section', {'subsection': {'elem_327': 'data345'}})])
 
-
+    def test_query_root (self):
+        """
+        Query the root of the build file
+        """
+        self.assert_query ("033_query_test", "/section", [('section', {'name': 'first'}), ('section', {'name': 'second'})])
 
 if __name__ == "__main__":
 

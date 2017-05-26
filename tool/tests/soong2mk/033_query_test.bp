@@ -1,0 +1,7 @@
+section {
+	name: "first"
+}
+
+section {
+	name: "second"
+}
