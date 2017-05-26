@@ -455,8 +455,8 @@ if __name__ == "__main__":
                     soong.parse (full)
                 except MissingVariable: pass
                 except Exception:
-                    print (full)
-                    sys.exit (1)
+                    print ("\n" + full)
+                    raise
 
         print ("\n%d files tests" % (no_files))
         sys.exit (0)
