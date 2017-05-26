@@ -13,6 +13,7 @@ from pyparsing import *
 class MissingVariable (Exception): pass
 class DuplicateVariable (Exception): pass
 class IncompatibleConcatenation (Exception): pass
+class NotFound (Exception): pass
 
 class Wrap:
 
@@ -189,6 +190,9 @@ class Soong:
             for section in self._data['sections']:
                 if q[0] == section[0]:
                     result.append (section)
+
+        if not result:
+            raise NotFound
 
         return result
 
@@ -437,6 +441,19 @@ class TestSoong (unittest.TestCase):
         Query the root of the build file
         """
         self.assert_query ("033_query_test", "/section", [('section', {'name': 'first'}), ('section', {'name': 'second'})])
+
+    def test_query_by_section (self):
+        """
+        Query by section name
+        """
+        self.assert_query ("033_query_test", "/section_2", [('section_2', {'name': 'third'})])
+
+    def test_query_not_found (self):
+        """
+        Query a section that does not exist
+        """
+        with self.assertRaises (NotFound):
+            self.assert_query ("033_query_test", "/section_non_existent", None)
 
 if __name__ == "__main__":
 
