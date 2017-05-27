@@ -203,7 +203,6 @@ class Soong:
             raise InvalidQuery
 
         query = soong_query.query()
-
         (queryname, attr) = query[0]
 
         for section in self._data['sections']:
@@ -214,15 +213,20 @@ class Soong:
                         raise AmbiguousQuery
                     result = section
 
+        for (queryname, attr) in query[1:]:
+            if not result: raise NotFound
+            found = False
+            for secname in result[1]:
+                secdata = result[1][secname]
+                if queryname == Any or queryname == secname:
+                    if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
+                        result = (queryname, secdata)
+                        found = True
+            if not found:
+                raise NotFound
+
         if not result:
             raise NotFound
-
-        for (queryname, attr) in query[1:]:
-            if queryname != Any and not queryname in result[1]:
-                raise NotFound
-            if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
-                result = (queryname, result[1][queryname])
-
         return result
 
 #
@@ -533,6 +537,12 @@ class TestSoong (unittest.TestCase):
         """
         with self.assertRaises (NotFound):
             self.query ("037_query_invalid_subsubsection", '/section_outer/section_inner/invalid')
+
+    def test_query_subsubsection_by_name (self):
+        """
+        Query a sub-sub-section by its name attribute
+        """
+        self.assert_query ("038_query_subsubsection_by_name", '/section_outer/*[@name=data2]/section_second_inner', ('section_second_inner', {'name': 'data3'}))
 
 if __name__ == "__main__":
 
