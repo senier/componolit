@@ -203,24 +203,25 @@ class Soong:
             raise InvalidQuery
 
         query = soong_query.query()
-        print ("Query: " + str(query))
-        for (queryname, attr) in query:
-            for section in self._data['sections']:
-                (secname, secdata) = section
-                if queryname == Any or queryname == secname:
-                    if attr == None:
-                        if result != None:
-                            raise AmbiguousQuery
-                        result = section
-                    else:
-                        (attrname, attrdata) = attr
-                        if (attrname in secdata and secdata[attrname] == attrdata):
-                            if result != None:
-                                raise AmbiguousQuery
-                            result = section
+
+        (queryname, attr) = query[0]
+
+        for section in self._data['sections']:
+            (secname, secdata) = section
+            if queryname == Any or queryname == secname:
+                if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
+                    if result != None:
+                        raise AmbiguousQuery
+                    result = section
 
         if not result:
             raise NotFound
+
+        for (queryname, attr) in query[1:]:
+            if queryname != Any and not queryname in result[1]:
+                raise NotFound
+            if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
+                result = (queryname, result[1][queryname])
 
         return result
 
