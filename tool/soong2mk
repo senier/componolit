@@ -12,6 +12,7 @@ from pyparsing import *
 
 class MissingVariable (Exception): pass
 class DuplicateVariable (Exception): pass
+class DuplicateEntry (Exception): pass
 class IncompatibleConcatenation (Exception): pass
 class NotFound (Exception): pass
 class InvalidQuery (Exception): pass
@@ -174,6 +175,8 @@ class Soong:
     def sectionAction (self, string, location, tokens):
         result = {}
         for token in tokens:
+            if token[0] in result:
+                raise DuplicateEntry (token[0])
             result[token[0]] = token[1]
         return Wrap (result)
 
@@ -543,6 +546,13 @@ class TestSoong (unittest.TestCase):
         Query a sub-sub-section by its name attribute
         """
         self.assert_query ("038_query_subsubsection_by_name", '/section_outer/*[@name=data2]/section_second_inner', ('section_second_inner', {'name': 'data3'}))
+
+    def test_duplicate_section_entry (self):
+        """
+        A duplicate entry in a section must be detected
+        """
+        with self.assertRaises (DuplicateEntry):
+            self.parse ("039_duplicate_section_entry")
 
 if __name__ == "__main__":
 
