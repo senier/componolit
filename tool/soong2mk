@@ -248,9 +248,12 @@ class TestSoong (unittest.TestCase):
         soong = self.parse (filename)
         self.assertEqual (soong.variables(), variables, self.fullpath (filename))
 
-    def assert_query (self, filename, querytext, data):
+    def query (self, filename, querytext):
         soong = self.parse (filename)
-        query = soong.query (querytext)
+        return soong.query (querytext)
+
+    def assert_query (self, filename, querytext, data):
+        query = self.query (filename, querytext)
         self.assertEqual (query, data, self.fullpath (filename))
 
     def test_empty_input (self):
@@ -469,7 +472,7 @@ class TestSoong (unittest.TestCase):
         Query the root of the build file
         """
         with self.assertRaises (AmbiguousQuery):
-            self.assert_query ("033_query_test", "/section", None)
+            self.query ("033_query_test", "/section")
 
     def test_query_by_section (self):
         """
@@ -482,14 +485,14 @@ class TestSoong (unittest.TestCase):
         Query a section that does not exist
         """
         with self.assertRaises (NotFound):
-            self.assert_query ("033_query_test", "/section_non_existent", None)
+            self.query ("033_query_test", "/section_non_existent")
 
     def test_invalid_query (self):
         """
         An invalid query must raise an exception
         """
         with self.assertRaises (InvalidQuery):
-            self.assert_query ("033_query_test", "Invalid", None)
+            self.query ("033_query_test", "Invalid")
 
     def test_query_by_name (self):
         """
@@ -502,7 +505,7 @@ class TestSoong (unittest.TestCase):
         Ambiguous queries must result in an error
         """
         with self.assertRaises (AmbiguousQuery):
-            self.assert_query ("034_query_wildcard", '/*[@name=data2]', None)
+            self.query ("034_query_wildcard", '/*[@name=data2]')
 
         """
         self.assert_query ("034_query_wildcard", '/*[@name=data2]', [('section_1', {'name': 'data2'}), ('section_2', {'name': 'data2'})])
