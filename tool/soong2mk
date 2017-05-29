@@ -214,6 +214,10 @@ class Soong:
             else:
                 if type(result[elem]) != type(right[1][elem]):
                     raise MergeIncompatibleSections
+                if type(result[elem]) == str:
+                    result[elem] = right[1][elem]
+                else:
+                    raise Exception ("Unhandled element type: %s", str(type(result[elem])))
 
         return ('%s+%s' % (left[0], right[0]), result)
 
@@ -587,6 +591,12 @@ class TestSoong (unittest.TestCase):
         Query two sections
         """
         self.assert_query ("040_query_multi_section", '/section_1|/section_2', ('section_1+section_2', {'elem1': 'data1', 'elem2': 'data2'}))
+
+    def test_multiple_sections_string (self):
+        """
+        Query two sections with same string element
+        """
+        self.assert_query ("041_query_multi_section_strings", '/section_1|/section_2', ('section_1+section_2', {'elem1': 'data2'}))
 
     def test_multiple_sections_incompatible (self):
         """
