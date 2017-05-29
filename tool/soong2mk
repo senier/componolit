@@ -199,8 +199,6 @@ class Soong:
 
     def merge_dict (self, left, right):
 
-        print ("Merging: %s <- %s" % (str(left), str(right)))
-
         if not left:
             return right
 
@@ -633,6 +631,12 @@ class TestSoong (unittest.TestCase):
         """
         with self.assertRaises (MergeIncompatibleSections):
             self.query ("046_query_multi_no_subsect_merge", '/section_1|/section_2')
+
+    def test_query_defaults (self):
+        """
+        Query a section with a default element
+        """
+        self.assert_query ("046_query_defaults", '/section_2', ('section_1+section_2', {'elem1': ['data1', 'data2', 'data4'], 'elem3': "data3", 'subsect1': {'elem2': True}, 'elem4': ['data5', 'data6']}))
 
 if __name__ == "__main__":
 
