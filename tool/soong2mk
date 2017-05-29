@@ -197,7 +197,7 @@ class Soong:
     def variables (self):
         return self._data['variables']
 
-    def merge_dict (self, left, right):
+    def merge_section (self, left, right):
 
         if not left:
             return right
@@ -262,7 +262,11 @@ class Soong:
             if not subresult:
                 raise NotFound
 
-            result = self.merge_dict (result, subresult)
+            result = self.merge_section (result, subresult)
+
+        if 'defaults' in result[1]:
+            defaults = self.query ('/*[@name=' + result[1]['defaults'] + ']')
+            result   = self.merge_section (defaults, result)
 
         return result
 
@@ -636,7 +640,7 @@ class TestSoong (unittest.TestCase):
         """
         Query a section with a default element
         """
-        self.assert_query ("046_query_defaults", '/section_2', ('section_1+section_2', {'elem1': ['data1', 'data2', 'data4'], 'elem3': "data3", 'subsect1': {'elem2': True}, 'elem4': ['data5', 'data6']}))
+        self.assert_query ("047_query_defaults", '/section_2', ('section_1+section_2', {'name': 'sec_name', 'defaults': 'sec_defaults', 'elem1': ['data1', 'data2', 'data4'], 'elem3': "data3", 'subsect1': {'elem2': True}, 'elem4': ['data5', 'data6']}))
 
 if __name__ == "__main__":
 
