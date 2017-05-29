@@ -650,7 +650,17 @@ class TestSoong (unittest.TestCase):
 
 if __name__ == "__main__":
 
-    if len (sys.argv) == 2 and sys.argv[1] == 'test':
+    parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
+    parser.add_argument ('--verbose', help='Verbose output', action='store_true')
+    parser.add_argument ('--basedir', help='Base directory', action='store')
+    parser.add_argument ('--output',  help='Write result to file', action='store')
+    parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
+    parser.add_argument ('--include', help='Directory to load Android.bp from', action='append')
+    parser.add_argument ('--test',    help='Run tests', action='store_true')
+    parser.add_argument ('queries',   help='Query data from soong file', nargs='*')
+    args = parser.parse_args()
+
+    if args.test:
         suite = unittest.TestLoader().loadTestsFromTestCase(TestSoong)
         result = unittest.TextTestRunner().run(suite)
 
@@ -675,14 +685,20 @@ if __name__ == "__main__":
         print ("\n%d files tests" % (no_files))
         sys.exit (0)
 
-    parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
-    parser.add_argument ('--verbose', help='Verbose output', action='store_true')
-    parser.add_argument ('--basedir', help='Base directory', action='store', required=True)
-    parser.add_argument ('--output',  help='Write result to file', action='store', required=True)
-    parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
-    parser.add_argument ('--include', help='Directory to load Android.bp from', action='append', required=True)
-    parser.add_argument ('queries',   help='Query data from soong file', nargs='+')
-    args = parser.parse_args()
+    if not args.basedir:
+        print ("No --basedir directory set")
+        parser.print_help()
+        sys.exit (1)
+
+    if not args.output:
+        print ("No --output directory set")
+        parser.print_help()
+        sys.exit (1)
+
+    if not args.include:
+        print ("No --include directory set")
+        parser.print_help()
+        sys.exit (1)
 
     soong = Soong (args.basedir)
     for bp in args.include:
