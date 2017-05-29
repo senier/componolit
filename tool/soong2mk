@@ -213,8 +213,9 @@ class Soong:
                 result[elem] = right[1][elem]
             else:
                 rt = type(result[elem])
-                if rt != type(right[1][elem]):
+                if rt != type(right[1][elem]) or rt == dict:
                     raise MergeIncompatibleSections
+
                 if rt == str or rt == bool:
                     result[elem] = right[1][elem]
                 elif rt == list:
@@ -619,6 +620,19 @@ class TestSoong (unittest.TestCase):
         Query two sections with same boolean element
         """
         self.assert_query ("044_query_multi_boolean", '/section_5|/section_7', ('section_5+section_7', {'elem53': False, 'elem54': True}))
+
+    def test_multiple_sections_lists (self):
+        """
+        Query two sections, merge subsection if not present in target section
+        """
+        self.assert_query ("045_query_multi_subsection", '/section_1|/section_2', ('section_1+section_2', {'elem1': ['data1', 'data2', 'data4'], 'elem3': "data3", 'subsect1': {'elem2': True}, 'elem4': ['data5', 'data6']}))
+
+    def test_multiple_sections_lists (self):
+        """
+        Query two sections, merge subsection if not present in target section
+        """
+        with self.assertRaises (MergeIncompatibleSections):
+            self.query ("046_query_multi_no_subsect_merge", '/section_1|/section_2')
 
 if __name__ == "__main__":
 
