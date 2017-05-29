@@ -17,6 +17,7 @@ class IncompatibleConcatenation (Exception): pass
 class NotFound (Exception): pass
 class InvalidQuery (Exception): pass
 class AmbiguousQuery (Exception): pass
+class MergeIncompatibleSections (Exception): pass
 
 class Any: pass
 
@@ -210,6 +211,9 @@ class Soong:
             # Simple case: source element does not exist in target dict
             if not elem in result:
                 result[elem] = right[1][elem]
+            else:
+                if type(result[elem]) != type(right[1][elem]):
+                    raise MergeIncompatibleSections
 
         return ('%s+%s' % (left[0], right[0]), result)
 
@@ -580,9 +584,16 @@ class TestSoong (unittest.TestCase):
 
     def test_multiple_sections (self):
         """
-        Query a sub-sub-section by its name
+        Query two sections
         """
         self.assert_query ("040_query_multi_section", '/section_1|/section_2', ('section_1+section_2', {'elem1': 'data1', 'elem2': 'data2'}))
+
+    def test_multiple_sections_incompatible (self):
+        """
+        Query two sections with incompatible elements (string and string list)
+        """
+        with self.assertRaises (MergeIncompatibleSections):
+            self.query ("042_query_multi_incompatible_sections", '/section_1|/section_2')
 
 if __name__ == "__main__":
 
