@@ -216,6 +216,8 @@ class Soong:
                     raise MergeIncompatibleSections
                 if type(result[elem]) == str:
                     result[elem] = right[1][elem]
+                elif type(result[elem]) == list:
+                    result[elem] += right[1][elem]
                 else:
                     raise Exception ("Unhandled element type: %s", str(type(result[elem])))
 
@@ -604,6 +606,12 @@ class TestSoong (unittest.TestCase):
         """
         with self.assertRaises (MergeIncompatibleSections):
             self.query ("042_query_multi_incompatible_sections", '/section_1|/section_2')
+
+    def test_multiple_sections_lists (self):
+        """
+        Query two sections with same list element
+        """
+        self.assert_query ("043_query_multi_lists", '/section_1|/section_2', ('section_1+section_2', {'elem1': ['data1', 'data2', 'data3']}))
 
 if __name__ == "__main__":
 
