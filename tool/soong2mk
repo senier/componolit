@@ -56,7 +56,7 @@ class SoongQuery:
         subquery = Suppress(Literal ('/')) + (wildcard|name) + Optional(attribute)
         subquery.setParseAction (self.subqueryAction)
 
-        query = OneOrMore(subquery) + StringEnd()
+        query = delimitedList (Group (OneOrMore(subquery)), delim='|') + StringEnd()
         self.__query = query.parseString (querytext)
 
     def query (self):
@@ -196,6 +196,23 @@ class Soong:
     def variables (self):
         return self._data['variables']
 
+    def merge_dict (self, left, right):
+
+        print ("Merging: %s <- %s" % (str(left), str(right)))
+
+        if not left:
+            return right
+
+        result = left[1]
+
+        for elem in right[1]:
+
+            # Simple case: source element does not exist in target dict
+            if not elem in result:
+                result[elem] = right[1][elem]
+
+        return ('%s+%s' % (left[0], right[0]), result)
+
     def query (self, querytext):
 
         result = None
@@ -205,31 +222,38 @@ class Soong:
         except ParseException:
             raise InvalidQuery
 
-        query = soong_query.query()
-        (queryname, attr) = query[0]
+        for query in soong_query.query():
 
-        for section in self._data['sections']:
-            (secname, secdata) = section
-            if queryname == Any or queryname == secname:
-                if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
-                    if result != None:
-                        raise AmbiguousQuery
-                    result = section
+            subresult = None
 
-        for (queryname, attr) in query[1:]:
-            if not result: raise NotFound
-            found = False
-            for secname in result[1]:
-                secdata = result[1][secname]
+            # Search first part of query
+            (queryname, attr) = query[0]
+            for section in self._data['sections']:
+                (secname, secdata) = section
                 if queryname == Any or queryname == secname:
                     if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
-                        result = (queryname, secdata)
-                        found = True
-            if not found:
+                        if subresult != None:
+                            raise AmbiguousQuery
+                        subresult = section
+
+            # Search subsequent parts of query
+            for (queryname, attr) in query[1:]:
+                if not subresult: raise NotFound
+                found = False
+                for secname in subresult[1]:
+                    secdata = subresult[1][secname]
+                    if queryname == Any or queryname == secname:
+                        if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
+                            subresult = (queryname, secdata)
+                            found = True
+                if not found:
+                    raise NotFound
+
+            if not subresult:
                 raise NotFound
 
-        if not result:
-            raise NotFound
+            result = self.merge_dict (result, subresult)
+
         return result
 
 #
@@ -553,6 +577,12 @@ class TestSoong (unittest.TestCase):
         """
         with self.assertRaises (DuplicateEntry):
             self.parse ("039_duplicate_section_entry")
+
+    def test_multiple_sections (self):
+        """
+        Query a sub-sub-section by its name
+        """
+        self.assert_query ("040_query_multi_section", '/section_1|/section_2', ('section_1+section_2', {'elem1': 'data1', 'elem2': 'data2'}))
 
 if __name__ == "__main__":
 
