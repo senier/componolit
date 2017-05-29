@@ -212,11 +212,12 @@ class Soong:
             if not elem in result:
                 result[elem] = right[1][elem]
             else:
-                if type(result[elem]) != type(right[1][elem]):
+                rt = type(result[elem])
+                if rt != type(right[1][elem]):
                     raise MergeIncompatibleSections
-                if type(result[elem]) == str:
+                if rt == str or rt == bool:
                     result[elem] = right[1][elem]
-                elif type(result[elem]) == list:
+                elif rt == list:
                     result[elem] += right[1][elem]
                 else:
                     raise Exception ("Unhandled element type: %s", str(type(result[elem])))
@@ -612,6 +613,12 @@ class TestSoong (unittest.TestCase):
         Query two sections with same list element
         """
         self.assert_query ("043_query_multi_lists", '/section_1|/section_2', ('section_1+section_2', {'elem1': ['data1', 'data2', 'data3']}))
+
+    def test_multiple_sections_lists (self):
+        """
+        Query two sections with same boolean element
+        """
+        self.assert_query ("044_query_multi_boolean", '/section_5|/section_7', ('section_5+section_7', {'elem53': False, 'elem54': True}))
 
 if __name__ == "__main__":
 
