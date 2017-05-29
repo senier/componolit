@@ -9,7 +9,7 @@ section_1 {
 
 section_2 {
 	name: "sec_name",
-	defaults: "sec_defaults",
+	defaults: ["sec_defaults"],
 	elem1: ["data4"],
 	elem4: ["data5", "data6"]
 }

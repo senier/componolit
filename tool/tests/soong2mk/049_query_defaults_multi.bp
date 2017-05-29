@@ -5,12 +5,11 @@ section_1 {
 
 section_2 {
 	name: "defaults_2",
-	defaults: ["defaults_1"],
 	elem2: "data2"
 }
 
 section_3 {
 	name: "third",
-	defaults: ["defaults_2"],
+	defaults: ["defaults_1", "defaults_2"],
 	elem3: "data3"
 }

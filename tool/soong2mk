@@ -646,13 +646,19 @@ class TestSoong (unittest.TestCase):
         """
         Query a section with a default element
         """
-        self.assert_query ("047_query_defaults", '/section_2', ('section_1+section_2', {'name': 'sec_name', 'defaults': 'sec_defaults', 'elem1': ['data1', 'data2', 'data4'], 'elem3': "data3", 'subsect1': {'elem2': True}, 'elem4': ['data5', 'data6']}))
+        self.assert_query ("047_query_defaults", '/section_2', ('section_1+section_2', {'name': 'sec_name', 'defaults': ['sec_defaults'], 'elem1': ['data1', 'data2', 'data4'], 'elem3': "data3", 'subsect1': {'elem2': True}, 'elem4': ['data5', 'data6']}))
 
     def test_query_defaults_recursive (self):
         """
         Query a section with two cascaded default elements
         """
-        self.assert_query ("048_query_defaults_recursive", '/section_3', ('section_1+section_2+section_3', {'name': 'third', 'defaults': 'defaults_2', 'elem1': 'data1', 'elem2': 'data2', 'elem3': 'data3'}))
+        self.assert_query ("048_query_defaults_recursive", '/section_3', ('section_1+section_2+section_3', {'name': 'third', 'defaults': ['defaults_1', 'defaults_2'], 'elem1': 'data1', 'elem2': 'data2', 'elem3': 'data3'}))
+
+    def test_query_defaults_multiple (self):
+        """
+        Query a section with two default elements
+        """
+        self.assert_query ("049_query_defaults_multi", '/section_3', ('section_2+section_1+section_3', {'name': 'third', 'defaults': ['defaults_1', 'defaults_2'], 'elem1': 'data1', 'elem2': 'data2', 'elem3': 'data3'}))
 
     def test_check_defaults_is_list (self):
         """
