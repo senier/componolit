@@ -674,7 +674,7 @@ if __name__ == "__main__":
                 print ('.', end='', flush=True)
                 no_files += 1
                 full = root + "/" + filename
-                soong = Soong (".")
+                soong = Soong ()
                 try:
                     soong.parse (full)
                 except MissingVariable: pass
@@ -700,13 +700,22 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit (1)
 
+    if len (args.queries) == 0:
+        print ("No query")
+        parser.print_help()
+        sys.exit (1)
+
     soong = Soong (args.basedir)
     for bp in args.include:
         soong.parse (bp)
 
-    sys.exit (0)
-    with open (args.output, 'w') as f:
-        for q in args.queries:
-            query = SoongQuery (q)
-            f.write (repr(soong[query]))
+    soong = Soong (args.basedir)
+    for name in args.include:
+        soong.parse (name)
 
+    try:
+        querytext = "|".join (args.queries)
+        query = soong.query (querytext)
+    except NotFound:
+        print ("Query " + querytext + " did not match any section in " + str(args.include))
+        sys.exit (1)
