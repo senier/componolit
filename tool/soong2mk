@@ -18,6 +18,7 @@ class NotFound (Exception): pass
 class InvalidQuery (Exception): pass
 class AmbiguousQuery (Exception): pass
 class MergeIncompatibleSections (Exception): pass
+class DefaultsNoList (Exception): pass
 
 class Any: pass
 
@@ -260,13 +261,18 @@ class Soong:
                     raise NotFound
 
             if not subresult:
-                raise NotFound
+                raise NotFound (querytext)
 
             result = self.merge_section (result, subresult)
 
         if 'defaults' in result[1]:
-            defaults = self.query ('/*[@name=' + result[1]['defaults'] + ']')
-            result   = self.merge_section (defaults, result)
+
+            if not type (result[1]['defaults']) is list:
+                raise DefaultsNoList
+
+            for default in result[1]['defaults']:
+                defaults = self.query ('/*[@name=' + default + ']')
+                result   = self.merge_section (defaults, result)
 
         return result
 
@@ -647,6 +653,13 @@ class TestSoong (unittest.TestCase):
         Query a section with two cascaded default elements
         """
         self.assert_query ("048_query_defaults_recursive", '/section_3', ('section_1+section_2+section_3', {'name': 'third', 'defaults': 'defaults_2', 'elem1': 'data1', 'elem2': 'data2', 'elem3': 'data3'}))
+
+    def test_check_defaults_is_list (self):
+        """
+        If defaults is not a list, raise an error
+        """
+        with self.assertRaises (DefaultsNoList):
+            self.query ("050_check_defaults_is_list", '/section_1')
 
 if __name__ == "__main__":
 
