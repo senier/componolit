@@ -19,6 +19,7 @@ class InvalidQuery (Exception): pass
 class AmbiguousQuery (Exception): pass
 class MergeIncompatibleSections (Exception): pass
 class DefaultsNoList (Exception): pass
+class NameNoString (Exception): pass
 
 class Any: pass
 
@@ -264,6 +265,9 @@ class Soong:
                 raise NotFound (querytext)
 
             result = self.merge_section (result, subresult)
+
+        if 'name' in result[1] and not type (result[1]['name']) is str:
+            raise NameNoString
 
         if 'defaults' in result[1]:
 
@@ -666,6 +670,13 @@ class TestSoong (unittest.TestCase):
         """
         with self.assertRaises (DefaultsNoList):
             self.query ("050_check_defaults_is_list", '/section_1')
+
+    def test_check_name_is_string (self):
+        """
+        If name is not a string, raise an error
+        """
+        with self.assertRaises (NameNoString):
+            self.query ("051_check_name_is_string", '/section_1')
 
 if __name__ == "__main__":
 
