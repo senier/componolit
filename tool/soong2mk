@@ -287,9 +287,21 @@ def mk (data, prefix = None):
     result = ""
 
     (secname, secdata) = data
-    for elem in secdata:
-        if type(secdata[elem]) is str:
+    for elem in sorted(secdata):
+        st = type(secdata[elem])
+        if st  is str:
             result += '%s = "%s"\n' % (elem.upper(), secdata[elem])
+        elif st is list:
+            result += '%s =' % elem.upper()
+            for elem in sorted (secdata[elem]):
+                result += ' "%s"' % elem
+            result += '\n'
+        elif st is bool:
+            result += '%s = %s\n' % (elem.upper(), str(secdata[elem]))
+        elif st is dict:
+            pass
+        else:
+            raise Exception ("Cannot convert element type '" + str(st) + "'")
 
     return result
 
@@ -704,7 +716,13 @@ class TestSoong (unittest.TestCase):
         """
         Represent a section as make fragment
         """
-        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'NAME = "sec2"\nELEM5 = "data7"\n')
+        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'DEFAULTS = "defaults_1"\nELEM5 = "data7"\nNAME = "sec2"\n')
+
+    def test_mk_list (self):
+        """
+        Check conversion of lists to make variable
+        """
+        self.assert_mk ("053_mk_list", '/section_1', 'ELEM1 = "data1" "data2" "data3"\nELEM2 = True\n')
 
 if __name__ == "__main__":
 
@@ -728,7 +746,7 @@ if __name__ == "__main__":
         print ("Testing Android build files ", end='')
         no_files=0
         for root, dirs, files in os.walk ('tests/android'):
-            for filename in files:
+            for filename in sorted (files):
                 print ('.', end='', flush=True)
                 no_files += 1
                 full = root + "/" + filename
