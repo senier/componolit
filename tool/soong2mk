@@ -756,3 +756,6 @@ if __name__ == "__main__":
     except NotFound:
         print ("Query " + querytext + " did not match any section in " + str(args.include))
         sys.exit (1)
+    except AmbiguousQuery:
+        print ("Query " + querytext + " resulted in multiple sections in " + str(args.include))
+        sys.exit (1)
