@@ -282,7 +282,7 @@ class Soong:
 
         return result
 
-def mk (data, prefix = None):
+def mk (data, prefix = ''):
 
     result = ""
 
@@ -290,14 +290,14 @@ def mk (data, prefix = None):
     for elem in sorted(secdata):
         st = type(secdata[elem])
         if st  is str:
-            result += '%s = "%s"\n' % (elem.upper(), secdata[elem])
+            result += '%s%s = "%s"\n' % (prefix, elem.upper(), secdata[elem])
         elif st is list:
-            result += '%s =' % elem.upper()
+            result += '%s%s =' % (prefix, elem.upper())
             for elem in sorted (secdata[elem]):
                 result += ' "%s"' % elem
             result += '\n'
         elif st is bool:
-            result += '%s = %s\n' % (elem.upper(), str(secdata[elem]))
+            result += '%s%s = %s\n' % (prefix, elem.upper(), str(secdata[elem]))
         elif st is dict:
             pass
         else:
@@ -337,9 +337,9 @@ class TestSoong (unittest.TestCase):
         query = self.query (filename, querytext)
         self.assertEqual (query, data, self.fullpath (filename))
 
-    def assert_mk (self, filename, querytext, data):
+    def assert_mk (self, filename, querytext, data, prefix = ''):
         query = self.query (filename, querytext)
-        self.assertEqual (mk (query), data, self.fullpath (filename))
+        self.assertEqual (mk (query, prefix), data, self.fullpath (filename))
 
     def test_empty_input (self):
         """
@@ -729,6 +729,12 @@ class TestSoong (unittest.TestCase):
         Query a section and its own subsection
         """
         self.assert_query ("054_query_merge_subsection", '/section_1|/section_1/subsec_1', ('section_1+subsec_1', {'elem1': ['data1', 'data2', 'data3'], 'elem2': 'data5', 'elem3': 'data5', 'subsec_1': {'elem1': ['data3'], 'elem2': 'data5'}}))
+
+    def test_mk_prefix (self):
+        """
+        Represent a section as make fragment using a variable prefix
+        """
+        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'DMK_DEFAULTS = "defaults_1"\nDMK_ELEM5 = "data7"\nDMK_NAME = "sec2"\n', "DMK_")
 
 if __name__ == "__main__":
 
