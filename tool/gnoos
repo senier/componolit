@@ -308,7 +308,7 @@ def mk (data, prefix = ''):
 class TestSoong (unittest.TestCase):
 
     def setUp (self):
-        self.testdir = "tests/soong2mk"
+        self.testdir = "tests/gnoos"
 
     def fullpath (self, testfile):
         return self.testdir + "/" + testfile + ".bp"
