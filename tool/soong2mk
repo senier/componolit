@@ -736,12 +736,12 @@ class TestSoong (unittest.TestCase):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
-    parser.add_argument ('--verbose', help='Verbose output', action='store_true')
-    parser.add_argument ('--basedir', help='Base directory', action='store')
-    parser.add_argument ('--input',   help='Input file to load', action='append')
-    parser.add_argument ('--prefix',  help='Prepend prefix to variables', action='store', default='')
-    parser.add_argument ('--test',    help='Run tests', action='store_true')
-    parser.add_argument ('queries',   help='Query data from soong file', nargs='*')
+    parser.add_argument ('-v', '--verbose', help='Verbose output', action='store_true')
+    parser.add_argument ('-b', '--basedir', help='Base directory', action='store')
+    parser.add_argument ('-i', '--input',   help='Input file to load', action='append')
+    parser.add_argument ('-p', '--prefix',  help='Prepend prefix to variables', action='store', default='')
+    parser.add_argument ('--test',          help='Run tests', action='store_true')
+    parser.add_argument ('queries',         help='Query data from soong file', nargs='*')
     args = parser.parse_args()
 
     if args.test:
