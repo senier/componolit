@@ -190,7 +190,7 @@ class Soong:
         self._data['sections'].extend (tokens)
 
     def parse (self, infile):
-        with open (infile, 'r') as f:
+        with open (self._basedir + "/" + infile, 'r') as f:
             self._grammar.parseFile (f)
 
     def data (self):
