@@ -679,6 +679,12 @@ class TestSoong (unittest.TestCase):
         with self.assertRaises (NameNoString):
             self.query ("051_check_name_is_string", '/section_1')
 
+    def test_query_recursive_subsect_merge (self):
+        """
+        Query a section with a default element and subsections to be merged
+        """
+        self.assert_query ("052_query_recursive_subsect_merge", '/section_2', ('section_1+section_2', {'name': 'sec2', 'defaults': ['defaults_1'], 'subsect_2': {'subsubsect_3': {'elem1': 'data1', 'elem3': 'data4'}, 'elem2': ['data2', 'data3'], 'elem4': ['data5', 'data6']}, 'elem5': 'data7'}))
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
