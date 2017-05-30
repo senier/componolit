@@ -282,6 +282,17 @@ class Soong:
 
         return result
 
+def mk (data, prefix = None):
+
+    result = ""
+
+    (secname, secdata) = data
+    for elem in secdata:
+        if type(secdata[elem]) is str:
+            result += '%s = "%s"\n' % (elem.upper(), secdata[elem])
+
+    return result
+
 #
 # Soong parsers test cases
 #
@@ -313,6 +324,10 @@ class TestSoong (unittest.TestCase):
     def assert_query (self, filename, querytext, data):
         query = self.query (filename, querytext)
         self.assertEqual (query, data, self.fullpath (filename))
+
+    def assert_mk (self, filename, querytext, data):
+        query = self.query (filename, querytext)
+        self.assertEqual (mk (query), data, self.fullpath (filename))
 
     def test_empty_input (self):
         """
@@ -685,6 +700,12 @@ class TestSoong (unittest.TestCase):
         """
         self.assert_query ("052_query_recursive_subsect_merge", '/section_2', ('section_1+section_2', {'name': 'sec2', 'defaults': ['defaults_1'], 'subsect_2': {'subsubsect_3': {'elem1': 'data1', 'elem3': 'data4'}, 'elem2': ['data2', 'data3'], 'elem4': ['data5', 'data6']}, 'elem5': 'data7'}))
 
+    def test_mk_simple (self):
+        """
+        Represent a section as make fragment
+        """
+        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'NAME = "sec2"\nELEM5 = "data7"\n')
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
@@ -753,6 +774,7 @@ if __name__ == "__main__":
     try:
         querytext = "|".join (args.queries)
         query = soong.query (querytext)
+        mk (query)
     except NotFound:
         print ("Query " + querytext + " did not match any section in " + str(args.include))
         sys.exit (1)
