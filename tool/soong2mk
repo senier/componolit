@@ -213,10 +213,12 @@ class Soong:
                 result[elem] = right[1][elem]
             else:
                 rt = type(result[elem])
-                if rt != type(right[1][elem]) or rt == dict:
-                    raise MergeIncompatibleSections
+                if rt != type(right[1][elem]):
+                    raise MergeIncompatibleSections (str(elem) + ": " + str(rt))
 
-                if rt == str or rt == bool:
+                if rt == dict:
+                    (__unused, result[elem]) = self.merge_section ((elem, result[elem]), (elem, right[1][elem]))
+                elif rt == str or rt == bool:
                     result[elem] = right[1][elem]
                 elif rt == list:
                     result[elem] += right[1][elem]
@@ -641,10 +643,9 @@ class TestSoong (unittest.TestCase):
 
     def test_multiple_sections_lists (self):
         """
-        Query two sections, merge subsection if not present in target section
+        Query two sections, merge subsection
         """
-        with self.assertRaises (MergeIncompatibleSections):
-            self.query ("046_query_multi_no_subsect_merge", '/section_1|/section_2')
+        self.assert_query ("046_query_multi_subsect_merge", '/section_1|/section_2', ('section_1+section_2', {'elem1': ['data1', 'data2', 'data4'], 'elem3': "data3", 'subsect1': {'elem2': True, 'elem5': False}, 'elem4': ['data5', 'data6']}))
 
     def test_query_defaults (self):
         """
