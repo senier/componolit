@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO
-#
-
 import os
 import sys
 import argparse
@@ -786,10 +783,6 @@ if __name__ == "__main__":
         print ("No query")
         parser.print_help()
         sys.exit (1)
-
-    soong = Soong (args.basedir)
-    for bp in args.include:
-        soong.parse (bp)
 
     soong = Soong (args.basedir)
     for name in args.input:
