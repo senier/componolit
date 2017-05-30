@@ -798,7 +798,7 @@ if __name__ == "__main__":
     try:
         querytext = "|".join (args.queries)
         query = soong.query (querytext)
-        mk (query)
+        print (mk (query))
     except NotFound:
         print ("Query " + querytext + " did not match any section in " + str(args.include))
         sys.exit (1)
