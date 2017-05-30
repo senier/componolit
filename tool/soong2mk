@@ -724,6 +724,12 @@ class TestSoong (unittest.TestCase):
         """
         self.assert_mk ("053_mk_list", '/section_1', 'ELEM1 = "data1" "data2" "data3"\nELEM2 = True\n')
 
+    def test_query_subsection (self):
+        """
+        Query a section and its own subsection
+        """
+        self.assert_query ("054_query_merge_subsection", '/section_1|/section_1/subsec_1', ('section_1+subsec_1', {'elem1': ['data1', 'data2', 'data3'], 'elem2': 'data5', 'elem3': 'data5', 'subsec_1': {'elem1': ['data3'], 'elem2': 'data5'}}))
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser (description = 'Translate soong files to make statements')
