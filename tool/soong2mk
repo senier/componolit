@@ -800,8 +800,8 @@ if __name__ == "__main__":
         query = soong.query (querytext)
         print (mk (query))
     except NotFound:
-        print ("Query " + querytext + " did not match any section in " + str(args.include))
+        print ("$(error Query %s did not match any section in %s)" % (querytext, str(args.input)))
         sys.exit (1)
     except AmbiguousQuery:
-        print ("Query " + querytext + " resulted in multiple sections in " + str(args.include))
+        print ("$(error Query %s resulted in multiple sections in %s)" % (querytext, str(args.input)))
         sys.exit (1)
