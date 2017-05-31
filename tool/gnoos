@@ -792,9 +792,6 @@ if __name__ == "__main__":
         querytext = "|".join (args.queries)
         query = soong.query (querytext)
         print (mk (query, args.prefix))
-    except NotFound:
-        print ("$(error Query %s did not match any section in %s)" % (querytext, str(args.input)))
-        sys.exit (1)
-    except AmbiguousQuery:
-        print ("$(error Query %s resulted in multiple sections in %s)" % (querytext, str(args.input)))
+    except Exception as e:
+        print ("$(error ERROR EXECUTING GNOOS: %s\n%s" % (str(sys.argv), str(e)))
         sys.exit (1)
