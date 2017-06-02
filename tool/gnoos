@@ -255,10 +255,11 @@ class Soong:
                     secdata = subresult[1][secname]
                     if queryname == Any or queryname == secname:
                         if attr == None or attr[0] in secdata and secdata[attr[0]] == attr[1]:
-                            subresult = (queryname, secdata)
+                            found_subresult = (queryname, secdata)
                             found = True
                 if not found:
                     raise NotFound (str(queryname))
+                subresult = found_subresult
 
             if not subresult:
                 raise NotFound (querytext)
