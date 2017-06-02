@@ -739,6 +739,7 @@ if __name__ == "__main__":
     parser.add_argument ('-v', '--verbose', help='Verbose output', action='store_true')
     parser.add_argument ('-b', '--basedir', help='Base directory', action='store')
     parser.add_argument ('-i', '--input',   help='Input file to load', action='append')
+    parser.add_argument ('-o', '--output',  help='Output file', action='store')
     parser.add_argument ('-p', '--prefix',  help='Prepend prefix to variables', action='store', default='')
     parser.add_argument ('--test',          help='Run tests', action='store_true')
     parser.add_argument ('queries',         help='Query data from soong file', nargs='*')
@@ -775,7 +776,12 @@ if __name__ == "__main__":
         sys.exit (1)
 
     if not args.input:
-        print ("No --input directory set")
+        print ("No --input file set")
+        parser.print_help()
+        sys.exit (1)
+
+    if not args.output:
+        print ("No --output file set")
         parser.print_help()
         sys.exit (1)
 
@@ -791,7 +797,8 @@ if __name__ == "__main__":
     try:
         querytext = "|".join (args.queries)
         query = soong.query (querytext)
-        print (mk (query, args.prefix))
+        with open (args.output, 'w') as outfile:
+            outfile.write (mk (query, args.prefix))
     except Exception as e:
         print ("$(error ERROR EXECUTING GNOOS: %s\n%s" % (str(sys.argv), str(e)))
         sys.exit (1)
