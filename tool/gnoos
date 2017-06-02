@@ -800,5 +800,5 @@ if __name__ == "__main__":
         with open (args.output, 'w') as outfile:
             outfile.write (mk (query, args.prefix))
     except Exception as e:
-        print ("$(error ERROR EXECUTING GNOOS: %s\n%s" % (str(sys.argv), str(e)))
-        sys.exit (1)
+        print ('$(error ERROR EXECUTING GNOOS: ' + str(e) + ')')
+        raise
