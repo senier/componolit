@@ -287,11 +287,11 @@ def mk (data, prefix = ''):
     for elem in sorted(secdata):
         st = type(secdata[elem])
         if st  is str:
-            result += '%s%s = "%s"\n' % (prefix, elem.upper(), secdata[elem])
+            result += '%s%s = %s\n' % (prefix, elem.upper(), secdata[elem])
         elif st is list:
             result += '%s%s =' % (prefix, elem.upper())
             for elem in sorted (secdata[elem]):
-                result += ' "%s"' % elem
+                result += ' %s' % elem
             result += '\n'
         elif st is bool:
             result += '%s%s = %s\n' % (prefix, elem.upper(), str(secdata[elem]))
@@ -713,13 +713,13 @@ class TestSoong (unittest.TestCase):
         """
         Represent a section as make fragment
         """
-        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'DEFAULTS = "defaults_1"\nELEM5 = "data7"\nNAME = "sec2"\n')
+        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'DEFAULTS = defaults_1\nELEM5 = data7\nNAME = sec2\n')
 
     def test_mk_list (self):
         """
         Check conversion of lists to make variable
         """
-        self.assert_mk ("053_mk_list", '/section_1', 'ELEM1 = "data1" "data2" "data3"\nELEM2 = True\n')
+        self.assert_mk ("053_mk_list", '/section_1', 'ELEM1 = data1 data2 data3\nELEM2 = True\n')
 
     def test_query_subsection (self):
         """
@@ -731,7 +731,7 @@ class TestSoong (unittest.TestCase):
         """
         Represent a section as make fragment using a variable prefix
         """
-        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'DMK_DEFAULTS = "defaults_1"\nDMK_ELEM5 = "data7"\nDMK_NAME = "sec2"\n', "DMK_")
+        self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'DMK_DEFAULTS = defaults_1\nDMK_ELEM5 = data7\nDMK_NAME = sec2\n', "DMK_")
 
 if __name__ == "__main__":
 
