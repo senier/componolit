@@ -258,7 +258,7 @@ class Soong:
                             subresult = (queryname, secdata)
                             found = True
                 if not found:
-                    raise NotFound
+                    raise NotFound (str(queryname))
 
             if not subresult:
                 raise NotFound (querytext)
@@ -732,6 +732,12 @@ class TestSoong (unittest.TestCase):
         Represent a section as make fragment using a variable prefix
         """
         self.assert_mk ("052_query_recursive_subsect_merge", '/section_2', 'DMK_DEFAULTS = defaults_1\nDMK_ELEM5 = data7\nDMK_NAME = sec2\n', "DMK_")
+
+    def test_regression_subquery (self):
+        """
+        Subqueries sporadically result in an KeyError exception
+        """
+        self.query ("055_regression_subquery", '/cc_library[@name=liblog]|/cc_library[@name=liblog]/target/host')
 
 if __name__ == "__main__":
 
