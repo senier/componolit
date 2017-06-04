@@ -5,6 +5,9 @@ set build_components {
 	app/dalvikvm
 }
 
+source ${genode_dir}/repos/base/run/platform_drv.inc
+
+append_platform_drv_build_components
 build $build_components
 create_boot_directory
 
@@ -29,6 +32,7 @@ append config {
 	<default-route>
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
+	<default caps="100"/>
 
 	<start name="timer">
 		<resource name="RAM" quantum="1M"/>
@@ -37,11 +41,10 @@ append config {
 	<start name="dalvikvm">
 		<resource name="RAM" quantum="128M"/>
 		<config>
-			<libc stdout="/dev/log" stderr="/dev/log">
-				<vfs>
-					<dir name="dev"> <log/> </dir>
-				</vfs>
-			</libc>
+			<libc stdout="/dev/log" stderr="/dev/log"/>
+			<vfs>
+				<dir name="dev"> <log/> </dir>
+			</vfs>
 		</config>
 	</start>
 </config>}
@@ -60,10 +63,11 @@ set boot_modules {
 	libm.lib.so
 	stdcxx.lib.so pthread.lib.so
 	libnativehelper.lib.so liblog.lib.so
-	libart.lib.so
+#	libart.lib.so
 	dalvikvm
 }
 
+append_platform_drv_boot_modules
 build_boot_image $boot_modules
 
 append qemu_args " -m 512 "
