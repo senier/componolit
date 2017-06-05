@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import argparse
+
+class ComponolitRootNotFound (Exception): pass
+class LibraryExists (Exception): pass
+
+class Port:
+
+    def __init__ (self, libname, force):
+
+        self.__libname = libname
+
+        self.check_dir()
+        if not force:
+            self.check_name()
+
+    def check_file (self, path, error):
+
+        p = path % (self.__libname)
+        if Path (p).exists():
+            raise LibraryExists (error + " (" + p + ")")
+
+    def check_name (self):
+
+        self.check_file ("ports/%s.port", "Library port file exists")
+        self.check_file ("ports/%s.hash", "Library hash file exists")
+        self.check_file ("lib/mk/%s.mk", "Library mk file exists")
+        self.check_file ("lib/import/import-%s.mk", "Library import file exists")
+
+    def check_dir (self):
+
+        if not Path ("lib/mk/android.inc").exists():
+            raise ComponolitRootNotFound ("Must be executed from withing Componolit directory")
+
+    def create (self, basedir, reponame, repodir, repopath, repobranch, include):
+
+        with open ('ports/%s.port' % (self.__libname), 'w') as f:
+            f.write ('LICENSE   := Apache_2.0\n')
+            f.write ('VERSION   := git\n')
+            f.write ('DOWNLOADS := %s.git\n\n' % (reponame))
+            f.write ('URL(%s) := https://android.googlesource.com/platform/%s\n' % (reponame, repopath))
+            f.write ('DIR(%s) := %s\n' % (reponame, repodir))
+            f.write ('REV(%s) := %s\n' % (reponame, repobranch))
+
+        with open ('ports/%s.hash' % (self.__libname), 'w') as f:
+            f.write ('dummy\n')
+
+        with open ('lib/mk/%s.mk' % (self.__libname), 'w') as f:
+            f.write ('ANDROID_BASEDIR  = $(call select_from_ports,%s)/%s\n' % (self.__libname, basedir))
+            if include:
+                f.write ('ANDROID_INCLUDES = %s\n' % (' '.join (include)))
+            else:
+                f.write ('# Configure additional include paths\n')
+                f.write ('# ANDROID_INCLUDES = \n')
+            f.write ('ANDROID_SECTIONS = /cc_library[@name=%s] /cc_library[@name=%s]/target/host\n' % (self.__libname, self.__libname))
+            f.write ('include $(call select_from_repositories,lib/mk/android.inc)\n')
+
+        with open ('lib/import/import-%s.mk' % (self.__libname), 'w') as f:
+            f.write ('ANDROID_LIB = %s\n' % (self.__libname))
+            f.write ('include $(call select_from_repositories,lib/import/import-android.inc)')
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser (description = 'Port an Android library')
+    parser.add_argument ('-l', '--lib',        help='Library name', action='store', required=True)
+    parser.add_argument ('-b', '--basedir',    help='Base directory relative to source directory', action='store', required=True)
+    parser.add_argument ('-r', '--reponame',   help='Name for Git repository', action='store', required=True)
+    parser.add_argument ('-d', '--repodir',    help='Source directory within Git repository', action='store', required=True)
+    parser.add_argument ('-p', '--repopath',   help='Path in Git URL relative to https://android.googlesource.com/platform/', action='store', required=True)
+    parser.add_argument ('-B', '--repobranch', help='Git branch to use', action='store', default='master')
+    parser.add_argument ('-i', '--include',    help='Directories to include', action='append')
+    parser.add_argument ('-f', '--force',      help='Overwrite existing files', action='store_true')
+    args = parser.parse_args()
+
+    port = Port (args.lib, args.force)
+    port.create (args.basedir, args.reponame, args.repodir, args.repopath, args.repobranch, args.include)
