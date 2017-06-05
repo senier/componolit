@@ -1,10 +1,13 @@
 ANDROID_OUTPUT := $(LIB_CACHE_DIR)/$(LIB)/android.mk
 
-check_android_vars := $(call _assert,$(ANDROID_BASEDIR), ANDROID_BASEDIR not set)
-check_android_vars := $(call _assert,$(ANDROID_BUILDFILES), ANDROID_BUILDFILES not set)
-check_android_vars := $(call _assert,$(ANDROID_SECTIONS), ANDROID_SECTIONS not set)
+check_android_vars := $(call _assert,$(ANDROID_BASEDIR), ANDROID_BASEDIR not set for $(LIB))
+check_android_vars := $(call _assert,$(ANDROID_SECTIONS), ANDROID_SECTIONS not set for $(LIB))
 
-$(ANDROID_OUTPUT):
+ANDROID_INCLUDES   ?= . include
+ANDROID_SOURCES    ?= .
+ANDROID_BUILDFILES ?= Android.bp
+
+$(ANDROID_OUTPUT): $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_BUILDFILES))
 	mkdir -p $(LIB_CACHE_DIR)/$(LIB)
 	$(call select_from_repositories,tool/gnoos) \
 	--basedir $(ANDROID_BASEDIR) \
@@ -12,12 +15,11 @@ $(ANDROID_OUTPUT):
 	--output $@ \
 	$(addprefix --input ,$(ANDROID_BUILDFILES)) \
 	$(ANDROID_SECTIONS)
+	@echo "$(LIB)_BASEDIR = $(ANDROID_BASEDIR)" >> $@
 
 all: $(ANDROID_OUTPUT)
 
 include $(ANDROID_OUTPUT)
-
-ANDROID_LIBS = $($(LIB)_SHARED_LIBS)
 
 SHARED_LIB  = yes
 
@@ -30,10 +32,7 @@ INC_DIR    += $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_INCLUDES))
 
 vpath % $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_SOURCES))
 
-MISSING_LIBS = $(filter-out $(LIBS), $(ANDROID_LIBS))
+# Include these libraries by default
+LIBS += libc cxx stdcxx $($(LIB)_SHARED_LIBS)
 
-ifneq ($(MISSING_LIBS),)
-$(error Missing Android libraries for $(LIB): $(MISSING_LIBS))
-endif
-
-LIBS += libc cxx
+$(warning [31mAndroid libraries for $(LIB): $(LIBS)[39m)
