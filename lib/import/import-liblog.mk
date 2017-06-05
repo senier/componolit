@@ -1,1 +1,2 @@
-INC_DIR += $(call select_from_ports,liblog)/system/core/liblog/include
+ANDROID_LIB = liblog
+include $(call select_from_repositories,lib/import/import-android.inc)
