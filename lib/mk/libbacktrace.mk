@@ -1,8 +1,7 @@
-ANDROID_BASEDIR    = $(call select_from_ports,liblog)/system/core/libbacktrace
-ANDROID_SECTIONS   = /cc_library[@name=libbacktrace] /cc_library[@name=libbacktrace]/target/linux
+ANDROID_PORT	 = liblog
+ANDROID_DIR		 = /system/core/libbacktrace
+ANDROID_SECTIONS = /cc_library[@name=libbacktrace]
 
-LIBS += stdcxx libbase
-
-include $(call select_from_repositories,lib/mk/android.inc)
+include $(call select_from_repositories,lib/mk/android-lib.inc)
 
 #CC_OPT += -Wno-unused-variable -Wno-unused-function

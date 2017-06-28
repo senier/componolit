@@ -1,38 +1,46 @@
-ANDROID_OUTPUT := $(LIB_CACHE_DIR)/$(LIB)/android.mk
+ifneq ($(ANDROID_NAME),)
 
-check_android_vars := $(call _assert,$(ANDROID_BASEDIR), ANDROID_BASEDIR not set for $(LIB))
-check_android_vars := $(call _assert,$(ANDROID_SECTIONS), ANDROID_SECTIONS not set for $(LIB))
+check_android_vars := $(call _assert,$(ANDROID_PORT), ANDROID_PORT not set for $(ANDROID_NAME))
+check_android_vars := $(call _assert,$(ANDROID_SECTIONS), ANDROID_SECTIONS not set for $(ANDROID_NAME))
+check_android_vars := $(call _assert,$(ANDROID_BUILDTYPE), ANDROID_BUILDTYPE not set for $(ANDROID_NAME))
+
+ANDROID_OUTPUT := $(LIB_CACHE_DIR)/$(ANDROID_BUILDTYPE)/$(ANDROID_NAME)/android.mk
 
 ANDROID_INCLUDES   ?= . include
 ANDROID_SOURCES    ?= .
 ANDROID_BUILDFILES ?= Android.bp
 
-$(ANDROID_OUTPUT): $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_BUILDFILES))
-	mkdir -p $(LIB_CACHE_DIR)/$(LIB)
-	$(call select_from_repositories,tool/gnoos) \
-	--basedir $(ANDROID_BASEDIR) \
-	--prefix $(LIB)_ \
-	--output $@ \
-	$(addprefix --input ,$(ANDROID_BUILDFILES)) \
-	$(ANDROID_SECTIONS)
-	@echo "$(LIB)_BASEDIR = $(ANDROID_BASEDIR)" >> $@
+ANDROID_PORTDIR     = $(call select_from_ports,$(ANDROID_PORT))
+check_android_vars := $(call _assert,$(ANDROID_PORTDIR), Port $(ANDROID_PORT) not found for $(ANDROID_NAME))
 
-all: $(ANDROID_OUTPUT)
+ANDROID_BASEDIR		= $(ANDROID_PORTDIR)/$(ANDROID_DIR)
+
+COMMAND := \
+	mkdir -p $(dir $(ANDROID_OUTPUT)) && \
+	$(call select_from_repositories,tool/gnoos) \
+		--basedir $(ANDROID_BASEDIR) \
+		--prefix $(ANDROID_NAME)_ \
+		--output $(ANDROID_OUTPUT) \
+		$(addprefix --input ,$(ANDROID_BUILDFILES)) \
+		$(ANDROID_SECTIONS) && \
+	echo "$(ANDROID_NAME)_BASEDIR = $(ANDROID_BASEDIR)" >> $(ANDROID_OUTPUT)
+
+DUMMY := $(shell $(COMMAND))
 
 include $(ANDROID_OUTPUT)
 
-SHARED_LIB  = yes
-
-SRC_C   = $(filter %.c,$($(LIB)_SRCS))
-CC_OPT  = $($(LIB)_CFLAGS)
-SRC_CC  = $(filter %.cpp,$($(LIB)_SRCS))
-CPP_OPT = $($(LIB)_CFLAGS)
+SRC_C   = $(filter %.c,$($(ANDROID_NAME)_SRCS))
+CC_OPT  = -D__GENODE__ $($(ANDROID_NAME)_CFLAGS)
+SRC_CC  = $(filter %.cpp,$($(ANDROID_NAME)_SRCS))
+CPP_OPT = $($(ANDROID_NAME)_CFLAGS)
 
 INC_DIR    += $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_INCLUDES))
 
 vpath % $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_SOURCES))
 
 # Include these libraries by default
-LIBS += libc cxx stdcxx $($(LIB)_SHARED_LIBS)
+LIBS += libc cxx stdcxx $($(ANDROID_NAME)_SHARED_LIBS)
 
-$(warning [31mAndroid libraries for $(LIB): $(LIBS)[39m)
+else
+$(error ANDROID_NAME not set)
+endif
