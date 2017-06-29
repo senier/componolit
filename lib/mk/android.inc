@@ -39,7 +39,7 @@ INC_DIR    += $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_INCLUDES))
 vpath % $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_SOURCES))
 
 # Include these libraries by default
-LIBS += libc cxx stdcxx $($(ANDROID_NAME)_SHARED_LIBS)
+LIBS += libc cxx stdcxx pthread $($(ANDROID_NAME)_SHARED_LIBS)
 
 else
 $(error ANDROID_NAME not set)

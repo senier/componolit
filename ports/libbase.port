@@ -5,3 +5,6 @@ DOWNLOADS := core.git
 URL(core) := https://android.googlesource.com/platform/system/core
 DIR(core) := system/core
 REV(core) := master
+
+PATCHES := src/lib/libbase/libbase.patch
+PATCH_OPT := -p1

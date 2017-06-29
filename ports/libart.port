@@ -5,3 +5,5 @@ DOWNLOADS := libart.git
 URL(libart) := https://android.googlesource.com/platform/art
 DIR(libart) := art
 REV(libart) := master
+
+PATCHES += src/lib/libbase/libbase.patch
