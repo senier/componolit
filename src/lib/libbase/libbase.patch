@@ -93,16 +93,22 @@ index 651f52962..064292345 100644
  namespace base {
  
 diff --git a/system/core/base/logging.cpp b/system/core/base/logging.cpp
-index 6357b4ba7..ccec5287d 100644
+index 6357b4ba7..f5e84d717 100644
 --- a/system/core/base/logging.cpp
 +++ b/system/core/base/logging.cpp
-@@ -70,8 +70,15 @@
+@@ -70,8 +70,21 @@
  #include <windows.h>
  #endif
  
-+// For strrchr
 +#if defined(__GENODE__)
++
++// For strrchr
 +#include <string.h>
++
++// For program name
++extern char **genode_argv;
++extern int    genode_argc;
++
 +#endif
 +
  #if defined(_WIN32)
@@ -112,7 +118,7 @@ index 6357b4ba7..ccec5287d 100644
  #else
  typedef pid_t thread_id;
  #endif
-@@ -85,9 +92,17 @@ static thread_id GetThreadId() {
+@@ -85,9 +98,17 @@ static thread_id GetThreadId() {
    return syscall(__NR_gettid);
  #elif defined(_WIN32)
    return GetCurrentThreadId();
@@ -130,7 +136,7 @@ index 6357b4ba7..ccec5287d 100644
  namespace {
  #if defined(__GLIBC__)
  const char* getprogname() {
-@@ -203,7 +218,7 @@ void StderrLogger(LogId, LogSeverity severity, const char*, const char* file,
+@@ -203,7 +224,7 @@ void StderrLogger(LogId, LogSeverity severity, const char*, const char* file,
    static_assert(arraysize(log_characters) - 1 == FATAL + 1,
                  "Mismatch in size of log_characters and values in LogSeverity");
    char severity_char = log_characters[severity];
@@ -140,10 +146,10 @@ index 6357b4ba7..ccec5287d 100644
  }
  
 diff --git a/system/core/base/logging_test.cpp b/system/core/base/logging_test.cpp
-index adb041b32..40b6c16f1 100644
+index adb041b32..833a2d390 100644
 --- a/system/core/base/logging_test.cpp
 +++ b/system/core/base/logging_test.cpp
-@@ -37,6 +37,10 @@
+@@ -37,12 +37,17 @@
  #define HOST_TEST(suite, name) TEST(suite, name)
  #endif
  
@@ -154,6 +160,13 @@ index adb041b32..40b6c16f1 100644
  #if defined(_WIN32)
  static void ExitSignalAbortHandler(int) {
    _exit(3);
+ }
+ #endif
+ 
++static void SuppressAbortUI() __attribute__((unused));
+ static void SuppressAbortUI() {
+ #if defined(_WIN32)
+   // We really just want to call _set_abort_behavior(0, _CALL_REPORTFAULT) to
 diff --git a/system/core/base/quick_exit.cpp b/system/core/base/quick_exit.cpp
 index e4dd62bfb..577077233 100644
 --- a/system/core/base/quick_exit.cpp
