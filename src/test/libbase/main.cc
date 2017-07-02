@@ -12,7 +12,7 @@ void Libc::Component::construct(Libc::Env &env)
 	Libc::with_libc([&] {
 		int argc = 1;
 		char const *argv[] = { "test_libbase", 0 };
-		exit(main(argc, argv));
+		setprogname (argv[0]);
+		exit (main(argc, argv));
 	});
 }
-
