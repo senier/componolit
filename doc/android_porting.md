@@ -36,4 +36,22 @@ construct in the code that should be investigated:
 
 	Add an appropriate ‵elif defined(__GENODE__)‵ block.
 
+## Initialization
+
+The Android base library (libbase) expects a proper program name to be set
+before ‵main()‵ is executed. If you encounter errors like
+
+	‵‵‵
+	Error: Uncaught exception of type 'std::logic_error'
+	Warning: abort called - thread: ep
+	‵‵‵
+
+you should add a ‵setprogname()‵ call to your Libc::Component::construct()
+method before calling ‵main()‵:
+
+	‵‵‵
+	setprogname (argv[0]);
+	exit (main(argc, argv));
+	‵‵‵
+
 ## Tests
