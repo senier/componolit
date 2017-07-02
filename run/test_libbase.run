@@ -51,13 +51,16 @@ install_config {
 	<start name="ram_fs">
 		<resource name="RAM" quantum="4M"/>
 		<provides> <service name="File_system"/> </provides>
-		<config> <policy label="libbase_test -> " root="/" writeable="yes" /> </config>
+		<config>
+			<default-policy root="/" writeable="true" />
+		</config>
 	</start>
 
 	<start name="libbase_test">
 		<resource name="RAM" quantum="4M"/>
 		<config>
 			<vfs>
+				<dir name="tmp"> <fs/> </dir>
 				<dir name="dev"> <log/> <rtc/> </dir>
 			</vfs>
 			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
