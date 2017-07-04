@@ -86,4 +86,4 @@ append_platform_drv_boot_modules
 build_boot_image $boot_modules
 
 append qemu_args " -m 512 -nographic "
-run_genode_until {.*child "misc" exited with exit value 0} 1000
+run_genode_until {.*child "symlink_integrity" exited with exit value 0} 1000
