@@ -6,5 +6,5 @@ URL(core) := https://android.googlesource.com/platform/system/core
 DIR(core) := system/core
 REV(core) := master
 
-PATCHES := src/lib/libbase/libbase.patch src/lib/libbase/realpath_test.patch
+PATCHES := src/lib/libbase/libbase.patch src/lib/libbase/realpath_test.patch src/lib/libbase/no_inconstructor_logging.patch
 PATCH_OPT := -p1
