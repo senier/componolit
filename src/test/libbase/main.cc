@@ -4,15 +4,20 @@
 /* libc includes */
 #include <stdlib.h> /* 'exit'   */
 
+extern int          genode_argc;
+extern char const **genode_argv;
+
 /* provided by the application */
 extern "C" int main(int argc, char const **argv);
 
 void Libc::Component::construct(Libc::Env &env)
 {
 	Libc::with_libc([&] {
-		int argc = 1;
-		char const *argv[] = { "test_libbase", 0 };
-		setprogname (argv[0]);
-		exit (main(argc, argv));
+		char const *argv[] = { "/bin/test_libbase", 0 };
+		genode_argc = 1;
+		genode_argv = argv;
+
+		setprogname (genode_argv[0]);
+		exit (main(genode_argc, genode_argv));
 	});
 }
