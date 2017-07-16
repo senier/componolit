@@ -1,11 +1,14 @@
 section {
-	name: "first"
+	name: "first",
+	data1: "elem1"
 }
 
 section {
-	name: "second"
+	name: "second",
+	data2: "elem2"
 }
 
 section_2 {
-	name: "third"
+	name: "third",
+	data3: "elem3"
 }

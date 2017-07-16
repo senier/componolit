@@ -3,9 +3,11 @@ section_1 {
 }
 
 section_1 {
-	name: "data2"
+	name:  "data2",
+	elem1: "data3"
 }
 
 section_2 {
-	name: "data2"
+	name:  "data2",
+	elem2: "data4"
 }
