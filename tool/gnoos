@@ -98,7 +98,7 @@ class SoongQuery:
 
     def __init__(self, querytext):
 
-        qname = Word(alphanums + "_-")
+        qname = Word(alphanums + "_-@.")
 
         attribute = Suppress(Literal('[') + Literal('@')) + qname + \
                     Suppress(Literal('=')) + qname + Suppress(Literal(']'))
@@ -284,7 +284,8 @@ class Soong:
                         merge_section(secdata, subresult)
 
                 if not subresult:
-                    raise NotFound("query=" + str(soong_query.query()) + " // (" + queryname + ")")
+                    raise NotFound("query=" + str(soong_query.query()) + \
+                                   " // (" + str(queryname) + ")")
 
                 sections = subresult
 
