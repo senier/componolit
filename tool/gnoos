@@ -98,7 +98,7 @@ class SoongQuery:
 
     def __init__(self, querytext):
 
-        qname = Word(alphanums + "_-")
+        qname = Word(alphanums + "_-@.")
 
         attribute = Suppress(Literal('[') + Literal('@')) + qname + \
                     Suppress(Literal('=')) + qname + Suppress(Literal(']'))
