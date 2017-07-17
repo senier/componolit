@@ -284,7 +284,8 @@ class Soong:
                         merge_section(secdata, subresult)
 
                 if not subresult:
-                    raise NotFound("query=" + str(soong_query.query()) + " // (" + queryname + ")")
+                    raise NotFound("query=" + str(soong_query.query()) + \
+                                   " // (" + str(queryname) + ")")
 
                 sections = subresult
 

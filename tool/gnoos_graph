@@ -3,9 +3,9 @@
 
 import re
 import imp
-import os
 import argparse
 
+from pathlib import Path
 from math import sqrt
 
 import pygraphviz as pgv
@@ -15,17 +15,15 @@ SOONG = imp.load_source('.', 'gnoos')
 
 class SoongGraph(SOONG.Soong):
 
-    def __init__(self, rootdir, sec_filter_text=None, name_filter_text=None, reduction=False):
+    def __init__(self, rootdir, dirs, sec_filter_text=None, name_filter_text=None, reduction=False):
 
         SOONG.Soong.__init__(self, rootdir,
                              ignore_vars=['subdirs', 'build', 'common_CFLAGS', 'common_cflags'])
 
-        for root, dummy, files in os.walk(rootdir):
-            for filename in sorted(files):
-                if not filename.endswith('.bp'):
-                    continue
-                filename = root[len(rootdir):] + "/" + filename
-                self.parse(filename)
+        for directory in dirs:
+            current_dir = Path(rootdir) / Path(directory)
+            for current_file in current_dir.glob('**/*.bp'):
+                self.parse(str(current_file.relative_to(rootdir)))
 
         self.__graph = pgv.AGraph(directed=True, splines='ortho', nodesep='1.5', ranksep='5.5')
         self.__graph.node_attr['shape'] = 'rectangle'
@@ -107,6 +105,7 @@ if __name__ == "__main__":
     PARSER = argparse.ArgumentParser(description='Build dependency graph from multiple soong files')
     PARSER.add_argument('-o', '--output', help='Output file', action='store', required=True)
     PARSER.add_argument('-r', '--rootdir', help='Root directory', action='store', required=True)
+    PARSER.add_argument('-d', '--dir', help='Directory to scan', action='append', required=True)
     PARSER.add_argument('-S', '--secfilter', help='Regexp to filter section types', action='store')
     PARSER.add_argument('-N', '--namefilter', help='Regexp to filter section names', action='store')
     PARSER.add_argument('-R', '--reduction', help='Run transitive reduction', action='store_true')
@@ -114,7 +113,7 @@ if __name__ == "__main__":
     PARSER.add_argument('-D', '--dump', help='Dump DOT file', action='store')
     ARGS = PARSER.parse_args()
 
-    GRAPH = SoongGraph(ARGS.rootdir, ARGS.secfilter, ARGS.namefilter, ARGS.reduction)
+    GRAPH = SoongGraph(ARGS.rootdir, ARGS.dir, ARGS.secfilter, ARGS.namefilter, ARGS.reduction)
     if ARGS.histogram:
         GRAPH.hist()
     if ARGS.dump:
