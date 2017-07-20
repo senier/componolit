@@ -32,7 +32,6 @@ include $(ANDROID_OUTPUT)
 SRC_C   = $(filter-out $(ANDROID_EXCLUDE_C),$(filter %.c,$($(ANDROID_NAME)_SRCS)))
 SRC_CC  = $(filter-out $(ANDROID_EXCLUDE_CC),$(filter %.cpp,$($(ANDROID_NAME)_SRCS)))
 CC_OPT  = -Werror -D__GENODE__ $($(ANDROID_NAME)_CFLAGS)
-CPP_OPT = $($(ANDROID_NAME)_CFLAGS)
 
 INC_DIR    += $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_INCLUDES))
 
