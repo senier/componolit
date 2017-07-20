@@ -27,7 +27,6 @@ void Libc::Component::construct(Libc::Env &env)
 
 		setprogname (genode_argv[0]);
 
-		printf("Running main() from gtest_main.cc\n");
 		testing::InitGoogleTest(&genode_argc, (char **)genode_argv);
 		exit(RUN_ALL_TESTS());
 	});
