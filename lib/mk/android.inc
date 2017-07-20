@@ -23,7 +23,8 @@ COMMAND := \
 		--output $(ANDROID_OUTPUT) \
 		$(addprefix --input ,$(ANDROID_BUILDFILES)) \
 		$(ANDROID_SECTIONS) && \
-	echo "$(ANDROID_NAME)_BASEDIR = $(ANDROID_BASEDIR)" >> $(ANDROID_OUTPUT)
+	echo "$(ANDROID_NAME)_BASEDIR = $(ANDROID_BASEDIR)" >> $(ANDROID_OUTPUT) && \
+	echo "$(ANDROID_NAME)_EXPORT_INCLUDE_DIRS += $(ANDROID_INCLUDES)" >> $(ANDROID_OUTPUT)
 
 DUMMY := $(shell $(COMMAND))
 
@@ -33,7 +34,7 @@ SRC_C   = $(filter-out $(ANDROID_EXCLUDE_C),$(filter %.c,$($(ANDROID_NAME)_SRCS)
 SRC_CC  = $(filter-out $(ANDROID_EXCLUDE_CC),$(filter %.cpp,$($(ANDROID_NAME)_SRCS)))
 CC_OPT  = -Werror -D__GENODE__ $($(ANDROID_NAME)_CFLAGS)
 
-INC_DIR    += $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_INCLUDES))
+INC_DIR := $(INC_DIR) $(addprefix $(ANDROID_BASEDIR)/,$($(ANDROID_NAME)_EXPORT_INCLUDE_DIRS))
 
 vpath % $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_SOURCES))
 
