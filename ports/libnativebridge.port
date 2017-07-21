@@ -1,0 +1,7 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := libnativebridge.git
+
+URL(libnativebridge) := https://android.googlesource.com/platform/system/core
+DIR(libnativebridge) := libnativebridge
+REV(libnativebridge) := master

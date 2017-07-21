@@ -53,7 +53,7 @@ class Port:
 
         with open('lib/mk/%s.mk' % (self.__libname), 'w') as filehandle:
             filehandle.write('ANDROID_PORT = %s\n' % (self.__libname))
-            filehandle.write('ANDROID_DIR = %s\n' % (subdir))
+            filehandle.write('ANDROID_DIR = %s/%s\n' % (self.__libname, subdir))
             filehandle.write('ANDROID_SECTIONS = /cc_library[@name=%s]\n\n' % (self.__libname))
             filehandle.write('include $(call select_from_repositories,lib/mk/android-lib.inc)\n')
 
