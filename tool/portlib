@@ -77,4 +77,4 @@ if __name__ == "__main__":
     ARGS = PARSER.parse_args()
 
     PORT = Port(ARGS.portname, ARGS.force)
-    PORT.create(ARGS.urlsuffix, RGS.subdir)
+    PORT.create(ARGS.urlsuffix, ARGS.subdir)
