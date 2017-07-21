@@ -1,5 +1,70 @@
 # Porting an Android library
 
+## Creating required build files
+
+To port an Android library, files for the Genode build system need to be
+created to define the process of check out, compilation and import. Many
+details are hidden by Android-specific Makefile fragments (see
+‵lib/mk/android\*.inc‵ and ‵lib/import/import-android.inc‵.  The ‵tool/portlib‵
+helps creating build files that call those fragments with the right parameters.
+
+To use it, the library name, the git repository location and its directory
+within the repository need to be identified. This is best be done with a
+checked-out Android source tree. The following example obtains the required
+information for the ‵libnativebridge‵ library, assuming the Android tree is
+located in ANDROID_DIR:
+
+1. Find the library directory
+
+	‵‵‵
+	$ cd ANDROID_DIR
+	$ find . -name libnativebridge -type d
+	./system/core/libnativebridge
+	‵‵‵
+
+2. Identify the remote repository
+
+	‵‵‵
+	$ cd system/core/libnativebridge
+	$ git remote -v show
+	aosp    https://android.googlesource.com/platform/system/core (fetch)
+	aosp    https://android.googlesource.com/platform/system/core (push)
+	‵‵‵
+
+3. Identify the library subdirectory within the repository
+
+	‵‵‵
+	$ git rev-parse --show-toplevel
+	ANDROID_DIR/system/core
+	‵‵‵
+
+	This implies that the library is located in the ‵libnativebridge‵ subdirectory
+	of the repository.
+
+4. Derive parameters for ‵portlib‵
+
+	* ‵--portname‵: This is the name of the port to be created. It will typically be name of the Android library (libnativebridge)
+	* ‵--urlsuffix‵: Remote path to the repository URL relative to https://android.googlesource.com/platform/ (system/core)
+	* ‵--subdir‵: Directory within the repository (libnativebridge)
+
+	The ‵portlib‵ tool must be called from the root directory of the componolit repositroy. For the above example a call is as follows:
+
+	‵‵‵
+	./tool/portlib --portname libnativebridge --urlsuffix system/core --subdir libnativebridge
+	‵‵‵
+
+The following files are created:
+
+	* Port file: ‵ports/libnativebridge.port‵
+	* Port hash file: ‵ports/libnativebridge.hash‵
+	* Library build file: ‵lib/mk/libnativebridge.mk‵
+	* Library import file: ‵lib/import/import-libnativebridge.mk‵
+
+The hash file is just a dummy which needs to be updated with a proper hash.
+Most likely, changes to the library build file are required to add compiler
+flags, include paths or to evaluate other sections of the Android.bp build
+file.
+
 ## System-specific code
 
 Android encapsulates system-specific code into conditional preprocessor blocks.
@@ -53,5 +118,3 @@ method before calling ‵main()‵:
 	setprogname (argv[0]);
 	exit (main(argc, argv));
 	‵‵‵
-
-## Tests
