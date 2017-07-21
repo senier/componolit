@@ -58,9 +58,9 @@ class Port:
             filehandle.write('include $(call select_from_repositories,lib/mk/android-lib.inc)\n')
 
         with open('lib/import/import-%s.mk' % (self.__libname), 'w') as filehandle:
-            filehandle.write('ANDROID_LIB := %s' % (self.__libname))
+            filehandle.write('ANDROID_LIB := %s\n' % (self.__libname))
             filehandle.write \
-                ('include $(call select_from_repositories,lib/import/import-android.inc)')
+                ('include $(call select_from_repositories,lib/import/import-android.inc)\n')
 
 if __name__ == "__main__":
 
