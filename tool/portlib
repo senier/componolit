@@ -37,23 +37,23 @@ class Port:
         self.check_file("lib/mk/%s.mk", "Library mk file exists")
         self.check_file("lib/import/import-%s.mk", "Library import file exists")
 
-    def create(self, reponame, repodir, repopath):
+    def create(self, urlsuffix, subdir):
 
         with open('ports/%s.port' % (self.__libname), 'w') as filehandle:
             filehandle.write('LICENSE   := Apache_2.0\n')
             filehandle.write('VERSION   := git\n')
-            filehandle.write('DOWNLOADS := %s.git\n\n' % (reponame))
+            filehandle.write('DOWNLOADS := %s.git\n\n' % (self.__libname))
             filehandle.write('URL(%s) := https://android.googlesource.com/platform/%s\n' % \
-                (reponame, repopath))
-            filehandle.write('DIR(%s) := %s\n' % (reponame, repodir))
-            filehandle.write('REV(%s) := master\n' % (reponame))
+                (self.__libname, urlsuffix))
+            filehandle.write('DIR(%s) := %s\n' % (self.__libname, subdir))
+            filehandle.write('REV(%s) := master\n' % (self.__libname))
 
         with open('ports/%s.hash' % (self.__libname), 'w') as filehandle:
             filehandle.write('dummy\n')
 
         with open('lib/mk/%s.mk' % (self.__libname), 'w') as filehandle:
             filehandle.write('ANDROID_PORT = %s\n' % (self.__libname))
-            filehandle.write('ANDROID_DIR = %s\n' % (repodir))
+            filehandle.write('ANDROID_DIR = %s\n' % (subdir))
             filehandle.write('ANDROID_SECTIONS = /cc_library[@name=%s]\n\n' % (self.__libname))
             filehandle.write('include $(call select_from_repositories,lib/mk/android-lib.inc)\n')
 
@@ -65,16 +65,16 @@ class Port:
 if __name__ == "__main__":
 
     PARSER = argparse.ArgumentParser(description='Port an Android library')
-    PARSER.add_argument('-l', '--lib', help='Library name', action='store', required=True)
-    PARSER.add_argument('-r', '--reponame', help='Name of git repository',
+    PARSER.add_argument('-p', '--portname', help='Name of Android port ' + \
+                        '(typically library or program name)',
                         action='store', required=True)
-    PARSER.add_argument('-d', '--repodir', help='Source directory within Git repository',
-                        action='store', required=True)
-    PARSER.add_argument('-p', '--repopath', help='Path in git URL relative to ' + \
+    PARSER.add_argument('-u', '--urlsuffix', help='Path to append to git URL ' + \
                         'https://android.googlesource.com/platform/',
+                        action='store', required=True)
+    PARSER.add_argument('-s', '--subdir', help='Subdirectory within Git repository',
                         action='store', required=True)
     PARSER.add_argument('-f', '--force', help='Overwrite existing files', action='store_true')
     ARGS = PARSER.parse_args()
 
-    PORT = Port(ARGS.lib, ARGS.force)
-    PORT.create(ARGS.reponame, ARGS.repodir, ARGS.repopath)
+    PORT = Port(ARGS.portname, ARGS.force)
+    PORT.create(ARGS.urlsuffix, ARGS.subdir)
