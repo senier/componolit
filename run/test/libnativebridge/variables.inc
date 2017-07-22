@@ -1,25 +1,12 @@
-#
-# Build
-#
-
 set build_components {
 	core init
 	drivers/timer
 	drivers/rtc
 	server/ram_fs
-	test/libnativebridge
+	test/libnativebridge-dummy
 }
 
-source ${genode_dir}/repos/base/run/platform_drv.inc
-append_platform_drv_build_components
-build $build_components
-create_boot_directory
-
-#
-# Generate config
-#
-
-install_config {
+set config {
 <config verbose="yes">
 	<parent-provides>
 		<service name="ROM"/>
@@ -55,36 +42,18 @@ install_config {
 			<default-policy root="/" writeable="true" />
 		</config>
 	</start>
+}
 
-	<start name="libnativebridge_test">
-		<resource name="RAM" quantum="128M"/>
-		<config>
-			<vfs>
-				<dir name="tmp"> <fs/> </dir>
-				<dir name="dev"> <log/> <rtc/> </dir>
-				<dir name="code_cache"> </dir>
-			</vfs>
-			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
-		</config>
-	</start>
-</config>}
-
-#
-# Boot image
-#
-
-# generic modules
 set boot_modules {
 	core init ld.lib.so
 	timer ram_fs
 	libc.lib.so libm.lib.so posix.lib.so pthread.lib.so stdcxx.lib.so
 	liblog.lib.so libnativehelper.lib.so libnativebridge.lib.so
+	libnativebridge-dummy.lib.so
+	libnativebridge2-dummy.lib.so
+	libnativebridge3-dummy.lib.so
 	rtc_drv
-	libnativebridge_test
 }
 
-append_platform_drv_boot_modules
-build_boot_image $boot_modules
 
-append qemu_args " -m 512 -nographic "
-run_genode_until {.*child "libnativebridge_test" exited with exit value 0} 100
+set timeout 10

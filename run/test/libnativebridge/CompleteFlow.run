@@ -1,0 +1,26 @@
+source ${genode_dir}/repos/componolit/run/test/libnativebridge/variables.inc
+
+append build_components {
+	test/libnativebridge/CompleteFlow
+}
+
+append config {
+	<start name="libnativebridge_CompleteFlow">
+		<resource name="RAM" quantum="4M"/>
+		<config>
+			<vfs>
+				<dir name="tmp"> <fs/> </dir>
+				<dir name="dev"> <log/> <rtc/> </dir>
+			</vfs>
+			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
+		</config>
+	</start>
+}
+
+append boot_modules {
+	libnativebridge_CompleteFlow
+}
+
+source ${genode_dir}/repos/componolit/run/test/libnativebridge/build.inc
+
+run_genode_until {.*child "libnativebridge_CompleteFlow" exited with exit value 0} $timeout
