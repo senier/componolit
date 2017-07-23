@@ -1027,6 +1027,8 @@ if __name__ == "__main__":
     for soong_file in ARGS.input:
         SOONG_PARSER.parse(soong_file)
 
+    SOONG_PARSER.resolve_defaults()
+
     try:
         QUERY_TEXT = "|".join(ARGS.queries)
         QUERY_RESULT = SOONG_PARSER.query(QUERY_TEXT)
