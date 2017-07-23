@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <err.h>
+#include <errno.h>
 
 void Libc::Component::construct(Libc::Env &env)
 {
@@ -19,6 +20,8 @@ void Libc::Component::construct(Libc::Env &env)
 		if (rv < 0) err (2, "symlink");
 
 		fd = open("/tmp/symlink", O_NOFOLLOW);
-		if (fd < 0) err (3, "open symlink");
+		if (fd < 0 && errno == ELOOP) exit(0);
+
+		exit (3);
 	});
 }
