@@ -1,0 +1,7 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := libcutils.git
+
+URL(libcutils) := https://android.googlesource.com/platform/system/core
+DIR(libcutils) := libcutils
+REV(libcutils) := master
