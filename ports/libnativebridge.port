@@ -6,5 +6,5 @@ URL(libnativebridge) := https://android.googlesource.com/platform/system/core
 DIR(libnativebridge) := libnativebridge
 REV(libnativebridge) := master
 
-PATCHES := src/lib/libnativebridge/libnames.patch
+PATCHES := src/lib/libnativebridge/libnames.patch src/lib/libnativebridge/issue2465_workaround.patch
 PATCH_OPT := -p1
