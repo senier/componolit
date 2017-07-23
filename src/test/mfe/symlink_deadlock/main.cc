@@ -20,7 +20,6 @@ void Libc::Component::construct(Libc::Env &env)
 
 		// This hangs, unless O_NOFOLLOW is removed
 		fd = open ("/tmp/symlink", O_CREAT | O_NOFOLLOW, 0666);
-		if (fd < 0) err (2, "open symlink");
 		exit (0);
 	});
 }
