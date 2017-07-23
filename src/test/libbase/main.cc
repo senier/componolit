@@ -16,7 +16,7 @@ void Libc::Component::construct(Libc::Env &env)
 
 		char const *argv[] = {
 			"/bin/test_libbase",
-			"--gtest_filter=-logging.LOG_STREAM_FATAL_WITHOUT_ABORT_*:logging.LOG_STREAM_*:logging.LOG_FATAL_WITHOUT_ABORT_*:logging.LOG_*_*:logging.LOG_complex_param:logging.*LOG_does_not_clobber_errno:logging.LOG_does_not_have_dangling_if:logging.PLOG_FATAL_WITHOUT_ABORT_*:logging.PLOG_*_*:logging.UNIMPLEMENTED",
+			"--gtest_filter=-logging.LOG_STREAM_FATAL_WITHOUT_ABORT_*:logging.LOG_STREAM_*:logging.LOG_FATAL_WITHOUT_ABORT_*:logging.LOG_*_*:logging.LOG_complex_param:logging.*LOG_does_not_clobber_errno:logging.LOG_does_not_have_dangling_if:logging.PLOG_FATAL_WITHOUT_ABORT_*:logging.PLOG_*_*:logging.UNIMPLEMENTED:file.WriteStringToFile2:file.ReadFileToString_capacity",
 			0
 		};
 
