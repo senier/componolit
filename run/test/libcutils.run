@@ -6,9 +6,7 @@ set build_components {
 	core init
 	drivers/timer
 	drivers/rtc
-	lib/vfs/lxip
 	server/ram_fs
-	server/nic_loopback
 	test/libcutils
 }
 
@@ -58,22 +56,14 @@ install_config {
 		</config>
 	</start>
 
-    <start name="nic_loopback">
-        <resource name="RAM" quantum="1M"/>
-        <provides><service name="Nic"/></provides>
-    </start>
-
 	<start name="libcutils_test">
 		<resource name="RAM" quantum="128M"/>
 		<config>
 			<vfs>
 				<dir name="tmp"> <fs/> </dir>
-				<dir name="socket">
-					<lxip/>
-				</dir>
 				<dir name="dev"> <log/> <rtc/> </dir>
 			</vfs>
-			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" socket="/socket" ip_addr="192.168.100.1" netmask="255.255.255.0" gateway="192.168.100.254"/>
+			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
 		</config>
 	</start>
 </config>}
@@ -88,11 +78,9 @@ set boot_modules {
 	timer ram_fs
 	libc.lib.so libm.lib.so
 	posix.lib.so pthread.lib.so stdcxx.lib.so
-	libc_resolv.lib.so
-	vfs_lxip.lib.so lxip.lib.so
+	lwip.lib.so libc_resolv.lib.so
 	liblog.lib.so libbase.lib.so libcutils.lib.so
 	rtc_drv
-	nic_loopback
 	libcutils_test
 }
 
