@@ -69,11 +69,11 @@ install_config {
 			<vfs>
 				<dir name="tmp"> <fs/> </dir>
 				<dir name="socket">
-					<lxip ip_addr="127.0.0.1" netmask="255.0.0.0" gateway="127.0.0.1" nameserver="0.0.0.0"/>
+					<lxip/>
 				</dir>
 				<dir name="dev"> <log/> <rtc/> </dir>
 			</vfs>
-			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" socket="/socket" />
+			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" socket="/socket" ip_addr="192.168.100.1" netmask="255.255.255.0" gateway="192.168.100.254"/>
 		</config>
 	</start>
 </config>}

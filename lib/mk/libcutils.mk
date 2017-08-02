@@ -4,7 +4,7 @@ ANDROID_SECTIONS = /cc_library[@name=libcutils] /cc_library[@name=libcutils]/tar
 
 include $(call select_from_repositories,lib/mk/android-lib.inc)
 
-LIBS += libc-net libc_resolv
+LIBS += libc_lxip
 
 # O_CLOEXEC is not present in FreeBSD libc
 CC_OPT_fs = -DO_CLOEXEC=0
