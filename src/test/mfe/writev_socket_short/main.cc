@@ -63,15 +63,21 @@ void Libc::Component::construct(Libc::Env &env)
 		len = writev(sendsock, bufs, NUM_ELEMS);
 		if (len < 0) err(6, "writev");
 
-		printf ("writev: Transferred %d bytes\n", len);
+		printf ("writev: Transferred %lu bytes\n", len);
 
 		int conn = accept(recvsock, NULL, 0);
 		if (conn < 0) err (7, "accept");
 
-		len = recv(conn, buf, sizeof(buf), 0);
+		int total = 0;
+		while ((len = recv(conn, buf, sizeof(buf), 0)) > 0)
+		{
+			total += len;
+			warnx("chunk=%s", buf);
+		}
+
 		if (len < 0) err(8, "recv");
-		if (len != 17) {
-			errx(9, "recv invalid length (got %d, expected %d, content=%s)", len, 17, buf);
+		if (total != 17) {
+			errx(9, "recv invalid length (got %d, expected %d, content=%s)", total, 17, buf);
 		}
 
 		if (memcmp(buf, "datadata2datadata", 17) != 0) errx(10, "memcmp");
