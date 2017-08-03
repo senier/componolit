@@ -18,10 +18,11 @@ void Libc::Component::construct(Libc::Env &env)
 
 		char const *argv[] = {
 			"/bin/test_libcutils",
+			"--gtest_filter=-SocketsTest.TestIpv6*",
 			0
 		};
 
-		genode_argc = 1;
+		genode_argc = 2;
 		genode_argv = argv;
 
 		setprogname (genode_argv[0]);
