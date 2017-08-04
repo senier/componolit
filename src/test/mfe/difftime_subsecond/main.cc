@@ -21,12 +21,12 @@ void Libc::Component::construct(Libc::Env &env)
 		time_t last = time(nullptr);
 
 	 	struct timespec duration;	
-		duration.tv_sec = 1;
+		duration.tv_sec = 3;
 		duration.tv_nsec = 500000000;
 		nanosleep(&duration, NULL);
 
 		double delta = difftime(time(NULL), last);
-		if (delta < 1.5)
+		if (delta < 3.5)
 		{
 			Genode::log("Invalid time diff: ", delta);
 			exit (1);
