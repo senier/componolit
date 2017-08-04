@@ -18,7 +18,7 @@ void Libc::Component::construct(Libc::Env &env)
 
 		char const *argv[] = {
 			"/bin/test_libcutils",
-			"--gtest_filter=-SocketsTest.TestIpv6*",
+			"--gtest_filter=-SocketsTest.TestIpv6*:SocketsTest.TestTcpReceiveTimeout:SocketsTest.android_get_control_socket",
 			0
 		};
 

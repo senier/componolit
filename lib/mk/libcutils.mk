@@ -1,6 +1,9 @@
 ANDROID_PORT = libcutils
 ANDROID_DIR = libcutils/libcutils
-ANDROID_SECTIONS = /cc_library[@name=libcutils] /cc_library[@name=libcutils]/target/not_windows
+ANDROID_SECTIONS = \
+	/cc_library[@name=libcutils] \
+	/cc_library[@name=libcutils]/target/not_windows \
+	/cc_library[@name=libcutils]/target/android_$(ANDROID_ARCH)
 
 include $(call select_from_repositories,lib/mk/android-lib.inc)
 

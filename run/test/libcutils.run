@@ -61,7 +61,11 @@ install_config {
 		<config>
 			<vfs>
 				<dir name="tmp"> <fs/> </dir>
-				<dir name="dev"> <log/> <rtc/> </dir>
+				<dir name="dev">
+					<log/>
+					<rtc/>
+					<dir name="socket"> <fs/> </dir>
+				</dir>
 			</vfs>
 			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
 		</config>
@@ -78,7 +82,7 @@ set boot_modules {
 	timer ram_fs
 	libc.lib.so libm.lib.so
 	posix.lib.so pthread.lib.so stdcxx.lib.so
-	lwip.lib.so libc_resolv.lib.so
+	lwip.lib.so
 	liblog.lib.so libbase.lib.so libcutils.lib.so
 	rtc_drv
 	libcutils_test
