@@ -15,6 +15,15 @@ check_android_vars := $(call _assert,$(ANDROID_PORTDIR), Port $(ANDROID_PORT) no
 
 ANDROID_BASEDIR		= $(ANDROID_PORTDIR)/$(ANDROID_DIR)
 
+# Set Android-compatible architecture
+ifeq ($(filter-out $(SPECS),x86_32),)
+ANDROID_ARCH = x86
+else ifeq ($(filter-out $(SPECS),x86_64),)
+ANDROID_ARCH = x86_64
+else ifeq ($(filter-out $(SPECS),arm),)
+ANDROID_ARCH = arm
+endif
+
 COMMAND := \
 	mkdir -p $(dir $(ANDROID_OUTPUT)) && \
 	$(call select_from_repositories,tool/gnoos) \
