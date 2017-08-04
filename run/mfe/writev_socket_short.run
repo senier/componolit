@@ -79,7 +79,6 @@ set boot_modules {
 	libc.lib.so libm.lib.so
 	posix.lib.so pthread.lib.so stdcxx.lib.so
 	lwip.lib.so libc_resolv.lib.so
-	liblog.lib.so libbase.lib.so
 	rtc_drv
 	writev_socket_short
 }
