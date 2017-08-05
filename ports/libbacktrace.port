@@ -5,5 +5,3 @@ DOWNLOADS := core.git
 URL(core) := https://android.googlesource.com/platform/system/core
 DIR(core) := system/core
 REV(core) := master
-
-
