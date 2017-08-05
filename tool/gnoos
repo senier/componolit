@@ -334,10 +334,12 @@ def make_vars(data, prefix=''):
     for elem in sorted(secdata):
         secdata_type = type(secdata[elem])
         if secdata_type  is str:
-            result += '%s%s = %s\n' % (prefix, elem.upper(), secdata[elem])
+            data = secdata[elem].translate(str.maketrans({"#": r"\#"}))
+            result += '%s%s = %s\n' % (prefix, elem.upper(), data)
         elif secdata_type is list:
             result += '%s%s =' % (prefix, elem.upper())
-            for elem in sorted(secdata[elem]):
+            for raw_elem in sorted(secdata[elem]):
+                elem = raw_elem.translate(str.maketrans({"#": r"\#"}))
                 result += ' %s' % elem
             result += '\n'
         elif secdata_type is bool:
@@ -969,6 +971,14 @@ class TestSoong(unittest.TestCase):
                        'NAME = libcutils_test\n' +
                        'SHARED_LIBS = libbase libcutils liblog\n' +
                        'SRCS = sockets_test.cpp\n')
+
+    def test_067(self):
+        """
+        Test whether hash sign is properly escaped in make output
+        """
+        self.assert_mk("067_escape_hash", '/section_1',
+                       'ELEM1 = da\\#ta1\nNAME = sec1\n', "")
+
 
 if __name__ == "__main__":
 
