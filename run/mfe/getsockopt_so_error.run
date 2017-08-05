@@ -7,7 +7,7 @@ set build_components {
 	drivers/timer
 	drivers/rtc
 	server/ram_fs
-	test/mfe/symlink_eloop_not_detected
+	test/mfe/getsockopt_so_error
 }
 
 source ${genode_dir}/repos/base/run/platform_drv.inc
@@ -49,15 +49,15 @@ install_config {
 	</start>
 
 	<start name="ram_fs">
-		<resource name="RAM" quantum="128M"/>
+		<resource name="RAM" quantum="4M"/>
 		<provides> <service name="File_system"/> </provides>
 		<config>
 			<default-policy root="/" writeable="true" />
 		</config>
 	</start>
 
-	<start name="symlink_eloop_not_detected">
-		<resource name="RAM" quantum="128M"/>
+	<start name="getsockopt_so_error">
+		<resource name="RAM" quantum="20M"/>
 		<config>
 			<vfs>
 				<dir name="tmp"> <fs/> </dir>
@@ -76,13 +76,15 @@ install_config {
 set boot_modules {
 	core init ld.lib.so
 	timer ram_fs
-	libc.lib.so libm.lib.so posix.lib.so pthread.lib.so stdcxx.lib.so
+	libc.lib.so libm.lib.so
+	posix.lib.so pthread.lib.so stdcxx.lib.so
+	lwip.lib.so libc_resolv.lib.so
 	rtc_drv
-	symlink_eloop_not_detected
+	getsockopt_so_error
 }
 
 append_platform_drv_boot_modules
 build_boot_image $boot_modules
 
 append qemu_args " -m 512 -nographic "
-run_genode_until {.*child "symlink_eloop_not_detected" exited with exit value 0} 1000
+run_genode_until {.*child "getsockopt_so_error" exited with exit value 0} 1000

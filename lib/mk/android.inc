@@ -15,6 +15,15 @@ check_android_vars := $(call _assert,$(ANDROID_PORTDIR), Port $(ANDROID_PORT) no
 
 ANDROID_BASEDIR		= $(ANDROID_PORTDIR)/$(ANDROID_DIR)
 
+# Set Android-compatible architecture
+ifeq ($(filter-out $(SPECS),x86_32),)
+ANDROID_ARCH = x86
+else ifeq ($(filter-out $(SPECS),x86_64),)
+ANDROID_ARCH = x86_64
+else ifeq ($(filter-out $(SPECS),arm),)
+ANDROID_ARCH = arm
+endif
+
 COMMAND := \
 	mkdir -p $(dir $(ANDROID_OUTPUT)) && \
 	$(call select_from_repositories,tool/gnoos) \
@@ -32,6 +41,7 @@ include $(ANDROID_OUTPUT)
 
 SRC_C   = $(filter-out $(ANDROID_EXCLUDE_C),$(filter %.c,$($(ANDROID_NAME)_SRCS)))
 SRC_CC  = $(filter-out $(ANDROID_EXCLUDE_CC),$(filter %.cpp %.cc,$($(ANDROID_NAME)_SRCS)))
+SRC_S   = $(filter-out $(ANDROID_EXCLUDE_S),$(filter %.S %.s,$($(ANDROID_NAME)_SRCS)))
 CC_OPT  = -Werror -D__GENODE__ $($(ANDROID_NAME)_CFLAGS)
 
 INC_DIR := $(INC_DIR) $(addprefix $(ANDROID_BASEDIR)/,$($(ANDROID_NAME)_EXPORT_INCLUDE_DIRS))

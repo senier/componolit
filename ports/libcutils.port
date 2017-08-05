@@ -5,3 +5,6 @@ DOWNLOADS := libcutils.git
 URL(libcutils) := https://android.googlesource.com/platform/system/core
 DIR(libcutils) := libcutils
 REV(libcutils) := master
+
+PATCHES := src/lib/libcutils/disable_ipv6.patch src/lib/libcutils/gettid.patch
+PATCH_OPT := -p1

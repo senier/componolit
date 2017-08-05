@@ -954,6 +954,16 @@ class TestSoong(unittest.TestCase):
         self.assert_query("065_extend_var_multi", '/section_1',
                           ('section_1', {'name': 'sec1', 'elem1': ['data1', 'data2']}))
 
+    def test_066(self):
+        """
+        Defaults are not incorporated in this example. Regression test.
+        """
+        self.assert_mk("066_defaults_regression", '/cc_test[@name=libcutils_test]',
+                       'CFLAGS = -Wall -Werror -Wextra\n' +
+                       'NAME = libcutils_test\n' +
+                       'SHARED_LIBS = libbase libcutils liblog\n' +
+                       'SRCS = sockets_test.cpp\n')
+
 if __name__ == "__main__":
 
     PARSER = argparse.ArgumentParser(description='Translate soong files to make statements')
@@ -1016,6 +1026,8 @@ if __name__ == "__main__":
     SOONG_PARSER = Soong(ARGS.basedir)
     for soong_file in ARGS.input:
         SOONG_PARSER.parse(soong_file)
+
+    SOONG_PARSER.resolve_defaults()
 
     try:
         QUERY_TEXT = "|".join(ARGS.queries)
