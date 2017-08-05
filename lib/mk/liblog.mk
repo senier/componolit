@@ -1,4 +1,4 @@
-ANDROID_PORT       = liblog
+ANDROID_PORT       = core
 ANDROID_DIR        = system/core/liblog
 ANDROID_INCLUDES   = ../include
 ANDROID_SECTIONS   = /cc_library[@name=liblog] /cc_library[@name=liblog]/target/host

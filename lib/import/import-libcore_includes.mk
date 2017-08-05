@@ -1,1 +1,1 @@
-INC_DIR := $(INC_DIR) $(call select_from_ports,liblog)/system/core/include
+INC_DIR := $(INC_DIR) $(call select_from_ports,core)/system/core/include

@@ -1,4 +1,5 @@
 TARGET = liblog_test
+
 SRC_CC = \
 	main.cc \
     libc_test.cpp \
@@ -12,7 +13,7 @@ SRC_CC = \
 
 CC_OPT = -g -Wall -Werror -fno-builtin
 
-LIBLOG_TESTS_DIR := $(call select_from_ports,liblog)/system/core/liblog/tests
+LIBLOG_TESTS_DIR := $(call select_from_ports,core)/system/core/liblog/tests
 vpath %.cpp $(LIBLOG_TESTS_DIR)
 
-LIBS += libc stdcxx liblog libbase liblog gtest libcore_includes
+LIBS += libc stdcxx gtest liblog libcore_includes libbase 

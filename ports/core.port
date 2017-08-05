@@ -1,0 +1,21 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := core.git
+
+URL(core) := https://android.googlesource.com/platform/system/core
+DIR(core) := system/core
+REV(core) := master
+
+PATCH_OPT := -p1
+
+PATCHES := \
+	src/lib/libbase/libbase.patch \
+	src/lib/libbase/realpath_test.patch \
+	src/lib/libbase/symlink_test.patch \
+	src/lib/libbase/no_chrono_literals.patch \
+	src/lib/libbase/no_inconstructor_logging.patch \
+	src/lib/libcutils/disable_ipv6.patch \
+	src/lib/libcutils/gettid.patch \
+	src/lib/liblog/log_time_freebsd.patch \
+	src/lib/libnativebridge/libnames.patch \
+	src/lib/libnativebridge/issue2465_workaround.patch

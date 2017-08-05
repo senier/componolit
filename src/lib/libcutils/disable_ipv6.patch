@@ -1,7 +1,7 @@
 diff --git a/libcutils/libcutils/socket_inaddr_any_server_unix.c b/libcutils/libcutils/socket_inaddr_any_server_unix.c
 index 387258fdf..341b8f2d6 100644
---- a/libcutils/libcutils/socket_inaddr_any_server_unix.c
-+++ b/libcutils/libcutils/socket_inaddr_any_server_unix.c
+--- a/system/core/libcutils/socket_inaddr_any_server_unix.c
++++ b/system/core/libcutils/socket_inaddr_any_server_unix.c
 @@ -32,15 +32,15 @@
  /* open listen() port on any interface */
  int socket_inaddr_any_server(int port, int type)
