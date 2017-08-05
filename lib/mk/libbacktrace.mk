@@ -1,4 +1,4 @@
-ANDROID_PORT	 = liblog
+ANDROID_PORT	 = core
 ANDROID_DIR		 = /system/core/libbacktrace
 ANDROID_SECTIONS = /cc_library[@name=libbacktrace]
 

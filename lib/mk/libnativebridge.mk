@@ -1,5 +1,5 @@
-ANDROID_PORT = libnativebridge
-ANDROID_DIR = libnativebridge/libnativebridge
+ANDROID_PORT     = core
+ANDROID_DIR      = system/core/libnativebridge
 ANDROID_SECTIONS = /cc_library[@name=libnativebridge]
 
 include $(call select_from_repositories,lib/mk/android-lib.inc)

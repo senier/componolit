@@ -1,7 +1,7 @@
 diff --git a/libnativebridge/libnativebridge/tests/CodeCacheStatFail_test.cpp b/libnativebridge/libnativebridge/tests/CodeCacheStatFail_test.cpp
 index 4ea519ee9..e3594c496 100644
---- a/libnativebridge/libnativebridge/tests/CodeCacheStatFail_test.cpp
-+++ b/libnativebridge/libnativebridge/tests/CodeCacheStatFail_test.cpp
+--- a/system/core/libnativebridge/tests/CodeCacheStatFail_test.cpp
++++ b/system/core/libnativebridge/tests/CodeCacheStatFail_test.cpp
 @@ -32,7 +32,7 @@ TEST_F(NativeBridgeTest, CodeCacheStatFail) {
  
      struct stat st;

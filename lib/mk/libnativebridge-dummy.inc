@@ -1,4 +1,4 @@
-LIBNATIVEBRIDGE_TESTS_DIR = $(call select_from_ports,libnativebridge)/libnativebridge/libnativebridge/tests
+LIBNATIVEBRIDGE_TESTS_DIR = $(call select_from_ports,core)/system/core/libnativebridge/tests
 
 vpath %.cpp $(LIBNATIVEBRIDGE_TESTS_DIR)
 INC_DIR += $(LIBNATIVEBRIDGE_TESTS_DIR)

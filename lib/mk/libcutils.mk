@@ -1,5 +1,5 @@
-ANDROID_PORT = libcutils
-ANDROID_DIR = libcutils/libcutils
+ANDROID_PORT = core
+ANDROID_DIR = system/core/libcutils
 ANDROID_SECTIONS = \
 	/cc_library[@name=libcutils] \
 	/cc_library[@name=libcutils]/target/not_windows \

@@ -1,33 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
-TESTS=" \
-	run/test/libbase \
-	run/test/libnativehelper \
-	run/test/liblog \
-	run/test/libnativebridge/PreInitializeNativeBridgeFail1 \
-	run/test/libnativebridge/ReSetupNativeBridge \
-	run/test/libnativebridge/CodeCacheExists \
-	run/test/libnativebridge/PreInitializeNativeBridgeFail2 \
-	run/test/libnativebridge/PreInitializeNativeBridge \
-	run/test/libnativebridge/CodeCacheCreate \
-	run/test/libnativebridge/CodeCacheStatFail \
-	run/test/libnativebridge/NativeBridge3CreateNamespace \
-	run/test/libnativebridge/ValidNameNativeBridge \
-	run/test/libnativebridge/NativeBridge3LoadLibraryExt \
-	run/test/libnativebridge/NeedsNativeBridge \
-	run/test/libnativebridge/NativeBridge3InitAnonymousNamespace \
-	run/test/libnativebridge/NativeBridge3IsPathSupported \
-	run/test/libnativebridge/NativeBridge3UnloadLibrary \
-	run/test/libnativebridge/NativeBridge3GetError \
-	run/test/libnativebridge/InvalidCharsNativeBridge \
-	run/test/libnativebridge/UnavailableNativeBridge \
-	run/test/libnativebridge/CompleteFlow \
-	run/test/libnativebridge/NativeBridgeVersion \
-	run/mfe/symlink_eloop_not_detected \
-	run/mfe/realpath_invalid \
-	run/mfe/symlink_integrity \
-	run/mfe/symlink_length \
-	run/mfe/symlink_deadlock \
+IGNORE="
+	-e run/dalvikvm
+	-e run/mfe/getsockopt_so_error
+	-e run/mfe/writev_socket_short
+	-e run/mfe/sock_receive_timeout
+	-e run/mfe/difftime_subsecond
 	"
+
+BASEDIR=$(dirname $0)/../run
+for T in $(find ${BASEDIR} -name '*.run' | grep -v ${IGNORE})
+do
+test
+	TEST=${T%%.run}
+	TESTS="${TESTS} run/${TEST##${BASEDIR}}"
+done
+
+echo "Ignoring: ${IGNORE}" | sed -e 's/-e //g'
 
 make ${TESTS}

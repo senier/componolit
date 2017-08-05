@@ -1,7 +1,7 @@
 TARGET = libcutils_test
 
-ANDROID_PORT	 = libcutils
-ANDROID_DIR		 = libcutils/libcutils/tests
+ANDROID_PORT	 = core
+ANDROID_DIR		 = system/core/libcutils/tests
 ANDROID_SECTIONS = /cc_test[@name=libcutils_test] /cc_test[@name=libcutils_test]/target/android
 ANDROID_EXCLUDE_CC = PropertiesTest.cpp AshmemTest.cpp sched_policy_test.cpp trace-dev_test.cpp
 

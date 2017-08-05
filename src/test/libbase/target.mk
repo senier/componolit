@@ -1,6 +1,6 @@
 TARGET = libbase_test
 
-ANDROID_PORT	 = libbase
+ANDROID_PORT	 = core
 ANDROID_DIR		 = system/core/base
 ANDROID_SECTIONS = /cc_test[@name=libbase_test]
 
