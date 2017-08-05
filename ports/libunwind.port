@@ -1,0 +1,7 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := libunwind.git
+
+URL(libunwind) := https://android.googlesource.com/platform/external/libunwind
+DIR(libunwind) := libunwind
+REV(libunwind) := master
