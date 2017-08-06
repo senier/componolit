@@ -53,12 +53,13 @@ class SoongGraph(SOONG.Soong):
                 self.parse(str(current_file.relative_to(rootdir)))
 
         self.__graph = pgv.AGraph(directed=True, splines='ortho', nodesep='1.5', ranksep='5.5')
+        self.__graph.node_attr['fontname'] = 'Arimo'
         self.__graph.node_attr['shape'] = 'rectangle'
         self.__graph.node_attr['style'] = 'rounded, filled'
         self.__graph.node_attr['fontcolor'] = 'white'
-        self.__graph.node_attr['fontname'] = 'Arimo'
         self.__graph.node_attr['color'] = '#505050'
         self.__graph.node_attr['penwidth'] = '5.0'
+        self.__graph.graph_attr['fontname'] = 'Arimo'
         self.__graph.graph_attr['label'] = \
             'QUERY: ' + querytext + ' / ARCH: ' + arch + ' / TARGET: ' + target
 
