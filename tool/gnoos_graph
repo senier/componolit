@@ -18,6 +18,12 @@ class SoongGraph(SOONG.Soong):
 
         (dummy, secdata) = section
 
+        if self.__target and 'target' in secdata and self.__target in secdata['target']:
+            SOONG.merge_section(secdata['target'][self.__target], secdata)
+
+        if self.__arch and 'arch' in secdata and self.__arch in secdata['arch']:
+            SOONG.merge_section(secdata['arch'][self.__arch], secdata)
+
         if 'shared_libs' in secdata:
             for lib in secdata['shared_libs']:
                 self.__graph.add_edge(secdata['name'], lib, color='#505050')
@@ -28,10 +34,13 @@ class SoongGraph(SOONG.Soong):
                 self.__graph.add_edge(secdata['name'], lib, color='#f0a848')
                 self.add_edges(self.query('/*[@name=' + lib + ']'))
 
-    def __init__(self, rootdir, dirs, querytext, reduction=False):
+    def __init__(self, rootdir, dirs, querytext, reduction=False, target=None, arch=None):
 
         SOONG.Soong.__init__(self, rootdir,
                              ignore_vars=['subdirs', 'build', 'common_CFLAGS', 'common_cflags'])
+
+        self.__target = target
+        self.__arch = arch
 
         for directory in dirs:
             current_dir = Path(rootdir) / Path(directory)
@@ -45,6 +54,8 @@ class SoongGraph(SOONG.Soong):
         self.__graph.node_attr['fontname'] = 'Arimo'
         self.__graph.node_attr['color'] = '#505050'
         self.__graph.node_attr['penwidth'] = '5.0'
+        self.__graph.graph_attr['label'] = \
+            'QUERY: ' + querytext + ' / ARCH: ' + arch + ' / TARGET: ' + target
 
         self.__graph.edge_attr['penwidth'] = '5.0'
 
@@ -95,13 +106,15 @@ if __name__ == "__main__":
     PARSER.add_argument('-o', '--output', help='Output file', action='store', required=True)
     PARSER.add_argument('-r', '--rootdir', help='Root directory', action='store', required=True)
     PARSER.add_argument('-d', '--dir', help='Directory to scan', action='append', required=True)
+    PARSER.add_argument('-t', '--target', help='Consider subsection for target')
+    PARSER.add_argument('-a', '--arch', help='Consider subsection for arch')
     PARSER.add_argument('-q', '--query', help='Query to build graph from', required=True)
     PARSER.add_argument('-R', '--reduction', help='Run transitive reduction', action='store_true')
     PARSER.add_argument('-H', '--histogram', help='Print in-degree histogram', action='store_true')
     PARSER.add_argument('-D', '--dump', help='Dump DOT file', action='store')
     ARGS = PARSER.parse_args()
 
-    GRAPH = SoongGraph(ARGS.rootdir, ARGS.dir, ARGS.query, ARGS.reduction)
+    GRAPH = SoongGraph(ARGS.rootdir, ARGS.dir, ARGS.query, ARGS.reduction, ARGS.target, ARGS.arch)
     if ARGS.histogram:
         GRAPH.hist()
     if ARGS.dump:
