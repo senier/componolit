@@ -61,6 +61,7 @@ cc_test_library {
         "dirent_test.cpp",
         "elf_test.cpp",
         "endian_test.cpp",
+        "errno_test.cpp",
         "error_test.cpp",
         "eventfd_test.cpp",
         "fcntl_test.cpp",
@@ -88,9 +89,11 @@ cc_test_library {
         "nl_types_test.cpp",
         "pthread_test.cpp",
         "pty_test.cpp",
+        "qsort_test.cpp",
         "regex_test.cpp",
         "resolv_test.cpp",
         "sched_test.cpp",
+        "scsi_sg_test.cpp",
         "search_test.cpp",
         "semaphore_test.cpp",
         "setjmp_test.cpp",
@@ -131,6 +134,7 @@ cc_test_library {
         "sys_sysmacros_test.cpp",
         "sys_time_test.cpp",
         "sys_timex_test.cpp",
+        "sys_ttydefaults_test.cpp",
         "sys_types_test.cpp",
         "sys_uio_test.cpp",
         "sys_vfs_test.cpp",
@@ -285,6 +289,7 @@ cc_test_library {
             ],
             static_libs: [
                 "libpagemap",
+                "libziparchive",
                 "libLLVMObject",
                 "libLLVMBitReader",
                 "libLLVMMC",
@@ -293,7 +298,13 @@ cc_test_library {
                 "libLLVMSupport",
             ],
         }
-    }
+    },
+
+    product_variables: {
+        debuggable: {
+            cppflags: ["-DUSE_LD_CONFIG_FILE"],
+        },
+    },
 }
 
 // -----------------------------------------------------------------------------
@@ -522,7 +533,6 @@ cc_test {
     static_libs: [
         "libm",
         "libc",
-        "libc++_static",
         "libdl",
         "libtinyxml2",
         "liblog",
@@ -532,12 +542,6 @@ cc_test {
 
     static_executable: true,
     stl: "libc++_static",
-
-    // libc and libc++ both define std::nothrow. libc's is a private symbol, but this
-    // still causes issues when linking libc.a and libc++.a, since private isn't
-    // effective until it has been linked. To fix this, just allow multiple symbol
-    // definitions for the static tests.
-    ldflags: ["-Wl,--allow-multiple-definition"],
 }
 
 // -----------------------------------------------------------------------------
@@ -593,6 +597,12 @@ cc_test_host {
 
     sanitize: {
         never: false,
+    },
+
+    product_variables: {
+        debuggable: {
+            cppflags: ["-DUSE_LD_CONFIG_FILE"],
+        },
     },
 }
 

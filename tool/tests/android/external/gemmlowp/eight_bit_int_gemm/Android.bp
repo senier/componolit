@@ -14,7 +14,10 @@
 
 cc_defaults {
     name: "libbnnmlowp-defaults",
-    cflags: ["-Wno-unused-parameter"],
+    cflags: [
+        "-Wno-unused-parameter",
+        "-DGEMMLOWP_USE_META_FASTPATH",
+    ],
 
     srcs: ["eight_bit_int_gemm.cc"],
     export_include_dirs: ["."],

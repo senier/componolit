@@ -179,6 +179,7 @@ cc_library_shared {
     stl: "c++_static",
     ldflags: [
         "-Wl,--exclude-libs,libc++_static.a",
+        "-Wl,--hash-style=sysv",
     ],
     shared_libs: ["libdl"],
     static_libs: ["libF77blasV8"],

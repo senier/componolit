@@ -11,6 +11,7 @@ hal2vts {
         "android/hardware/radio/1.1/Radio.vts",
         "android/hardware/radio/1.1/RadioIndication.vts",
         "android/hardware/radio/1.1/RadioResponse.vts",
+        "android/hardware/radio/1.1/Sap.vts",
         "android/hardware/radio/1.1/types.vts",
     ],
 }
@@ -27,6 +28,7 @@ genrule {
         "android/hardware/radio/1.1/Radio.vts.cpp",
         "android/hardware/radio/1.1/RadioIndication.vts.cpp",
         "android/hardware/radio/1.1/RadioResponse.vts.cpp",
+        "android/hardware/radio/1.1/Sap.vts.cpp",
         "android/hardware/radio/1.1/types.vts.cpp",
     ],
 }
@@ -42,6 +44,7 @@ genrule {
         "android/hardware/radio/1.1/Radio.vts.h",
         "android/hardware/radio/1.1/RadioIndication.vts.h",
         "android/hardware/radio/1.1/RadioResponse.vts.h",
+        "android/hardware/radio/1.1/Sap.vts.h",
         "android/hardware/radio/1.1/types.vts.h",
     ],
 }
@@ -52,19 +55,21 @@ cc_library_shared {
     generated_headers: ["android.hardware.radio@1.1-vts.driver_genc++_headers"],
     export_generated_headers: ["android.hardware.radio@1.1-vts.driver_genc++_headers"],
     shared_libs: [
+        "libcamera_metadata",
+        "libcutils",
+        "libfmq",
         "libhidlbase",
         "libhidltransport",
         "libhwbinder",
         "liblog",
+        "libprotobuf-cpp-full",
         "libutils",
-        "libcutils",
         "libvts_common",
         "libvts_datatype",
         "libvts_drivercomm",
         "libvts_measurement",
         "libvts_multidevice_proto",
-        "libcamera_metadata",
-        "libprotobuf-cpp-full",
+        "android.hidl.allocator@1.0",
         "android.hardware.radio@1.1",
         "android.hardware.radio@1.0",
         "android.hardware.radio@1.0-vts.driver",
@@ -76,15 +81,6 @@ cc_library_shared {
     cflags: [
         "-Wall",
         "-Werror",
-
-        // These warnings are in code generated with vtsc
-        // b/31362043
-        "-Wno-unused-parameter",
-        "-Wno-unused-variable",
-        "-Wno-unused-private-field",
-        "-Wno-duplicate-decl-specifier",
-        "-Wno-uninitialized",
-        "-Wno-implicitly-unsigned-literal",
     ],
 }
 
@@ -100,6 +96,7 @@ genrule {
         "android/hardware/radio/1.1/Radio.vts.cpp",
         "android/hardware/radio/1.1/RadioIndication.vts.cpp",
         "android/hardware/radio/1.1/RadioResponse.vts.cpp",
+        "android/hardware/radio/1.1/Sap.vts.cpp",
         "android/hardware/radio/1.1/types.vts.cpp",
     ],
 }
@@ -115,6 +112,7 @@ genrule {
         "android/hardware/radio/1.1/Radio.vts.h",
         "android/hardware/radio/1.1/RadioIndication.vts.h",
         "android/hardware/radio/1.1/RadioResponse.vts.h",
+        "android/hardware/radio/1.1/Sap.vts.h",
         "android/hardware/radio/1.1/types.vts.h",
     ],
 }
@@ -126,6 +124,8 @@ cc_library_shared {
     export_generated_headers: ["android.hardware.radio@1.1-vts.profiler_genc++_headers"],
     shared_libs: [
         "libbase",
+        "libcutils",
+        "libfmq",
         "libhidlbase",
         "libhidltransport",
         "libvts_common",
@@ -139,15 +139,6 @@ cc_library_shared {
     cflags: [
         "-Wall",
         "-Werror",
-
-        // These warnings are in code generated with vtsc
-        // b/31362043
-        "-Wno-unused-parameter",
-        "-Wno-unused-variable",
-        "-Wno-unused-private-field",
-        "-Wno-duplicate-decl-specifier",
-        "-Wno-uninitialized",
-        "-Wno-implicitly-unsigned-literal",
     ],
 }
 
