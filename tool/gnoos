@@ -42,6 +42,9 @@ class DefaultsNoList(Exception):
 class NameNoString(Exception):
     pass
 
+class ParseError(Exception):
+    pass
+
 class AnyClass:
     def __repr__(self):
         return "*"
@@ -253,7 +256,10 @@ class Soong:
     def parse(self, infile):
         filepath = self.__basedir + "/" + infile
         with open(filepath, 'r') as filehandle:
-            self._grammar.parseFile(filehandle)
+            try:
+                self._grammar.parseFile(filehandle)
+            except ParseException as e:
+                raise ParseError("Parse error in '" + infile + "' [" + str(e) + "]")
 
     def data(self):
         return self.__data['sections']
