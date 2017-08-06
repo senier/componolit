@@ -24,6 +24,11 @@ class SoongGraph(SOONG.Soong):
         if self.__arch and 'arch' in secdata and self.__arch in secdata['arch']:
             SOONG.merge_section(secdata['arch'][self.__arch], secdata)
 
+        if self.__target and self.__arch and 'target' in secdata:
+            target_arch = self.__target + '_' + self.__arch
+            if target_arch in secdata['target']:
+                SOONG.merge_section(secdata['target'][target_arch], secdata)
+
         if 'shared_libs' in secdata:
             for lib in secdata['shared_libs']:
                 self.__graph.add_edge(secdata['name'], lib, color='#505050')
