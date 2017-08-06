@@ -1,0 +1,7 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := liblzma.git
+
+URL(liblzma) := https://android.googlesource.com/platform/external/lzma
+DIR(liblzma) := liblzma
+REV(liblzma) := master
