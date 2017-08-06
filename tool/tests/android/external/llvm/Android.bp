@@ -35,6 +35,12 @@ llvm_defaults {
         "-std=c++11",
     ],
 
+    clang_cflags: [
+        // Temporarily suppress the warnings http://b/37867503
+        "-Wno-error=unused-lambda-capture",
+        "-Wno-error=user-defined-warnings",
+    ],
+
     header_libs: ["llvm-headers-no-generated-headers"],
 
     target: {
@@ -187,9 +193,9 @@ llvm_aarch64_static_libraries = [
     "libLLVMAArch64Disassembler",
 ]
 
-cc_library_shared {
+cc_defaults {
     host_supported: true,
-    name: "libLLVM",
+    name: "libLLVM-defaults",
     defaults: [
         "llvm-defaults",
         "force_build_llvm_components",
@@ -232,6 +238,10 @@ cc_library_shared {
         "libLLVMProfileData",
         "libLLVMProfileDataCoverage",
         "libLLVMLibDriver",
+        "libLLVMExecutionEngine",
+        "libLLVMRuntimeDyld",
+        "libLLVMMCJIT",
+        "libLLVMOrcJIT",
     ],
 
     export_include_dirs: ["include"],
@@ -239,12 +249,7 @@ cc_library_shared {
     target: {
         host: {
             // Host build pulls in all ARM, Mips, X86 components.
-           whole_static_libs: [
-                "libLLVMExecutionEngine",
-                "libLLVMRuntimeDyld",
-                "libLLVMMCJIT",
-                "libLLVMOrcJIT",
-            ] + llvm_arm_static_libraries +
+           whole_static_libs: llvm_arm_static_libraries +
                 llvm_aarch64_static_libraries +
                 llvm_mips_static_libraries +
                 llvm_x86_static_libraries,
@@ -298,6 +303,16 @@ cc_library_shared {
                 llvm_arm_static_libraries,
         },
     },
+}
+
+cc_library_shared {
+    name: "libLLVM",
+    defaults: ["libLLVM-defaults"],
+}
+
+cc_library_shared {
+    name: "libLLVM_android",
+    defaults: ["libLLVM-defaults"],
 }
 
 subdirs = [

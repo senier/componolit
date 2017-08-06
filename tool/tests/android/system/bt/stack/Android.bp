@@ -99,10 +99,8 @@ cc_library_static {
         "btu/btu_hcif.cc",
         "btu/btu_init.cc",
         "btu/btu_task.cc",
-        "gap/gap_api.cc",
         "gap/gap_ble.cc",
         "gap/gap_conn.cc",
-        "gap/gap_utils.cc",
         "gatt/att_protocol.cc",
         "gatt/gatt_api.cc",
         "gatt/gatt_attr.cc",
@@ -197,6 +195,7 @@ cc_test {
     srcs: ["test/stack_a2dp_test.cc"],
     shared_libs: [
         "liblog",
+        "libcutils",
     ],
     static_libs: [
         "libbt-stack",
@@ -268,6 +267,7 @@ cc_test {
         "libcutils",
     ],
     static_libs: [
+        "libbluetooth-types",
         "liblog",
         "libgmock",
     ],
@@ -285,6 +285,7 @@ cc_test {
         "test/ad_parser_unittest.cc",
     ],
     static_libs: [
+        "libbluetooth-types",
         "liblog",
         "libgmock",
     ],
@@ -315,6 +316,7 @@ cc_test {
         "libprotobuf-cpp-lite",
     ],
     static_libs: [
+        "libbluetooth-types",
         "libgmock",
         "libosi",
         "libbt-protos",

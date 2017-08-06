@@ -18,9 +18,8 @@ cc_defaults {
     name: "init_defaults",
     cpp_std: "experimental",
     sanitize: {
-        misc_undefined: ["integer"],
+        misc_undefined: ["signed-integer-overflow"],
     },
-    tidy_checks: ["-misc-forwarding-reference-overload"],
     cppflags: [
         "-DLOG_UEVENTS=0",
         "-Wall",
@@ -66,11 +65,14 @@ cc_library_static {
         "capabilities.cpp",
         "descriptors.cpp",
         "devices.cpp",
+        "firmware_handler.cpp",
         "import_parser.cpp",
-        "init_parser.cpp",
         "log.cpp",
         "parser.cpp",
         "service.cpp",
+        "tokenizer.cpp",
+        "uevent_listener.cpp",
+        "ueventd_parser.cpp",
         "util.cpp",
     ],
     whole_static_libs: ["libcap"],
@@ -92,6 +94,10 @@ cc_binary {
 
     name: "init",
     defaults: ["init_defaults"],
+    required: [
+        "e2fsdroid",
+        "mke2fs",
+    ],
     static_executable: true,
     srcs: [
         "bootchart.cpp",
@@ -147,10 +153,10 @@ cc_test {
     defaults: ["init_defaults"],
     srcs: [
         "devices_test.cpp",
-        "init_parser_test.cpp",
         "init_test.cpp",
         "property_service_test.cpp",
         "service_test.cpp",
+        "ueventd_test.cpp",
         "util_test.cpp",
     ],
     shared_libs: [

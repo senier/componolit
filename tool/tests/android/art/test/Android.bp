@@ -250,7 +250,13 @@ art_cc_defaults {
         "ti-agent/jni_binder.cc",
         "ti-agent/jvmti_helper.cc",
         "ti-agent/test_env.cc",
+        "ti-agent/breakpoint_helper.cc",
         "ti-agent/common_helper.cc",
+        "ti-agent/locals_helper.cc",
+        "ti-agent/redefinition_helper.cc",
+        "ti-agent/suspension_helper.cc",
+        "ti-agent/stack_trace_helper.cc",
+        "ti-agent/trace_helper.cc",
         // This is the list of non-special OnLoad things and excludes BCI and anything that depends
         // on ART internals.
         "903-hello-tagging/tagging.cc",
@@ -278,6 +284,17 @@ art_cc_defaults {
         "984-obsolete-invoke/obsolete_invoke.cc",
         "986-native-method-bind/native_bind.cc",
         "987-agent-bind/agent_bind.cc",
+        "989-method-trace-throw/method_trace.cc",
+        "991-field-trace-2/field_trace.cc",
+        "992-source-data/source_file.cc",
+        "993-breakpoints/breakpoints.cc",
+        "996-breakpoint-obsolete/obsolete_breakpoints.cc",
+        "1900-track-alloc/alloc.cc",
+        "1901-get-bytecodes/bytecodes.cc",
+        "1905-suspend-native/native_suspend.cc",
+        "1908-suspend-native-resume-self/native_suspend_resume.cc",
+        "1909-per-agent-tls/agent_tls.cc",
+        "1914-get-local-instance/local_instance.cc",
     ],
     shared_libs: [
         "libbase",
@@ -393,6 +410,8 @@ cc_defaults {
         "626-const-class-linking/clear_dex_cache_types.cc",
         "642-fp-callees/fp_callees.cc",
         "647-jni-get-field-id/get_field_id.cc",
+        "656-annotation-lookup-generic-jni/test.cc",
+        "708-jit-cache-churn/jit.cc"
     ],
     shared_libs: [
         "libbacktrace",
@@ -435,6 +454,7 @@ art_cc_test_library {
         "art_debug_defaults",
         "art_defaults",
     ],
+    header_libs: ["libnativebridge-dummy-headers"],
     srcs: ["115-native-bridge/nativebridge.cc"],
     target: {
         android: {

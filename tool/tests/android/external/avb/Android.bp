@@ -24,6 +24,7 @@ cc_defaults {
         "-Wall",
         "-Wextra",
         "-Wformat=2",
+        "-Wmissing-prototypes",
         "-Wno-psabi",
         "-Wno-unused-parameter",
         "-ffunction-sections",
@@ -114,6 +115,7 @@ cc_library_static {
         "libavb_ab/avb_ab_flow.c",
         "libavb_user/avb_ops_user.c",
         "libavb_user/avb_user_verity.c",
+        "libavb_user/avb_user_verification.c",
     ],
 }
 
@@ -173,6 +175,9 @@ cc_test_host {
     shared_libs: [
         "libchrome",
         "libcrypto",
+    ],
+    cflags: [
+            "-Wno-missing-prototypes",
     ],
     srcs: [
         "test/avb_ab_flow_unittest.cc",

@@ -2,7 +2,6 @@
 
 cc_library {
     name: "libext2_e2p",
-    vendor_available: true,
     host_supported: true,
     unique_host_soname: true,
     srcs: [
@@ -35,6 +34,13 @@ cc_library {
         "-Wall",
         "-Wno-macro-redefined",
     ],
+
+    target: {
+        windows: {
+            include_dirs: [ "external/e2fsprogs/include/mingw" ],
+            enabled: true
+        },
+    },
 
     header_libs: ["libext2-headers"],
     export_include_dirs: ["."],

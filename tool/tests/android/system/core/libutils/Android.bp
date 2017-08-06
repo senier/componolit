@@ -18,10 +18,12 @@ cc_library_headers {
     host_supported: true,
 
     header_libs: [
+        "liblog_headers",
         "libsystem_headers",
         "libcutils_headers"
     ],
     export_header_lib_headers: [
+        "liblog_headers",
         "libsystem_headers",
         "libcutils_headers"
     ],
@@ -51,7 +53,6 @@ cc_library {
         "FileMap.cpp",
         "JenkinsHash.cpp",
         "LinearTransform.cpp",
-        "Log.cpp",
         "NativeHandle.cpp",
         "Printer.cpp",
         "PropertyMap.cpp",
@@ -76,6 +77,10 @@ cc_library {
     header_libs: ["libutils_headers"],
     export_header_lib_headers: ["libutils_headers"],
 
+    shared_libs: [
+        "liblog",
+    ],
+
     arch: {
         mips: {
             cflags: ["-DALIGN_DOUBLE"],
@@ -97,7 +102,6 @@ cc_library {
                 "libbacktrace",
                 "libcutils",
                 "libdl",
-                "liblog",
             ],
 
             sanitize: {
@@ -138,8 +142,6 @@ cc_library {
             enabled: true,
         },
     },
-
-    clang: true,
 }
 
 // Include subdirectory makefiles
