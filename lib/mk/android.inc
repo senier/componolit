@@ -42,9 +42,10 @@ include $(ANDROID_OUTPUT)
 SRC_C   = $(filter-out $(ANDROID_EXCLUDE_C),$(filter %.c,$($(ANDROID_NAME)_SRCS)))
 SRC_CC  = $(filter-out $(ANDROID_EXCLUDE_CC),$(filter %.cpp %.cc,$($(ANDROID_NAME)_SRCS)))
 SRC_S   = $(filter-out $(ANDROID_EXCLUDE_S),$(filter %.S %.s,$($(ANDROID_NAME)_SRCS)))
-CC_OPT  = -Werror -D__GENODE__ $($(ANDROID_NAME)_CFLAGS)
+CC_OPT  = -Werror -D__GENODE__ $(filter-out $(ANDROID_EXCLUDE_OPT),$($(ANDROID_NAME)_CFLAGS))
 
 INC_DIR := $(INC_DIR) $(addprefix $(ANDROID_BASEDIR)/,$($(ANDROID_NAME)_EXPORT_INCLUDE_DIRS))
+INC_DIR := $(INC_DIR) $(addprefix $(ANDROID_BASEDIR)/,$($(ANDROID_NAME)_LOCAL_INCLUDE_DIRS))
 
 vpath % $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_SOURCES))
 
