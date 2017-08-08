@@ -1,0 +1,10 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := dlmalloc.git
+
+URL(dlmalloc) := https://android.googlesource.com/platform/external/dlmalloc
+
+# We need the external/dlmalloc directory as some headers reference dlmalloc
+# by ../../external/dlmalloc/dlmalloc.h
+DIR(dlmalloc) := dlmalloc/external/dlmalloc
+REV(dlmalloc) := master
