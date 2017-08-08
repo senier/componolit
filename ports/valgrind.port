@@ -1,0 +1,7 @@
+LICENSE   := Apache_2.0
+VERSION   := git
+DOWNLOADS := valgrind.git
+
+URL(valgrind) := https://android.googlesource.com/platform/external/valgrind
+DIR(valgrind) := valgrind
+REV(valgrind) := master
