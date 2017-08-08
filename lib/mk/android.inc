@@ -44,6 +44,9 @@ SRC_CC  = $(filter-out $(ANDROID_EXCLUDE_CC),$(filter %.cpp %.cc,$($(ANDROID_NAM
 SRC_S   = $(filter-out $(ANDROID_EXCLUDE_S),$(filter %.S %.s,$($(ANDROID_NAME)_SRCS)))
 CC_OPT  = -Werror -D__GENODE__ $(filter-out $(ANDROID_EXCLUDE_OPT),$($(ANDROID_NAME)_CFLAGS))
 
+# Set C++ standard to C++14
+CC_CXX_OPT_STD = -std=gnu++14
+
 INC_DIR := $(INC_DIR) $(addprefix $(ANDROID_BASEDIR)/,$($(ANDROID_NAME)_EXPORT_INCLUDE_DIRS))
 INC_DIR := $(INC_DIR) $(addprefix $(ANDROID_BASEDIR)/,$($(ANDROID_NAME)_LOCAL_INCLUDE_DIRS))
 
