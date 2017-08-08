@@ -19,7 +19,7 @@ void Libc::Component::construct(Libc::Env &env)
 		// Disabled tests:
 		//
 		// TestIpv6*: IPv6 is not supported
-		// Test*ReceiveTimeout: Hangs. May be related to genode#2474, FIXME: Otherwise file issue based on test/mfe/sock_receive_timeout
+		// Test*ReceiveTimeout: Hangs. FIXME: Otherwise file issue based on test/mfe/sock_receive_timeout
 		// android_get_control_socket: No PF_UNIX socket implementation. We may not need it or replace the code.
 		// TestIpv4UdpLoopback: Related to [1]
 		// TestIpv4TcpLoopback: getsockopt(..SO_ERROR..) issue, FIXME: File issue based on test/mfe/getsockopt_so_error
