@@ -6,4 +6,6 @@ URL(libart) := https://android.googlesource.com/platform/art
 DIR(libart) := art
 REV(libart) := master
 
-PATCHES += src/lib/libbase/libbase.patch
+PATCH_OPT := -p1
+
+PATCHES := src/lib/libart/disable_futexes.patch
