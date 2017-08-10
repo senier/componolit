@@ -2,11 +2,6 @@ LICENSE   := Apache_2.0
 VERSION   := git
 DOWNLOADS := liblz4.git
 
-URL(liblz4) := https://android.googlesource.com/platform/external/lz4
+URL(liblz4) := https://github.com/Componolit/android_platform_external_lz4.git
 DIR(liblz4) := lz4/lib
 REV(liblz4) := master
-
-PATCH_OPT := -p1
-
-# The fuzzer puts large data structures onto the stack. Move them to heap to prevent stack overflows.
-PATCHES := src/lib/liblz4/fuzzer_stack_usage.patch
