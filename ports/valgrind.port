@@ -2,6 +2,6 @@ LICENSE   := Apache_2.0
 VERSION   := git
 DOWNLOADS := valgrind.git
 
-URL(valgrind) := https://android.googlesource.com/platform/external/valgrind
+URL(valgrind) := https://github.com/Componolit/android_platform_external_valgrind.git
 DIR(valgrind) := valgrind
-REV(valgrind) := master
+REV(valgrind) := componolit-stable
