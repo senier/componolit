@@ -1,7 +1,0 @@
-LICENSE   := Apache_2.0
-VERSION   := git
-DOWNLOADS := dalvikvm.git
-
-URL(dalvikvm) := https://android.googlesource.com/platform/art
-DIR(dalvikvm) := art
-REV(dalvikvm) := master

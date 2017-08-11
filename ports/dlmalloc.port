@@ -2,9 +2,9 @@ LICENSE   := Apache_2.0
 VERSION   := git
 DOWNLOADS := dlmalloc.git
 
-URL(dlmalloc) := https://android.googlesource.com/platform/external/dlmalloc
+URL(dlmalloc) := https://github.com/Componolit/android_platform_external_dlmalloc.git
 
 # We need the external/dlmalloc directory as some headers reference dlmalloc
 # by ../../external/dlmalloc/dlmalloc.h
 DIR(dlmalloc) := dlmalloc/external/dlmalloc
-REV(dlmalloc) := master
+REV(dlmalloc) := componolit-stable

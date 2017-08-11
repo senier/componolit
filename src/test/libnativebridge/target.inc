@@ -7,4 +7,4 @@ vpath %.cc $(REP_DIR)/src/test/libnativebridge
 
 INC_DIR += $(LIBNATIVEBRIDGE_TESTS_DIR)
 
-LIBS += libc stdcxx posix liblog gtest libnativehelper libnativebridge
+LIBS += libc stdcxx posix liblog gtest libnativehelper libnativebridge libcore_includes

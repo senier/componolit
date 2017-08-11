@@ -2,6 +2,6 @@ LICENSE   := Apache_2.0
 VERSION   := git
 DOWNLOADS := liblzma.git
 
-URL(liblzma) := https://android.googlesource.com/platform/external/lzma
+URL(liblzma) := https://github.com/Componolit/android_platform_external_lzma.git
 DIR(liblzma) := liblzma
-REV(liblzma) := master
+REV(liblzma) := componolit-stable
