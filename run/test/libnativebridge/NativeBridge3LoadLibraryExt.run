@@ -5,7 +5,7 @@ append build_components {
 }
 
 append config {
-	<start name="libnativebridge_NativeBridge3LoadLibraryExt">
+	<start name="test_NativeBridge3LoadLibraryExt">
 		<resource name="RAM" quantum="4M"/>
 		<config>
 			<vfs>
@@ -18,9 +18,9 @@ append config {
 }
 
 append boot_modules {
-	libnativebridge_NativeBridge3LoadLibraryExt
+	test_NativeBridge3LoadLibraryExt
 }
 
 source ${genode_dir}/repos/componolit/run/test/libnativebridge/build.inc
 
-run_genode_until {.*child "libnativebridge_NativeBridge3LoadLibraryExt" exited with exit value 0} $timeout
+run_genode_until {.*child "test_NativeBridge3LoadLibraryExt" exited with exit value 0} $timeout
