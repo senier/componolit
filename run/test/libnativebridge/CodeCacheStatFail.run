@@ -5,7 +5,7 @@ append build_components {
 }
 
 append config {
-	<start name="libnativebridge_CodeCacheStatFail">
+	<start name="test_CodeCacheStatFail">
 		<resource name="RAM" quantum="4M"/>
 		<config>
 			<vfs>
@@ -18,9 +18,9 @@ append config {
 }
 
 append boot_modules {
-	libnativebridge_CodeCacheStatFail
+	test_CodeCacheStatFail
 }
 
 source ${genode_dir}/repos/componolit/run/test/libnativebridge/build.inc
 
-run_genode_until {.*child "libnativebridge_CodeCacheStatFail" exited with exit value 0} $timeout
+run_genode_until {.*child "test_CodeCacheStatFail" exited with exit value 0} $timeout

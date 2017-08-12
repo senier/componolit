@@ -23,7 +23,7 @@ set config {
 	<default-route>
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
-	<default caps="100"/>
+	<default caps="200"/>
 
 	<start name="timer">
 		<resource name="RAM" quantum="1M"/>
