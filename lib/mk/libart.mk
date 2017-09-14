@@ -5,24 +5,34 @@ ANDROID_SOURCES = runtime
 ANDROID_BUILDFILES = test/Android.bp build/Android.bp runtime/Android.bp
 ANDROID_SECTIONS = \
 	/art_cc_library[@name=libart] \
-	/art_cc_library[@name=libart]/arch/$(ANDROID_ARCH)
+	/art_cc_library[@name=libart]/arch/$(ANDROID_ARCH) \
+	/gensrcs[@name=art_operator_srcs]
 
-ANDROID_EXCLUDE_OPT = \
-	-Wimplicit-fallthrough \
-	-Wint-to-void-pointer-cast \
-	-Wthread-safety \
-	-Wthread-safety-negative \
-	-Wunreachable-code-break \
-	-Wunreachable-code-return \
-	-Wused-but-marked-unused
-
+include $(call select_from_repositories,lib/mk/libart-defaults.inc)
 include $(call select_from_repositories,lib/mk/android-lib.inc)
 
-# Taken from build/art.go
-CC_OPT += -DIMT_SIZE=43
-CC_OPT += -DART_DEFAULT_GC_TYPE_IS_CMS
+BASEDIR = $(call select_from_ports,libart)/art/runtime
+GENTOOL = $(BASEDIR)/$($(ANDROID_NAME)_TOOL_FILES)
+HEADERS = $(addprefix $(BASEDIR)/,$(filter %.h,$($(ANDROID_NAME)_SRCS)))
+OUTPUT  = $($(ANDROID_NAME)_OUTPUT_EXTENSION)
+GENDIR  = $(LIB_CACHE_DIR)/$(ANDROID_BUILDTYPE)/$(ANDROID_NAME)
 
-# Code contains multi-line comments
-CC_OPT += -Wno-error=comment
+$(GENDIR)/$(OUTPUT): $(HEADERS)
+	$(VERBOSE)$(GENTOOL) $(BASEDIR) $(HEADERS) > $@.tmp
+	$(VERBOSE)mv $@.tmp $@
 
-LIBS += valgrind dlmalloc
+vpath % $(GENDIR) $(call select_from_repositories,src/lib/libart)
+SRC_C += $(OUTPUT)
+
+# Genode implementations
+SRC_C += signal.c pthread.c runtime_genode.cc thread_genode.cc
+
+# Linux monitoring implementation is a dummy, so reuse it
+SRC_C += monitor_linux.cc
+
+#
+# FIXME: SUPPRESS WARNINGS! DEVELOPMENT ONLY - REMOVE FOR PRODUCTION!
+$(warning SUPPRESSING WARNINGS - REMOVE FOR PRODUCTION!)
+CC_OPT += -w
+
+LIBS += valgrind dlmalloc zlib icu sigchainlib cmdline libziparchive libfakeatomic pthread
