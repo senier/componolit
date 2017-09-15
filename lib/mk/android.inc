@@ -24,20 +24,21 @@ else ifeq ($(filter-out $(SPECS),arm),)
 ANDROID_ARCH = arm
 endif
 
-COMMAND := \
-	mkdir -p $(dir $(ANDROID_OUTPUT)) && \
-	$(call select_from_repositories,tool/gnoos) \
+$(ANDROID_OUTPUT): $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_BUILDFILES)) $(ANDROID_LIB_MK)
+	$(VERBOSE)mkdir -p $(dir $@)
+	$(VERBOSE)$(call select_from_repositories,tool/gnoos) \
 		--basedir $(ANDROID_BASEDIR) \
 		--prefix $(ANDROID_NAME)_ \
-		--output $(ANDROID_OUTPUT) \
+		--output $@.tmp \
 		$(addprefix --input ,$(ANDROID_BUILDFILES)) \
-		$(ANDROID_SECTIONS) && \
-	echo "$(ANDROID_NAME)_BASEDIR = $(ANDROID_BASEDIR)" >> $(ANDROID_OUTPUT) && \
-	echo "$(ANDROID_NAME)_EXPORT_INCLUDE_DIRS += $(ANDROID_INCLUDES)" >> $(ANDROID_OUTPUT)
+		$(ANDROID_SECTIONS)
+	$(VERBOSE)echo "$(ANDROID_NAME)_BASEDIR = $(ANDROID_BASEDIR)" >> $@.tmp
+	$(VERBOSE)echo "$(ANDROID_NAME)_EXPORT_INCLUDE_DIRS += $(ANDROID_INCLUDES)" >> $@.tmp
+	$(VERBOSE)mv $@.tmp $@
 
-DUMMY := $(shell $(COMMAND))
+all: $(ANDROID_OUTPUT)
 
-include $(ANDROID_OUTPUT)
+-include $(ANDROID_OUTPUT)
 
 SRC_C   += $(filter-out $(ANDROID_EXCLUDE_C),$(filter %.c,$($(ANDROID_NAME)_SRCS)))
 SRC_CC  += $(filter-out $(ANDROID_EXCLUDE_CC),$(filter %.cpp %.cc,$($(ANDROID_NAME)_SRCS)))

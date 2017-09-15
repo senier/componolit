@@ -8,6 +8,10 @@ ANDROID_EXCLUDE_OPT += -fvisibility=hidden -fvisibility=protected
 
 ANDROID_NAME = $(LIB)
 ANDROID_BUILDTYPE = lib
+
+# Add library makefile to dependencies for makefile fragment
+ANDROID_LIB_MK = $(call select_from_repositories,lib/mk/$(LIB).mk)
+
 include $(call select_from_repositories,lib/mk/android.inc)
 SHARED_LIB  = yes
 
