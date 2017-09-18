@@ -60,3 +60,6 @@ CC_OPT += -I$(call select_from_ports,libart)/art/runtime/generated
 CC_OPT += -D__STDC_LIMIT_MACROS=1
 
 LIBS += pthread
+
+# Add libart-defaults.inc to list of Android makefiles to rebuild android.mk when it changes
+ANDROID_MK += $(call select_from_repositories,lib/mk/libart-defaults.inc)

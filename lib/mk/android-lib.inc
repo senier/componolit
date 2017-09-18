@@ -10,7 +10,11 @@ ANDROID_NAME = $(LIB)
 ANDROID_BUILDTYPE = lib
 
 # Add library makefile to dependencies for makefile fragment
-ANDROID_LIB_MK = $(call select_from_repositories,lib/mk/$(LIB).mk)
+ANDROID_MK += $(call select_from_repositories,lib/mk/$(LIB).mk)
+
+# Add android build fragments to rebuild android.mk when build files change
+ANDROID_MK += $(call select_from_repositories,lib/mk/android-lib.inc)
+ANDROID_MK += $(call select_from_repositories,lib/mk/android.inc)
 
 include $(call select_from_repositories,lib/mk/android.inc)
 SHARED_LIB  = yes

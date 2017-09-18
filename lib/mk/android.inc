@@ -24,7 +24,7 @@ else ifeq ($(filter-out $(SPECS),arm),)
 ANDROID_ARCH = arm
 endif
 
-$(ANDROID_OUTPUT): $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_BUILDFILES)) $(ANDROID_LIB_MK)
+$(ANDROID_OUTPUT): $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_BUILDFILES)) $(ANDROID_MK)
 	$(VERBOSE)mkdir -p $(dir $@)
 	$(VERBOSE)$(call select_from_repositories,tool/gnoos) \
 		--basedir $(ANDROID_BASEDIR) \
