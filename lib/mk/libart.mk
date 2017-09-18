@@ -1,7 +1,5 @@
 ANDROID_PORT = libart
 ANDROID_DIR = art
-ANDROID_INCLUDES = runtime runtime/arch
-ANDROID_SOURCES = runtime
 ANDROID_BUILDFILES = test/Android.bp build/Android.bp runtime/Android.bp
 ANDROID_SECTIONS = \
 	/art_cc_library[@name=libart] \
@@ -35,4 +33,4 @@ SRC_C += monitor_linux.cc
 $(warning SUPPRESSING WARNINGS - REMOVE FOR PRODUCTION!)
 CC_OPT += -w
 
-LIBS += valgrind dlmalloc zlib icu sigchainlib cmdline libziparchive libfakeatomic pthread
+LIBS += sigchainlib

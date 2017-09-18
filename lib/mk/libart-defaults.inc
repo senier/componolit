@@ -9,7 +9,14 @@ ANDROID_EXCLUDE_OPT += \
 	-Wused-but-marked-unused \
 	-Wno-undefined-var-template \
 	-Wno-constant-conversion \
-	-Wredundant-decls
+	-Wredundant-decls \
+	-Wno-frame-larger-than=
+
+# Use sources from runtime
+ANDROID_SOURCES ?= runtime
+
+# include runtime and runtime/arch
+ANDROID_INCLUDES = runtime runtime/arch
 
 # Filter out known warnings that cause trouble with our toolchain
 # -Wshadow:
@@ -63,3 +70,5 @@ LIBS += pthread
 
 # Add libart-defaults.inc to list of Android makefiles to rebuild android.mk when it changes
 ANDROID_MK += $(call select_from_repositories,lib/mk/libart-defaults.inc)
+
+LIBS += valgrind dlmalloc zlib icu cmdline libziparchive libfakeatomic pthread
