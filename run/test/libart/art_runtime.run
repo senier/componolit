@@ -65,11 +65,24 @@ install_config {
 					<log/>
 					<rtc/>
 				</dir>
+				<dir name="framework">
+					<tar name="framework.tar"/>
+				</dir>
 			</vfs>
 			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
 		</config>
 	</start>
 </config>}
+
+# Create Android framework tarball
+
+if {![info exists ::env(ANDROID_FRAMEWORK_DIR)]} {
+	puts "\nPlease set USB_FRAMEWORK_DIR environment variable.\n"
+	exit 0
+}
+
+puts "\nexec tar cfv bin/framework.tar -h -C $::env(ANDROID_FRAMEWORK_DIR) *.jar\n"
+exec tar cfv bin/framework.tar -h -C $::env(ANDROID_FRAMEWORK_DIR) core-oj-hostdex.jar core-libart-hostdex.jar
 
 #
 # Boot image
@@ -89,6 +102,7 @@ set boot_modules {
 	libutils.lib.so zlib.lib.so libziparchive.lib.so
 	sigchainlib.lib.so
 	rtc_drv
+	framework.tar
 	art_runtime_test
 }
 
