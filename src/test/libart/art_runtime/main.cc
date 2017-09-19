@@ -18,16 +18,13 @@ void Libc::Component::construct(Libc::Env &env)
 
 		char const *argv[] = {
 			"/bin/test_libcutils",
-			"--gtest_filter=-Foo",
+			"--gtest_filter=-None",
 			0
 		};
 
 		genode_argc = 2;
 		genode_argv = argv;
-
 		setprogname (genode_argv[0]);
-
-		testing::InitGoogleTest(&genode_argc, (char **)genode_argv);
-		exit(RUN_ALL_TESTS());
+		exit(main(genode_argc, genode_argv));
 	});
 }
