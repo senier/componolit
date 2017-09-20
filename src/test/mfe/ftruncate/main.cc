@@ -11,7 +11,7 @@
 void Libc::Component::construct(Libc::Env &env)
 {
 	Libc::with_libc([&] {
-		int fd = open ("/tmp/file", O_CREAT, 0666);
+		int fd = open ("/tmp/file", O_CREAT | O_RDWR, 0666);
 		if (fd < 0) exit (1);
 		int rv = unlink("/tmp/file");
 		if (rv < 0) exit (2);
