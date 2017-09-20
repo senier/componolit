@@ -2,9 +2,13 @@ set build_components {
 	core
 	init
 	drivers/timer
+	drivers/uart
+	app/gdb_monitor
 	app/dalvikvm
 	app/dummy-libart
 }
+
+lappend build_components "lib/gdbserver_platform-$::env(KERNEL)"
 
 source ${genode_dir}/repos/base/run/platform_drv.inc
 
@@ -18,7 +22,7 @@ create_boot_directory
 
 append config {
 
-<config>
+<config verbose="yes">
 	<parent-provides>
 		<service name="ROM"/>
 		<service name="RAM"/>
@@ -39,6 +43,37 @@ append config {
 		<resource name="RAM" quantum="1M"/>
 		<provides><service name="Timer"/></provides>
 	</start>
+
+    <start name="uart_drv">
+        <resource name="RAM" quantum="2M"/>
+        <provides>
+            <service name="Terminal"/>
+            <service name="Uart"/>
+        </provides>
+        <config>
+            <policy label_prefix="gdb_monitor" uart="1"/>
+        </config>
+    </start>
+
+<!--
+	<start name="gdb_monitor" caps="1200">
+		<resource name="RAM" quantum="180MB"/>
+		<config>
+			<target name="dalvikvm">
+				<config>
+					<libc stdout="/dev/log" stderr="/dev/log"/>
+					<vfs>
+						<dir name="dev"> <log/> </dir>
+					</vfs>
+				</config>
+			</target>
+            <preserve name="RAM" quantum="3M"/>
+            <vfs> <dir name="dev"> <log/> </dir> </vfs>
+            <libc stdout="/dev/log" stderr="/dev/log"/>
+		</config>
+	</start>
+-->
+
 	<start name="dalvikvm" caps="1000">
 		<resource name="RAM" quantum="128M"/>
 		<config>
@@ -48,6 +83,7 @@ append config {
 			</vfs>
 		</config>
 	</start>
+
 </config>}
 
 install_config $config
@@ -60,11 +96,16 @@ proc binary_name_libart_so { } {
 # Boot modules
 #
 
+# evaluated by the run tool
+proc binary_name_gdbserver_platform_lib_so { } {
+    return "gdbserver_platform-$::env(KERNEL).lib.so"
+}
+
 # generic modules
 set boot_modules {
 	core init timer
 	ld.lib.so
-	libc.lib.so
+	libc.lib.so libc_pipe.lib.so libc_terminal.lib.so
 	libm.lib.so
 	stdcxx.lib.so pthread.lib.so
 	libnativehelper.lib.so liblog.lib.so
@@ -81,10 +122,26 @@ set boot_modules {
 	libart.lib.so 
 	libart.so 
 	dalvikvm
+	gdb_monitor
+	gdbserver_platform.lib.so
+	uart_drv
 }
 
 append_platform_drv_boot_modules
 build_boot_image $boot_modules
 
-append qemu_args " -m 512 "
+set local_port 5555
+
+# qemu config
+append qemu_args "  -nographic "
+
+# connect comport 0 to stdio
+append qemu_args " -serial mon:stdio "
+
+# connect comport 1 with TCP port $local_port
+append qemu_args " -serial chardev:uart "
+append qemu_args " -chardev socket,id=uart,port=$local_port,host=localhost,server,nowait,ipv4 "
+
+append qemu_args " -m 1024 "
+
 run_genode_until forever
