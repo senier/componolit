@@ -17,7 +17,7 @@ void Libc::Component::construct(Libc::Env &env)
 	Libc::with_libc([&] {
 
 		char const *argv[] = {
-			"/bin/test_libcutils",
+			"/bin/test_art_runtime",
 			"--gtest_filter=-None",
 			0
 		};
