@@ -8,7 +8,7 @@ set build_components {
 	app/dummy-libart
 }
 
-lappend build_components "lib/gdbserver_platform-$::env(KERNEL)"
+#lappend build_components "lib/gdbserver_platform-$::env(KERNEL)"
 
 source ${genode_dir}/repos/base/run/platform_drv.inc
 
