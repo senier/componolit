@@ -57,7 +57,7 @@ install_config {
 	</start>
 
 	<start name="art_runtime_test">
-		<resource name="RAM" quantum="512MB"/>
+		<resource name="RAM" quantum="800MB"/>
 		<config>
 			<vfs>
 				<dir name="tmp"> <fs/> </dir>
