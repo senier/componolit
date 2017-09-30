@@ -48,6 +48,9 @@ CC_OPT  += -Werror -D__GENODE__ $(filter-out $(ANDROID_EXCLUDE_OPT),$($(ANDROID_
 # Android code does not compile with effc++ flag enabled
 CC_CXX_OPT += -Wno-error=effc++
 
+# Useful for debugging, as Genode::backtrace() need the frame pointer
+CC_OPT += -fno-omit-frame-pointer
+
 # Set C++ standard to C++14
 CC_CXX_OPT_STD = -std=gnu++14
 
