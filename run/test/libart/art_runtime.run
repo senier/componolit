@@ -5,7 +5,6 @@
 set build_components {
 	core init
 	drivers/timer
-	drivers/rtc
 	server/ram_fs
 	test/libart/art_runtime
 }
@@ -43,11 +42,6 @@ install_config {
 		<provides> <service name="Timer"/> </provides>
 	</start>
 
-	<start name="rtc_drv">
-		<resource name="RAM" quantum="1M"/>
-		<provides> <service name="Rtc"/> </provides>
-	</start>
-
 	<start name="ram_fs">
 		<resource name="RAM" quantum="128M"/>
 		<provides> <service name="File_system"/> </provides>
@@ -63,13 +57,12 @@ install_config {
 				<dir name="tmp"> <fs/> </dir>
 				<dir name="dev">
 					<log/>
-					<rtc/>
 				</dir>
 				<dir name="framework">
 					<tar name="framework.tar"/>
 				</dir>
 			</vfs>
-			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
+			<libc stdout="/dev/log" stderr="/dev/log" />
 		</config>
 	</start>
 </config>}
@@ -101,7 +94,6 @@ set boot_modules {
 	libnativehelper.lib.so libnativeloader.lib.so
 	libutils.lib.so zlib.lib.so libziparchive.lib.so
 	sigchainlib.lib.so
-	rtc_drv
 	framework.tar
 	art_runtime_test
 }
