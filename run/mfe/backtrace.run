@@ -49,7 +49,7 @@ install_config {
 
 	<start name="backtrace">
 		<resource name="RAM" quantum="20M"/>
-		<config>
+		<config ld_verbose="yes">
 			<vfs>
 				<dir name="tmp"> <fs/> </dir>
 				<dir name="dev"> <log/> </dir>
