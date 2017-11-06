@@ -182,7 +182,6 @@ set boot_modules {
 	input_merger
 	ld.lib.so
 	nit_fb
-	nitlog
 	nitpicker
 	pointer
 	ps2_drv
