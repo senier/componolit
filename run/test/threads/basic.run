@@ -2,7 +2,7 @@
 
 build {
     core init
-    test/threads
+    test/threads/basic
 }
 
 create_boot_directory
