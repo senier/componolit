@@ -2,7 +2,7 @@
 
 build {
     core init
-    test/threads
+    test/threads/join
     drivers/timer
 }
 
