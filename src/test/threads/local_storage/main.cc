@@ -7,8 +7,10 @@
 static void test()
 {
     Genode::log("threads tls: ", __func__);
-    thread_local int _x = 42;
-    Genode::log("threads tls: ", _x, " @ ", (void*)&_x);
+    __thread int _x = 42;
+    int x = _x;
+    void* x_ptr = (void*)&_x;
+    Genode::log("threads tls: ", x, " @ ", x_ptr);
 }
 
 struct Main{
@@ -17,6 +19,7 @@ struct Main{
     {
         Genode::log("threads tls: ", __func__);
         std::thread t(test);
+        for(;;);
     }
 };
 
