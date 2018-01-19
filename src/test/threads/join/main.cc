@@ -12,12 +12,13 @@ static void test(int *x, Timer::Connection *_t)
     *x = 1;
 }
 
-struct Main{
+struct Main {
     
     Timer::Connection _timer;
 
     Main(Genode::Env &env) : _timer(env)
     {
+        cxxthread_env.initialize (env, 4096);
         Genode::log("threads join: ", __func__);
         int x = 0;
         std::thread t(test, &x, &_timer);

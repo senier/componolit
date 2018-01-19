@@ -1,0 +1,83 @@
+#pragma once
+
+// Genode includes
+#include <base/thread.h>
+
+// stdc++ includes
+#include <functional>
+
+namespace std {
+    class thread;
+    class thread_env;
+    class thread_env_uninitialized;
+}
+
+class std::thread_env_uninitialized : Genode::Exception { };
+
+class std::thread_env {
+
+    private:
+
+        Genode::Env *_env;
+        unsigned     _stack_size;
+        bool         _initialized = false;
+
+    public:
+
+        void initialize (Genode::Env &env, unsigned stack_size) {
+            _env         = &env;
+            _stack_size  = stack_size;
+            _initialized = true;
+        }
+
+        Genode::Env &get_env () {
+            if (!_initialized)
+            {
+                throw thread_env_uninitialized();
+            }
+            return *_env;
+        }
+
+        unsigned get_stack_size () {
+            if (!_initialized)
+            {
+                throw thread_env_uninitialized();
+            }
+            return _stack_size;
+        }
+};
+
+extern std::thread_env cxxthread_env;
+
+class std::thread : Genode::Thread {
+
+    private:
+
+        std::function<void()> _callback;
+
+        void entry()
+        {
+            _callback();
+        };
+
+    public:
+
+        template <class Function, class... Args>
+        thread (Function&& fun, Args&&... args)
+        :
+            Genode::Thread::Thread(cxxthread_env.get_env(),
+                                   Genode::Thread::Name("cxxthread"),
+                                   cxxthread_env.get_stack_size())
+        {
+            _callback = [&fun, &args...]()
+            {
+                (fun)(args...);
+            };
+            start();
+        }
+
+        void join()
+        {
+            Genode::Thread::join();
+        }
+};

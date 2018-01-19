@@ -41,8 +41,8 @@ install_config {
 }
 
 build_boot_image {
-    core ld.lib.so init
-    libc.lib.so libm.lib.so pthread.lib.so stdcxx.lib.so
+    core ld.lib.so init cxxthreads.lib.so
+    libc.lib.so libm.lib.so stdcxx.lib.so
     timer test-threads-join
 }
 
