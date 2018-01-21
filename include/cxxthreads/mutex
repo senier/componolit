@@ -1,0 +1,23 @@
+#pragma once
+
+// Genode includes
+#include <base/lock.h>
+
+namespace std {
+    class mutex;
+}
+
+class std::mutex : Genode::Lock {
+
+    public:
+
+        void lock(void)
+        {
+            Genode::Lock::lock();
+        };
+
+        void unlock(void)
+        {
+            Genode::Lock::unlock();
+        };
+};
