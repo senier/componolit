@@ -18,8 +18,8 @@ class std::thread_env {
 
     private:
 
-        Genode::Env *_env;
-        unsigned     _stack_size;
+        Genode::Env *_env         = nullptr;
+        unsigned     _stack_size  = 0;
         bool         _initialized = false;
 
     public:
@@ -53,7 +53,7 @@ class std::thread : Genode::Thread {
 
     private:
 
-        std::function<void()> _callback;
+        std::function<void()> _callback = nullptr;
 
         void entry()
         {
