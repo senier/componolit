@@ -47,6 +47,7 @@ set config {
 set boot_modules {
 	core init ld.lib.so
 	timer ram_fs
+	cxxthreads.lib.so
 	libc.lib.so libm.lib.so posix.lib.so pthread.lib.so stdcxx.lib.so
 	liblog.lib.so libnativehelper.lib.so libnativebridge.lib.so
 	libnativebridge-dummy.lib.so

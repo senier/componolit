@@ -17,7 +17,7 @@ Genode::size_t Libc::Component::stack_size() {
 
 void Libc::Component::construct(Libc::Env &env)
 {
-	Libc::with_libc([&] {
+	Libc::with_libc([&env] {
 
 		char const *argv[] = {
 			"/bin/test_liblz4",

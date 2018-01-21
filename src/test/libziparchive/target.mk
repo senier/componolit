@@ -8,7 +8,7 @@ ANDROID_SECTIONS = /cc_test[@name=ziparchive-tests] /cc_test[@name=ziparchive-te
 include $(call select_from_repositories,lib/mk/android-prg.inc)
 
 SRC_CC += main.cc
-LIBS   += gtest posix libziparchive zlib libutils libbacktrace
+LIBS   += gtest libziparchive zlib libutils libbacktrace
 
 TESTDATA = bad_crc.zip declaredlength.zip dummy-update.zip large.zip valid.zip
 

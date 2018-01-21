@@ -9,4 +9,4 @@ include $(call select_from_repositories,lib/mk/android-prg.inc)
 
 CC_OPT = -Wall -DINT16_MAX=0xffff
 SRC_CC += main.cc
-LIBS   += gtest posix
+LIBS   += gtest

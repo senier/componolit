@@ -1,5 +1,6 @@
 SRC_CC += main.cc
 CC_OPT += -g -Wall -Werror -fno-builtin
+CC_CXX_WARN_STRICT =
 
 LIBNATIVEBRIDGE_TESTS_DIR := $(call select_from_ports,core)/system/core/libnativebridge/tests
 vpath %.cpp $(LIBNATIVEBRIDGE_TESTS_DIR)

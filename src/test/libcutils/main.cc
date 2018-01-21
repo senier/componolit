@@ -14,7 +14,7 @@ extern "C" int main(int argc, char const **argv);
 
 void Libc::Component::construct(Libc::Env &env)
 {
-	Libc::with_libc([&] {
+	Libc::with_libc([&env] {
 
 		// Disabled tests:
 		//

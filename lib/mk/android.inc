@@ -46,7 +46,7 @@ SRC_S   += $(filter-out $(ANDROID_EXCLUDE_S),$(filter %.S %.s,$($(ANDROID_NAME)_
 CC_OPT  += -Werror -D__GENODE__ $(filter-out $(ANDROID_EXCLUDE_OPT),$($(ANDROID_NAME)_CFLAGS))
 
 # Android code does not compile with effc++ flag enabled
-CC_CXX_OPT += -Wno-error=effc++
+CC_CXX_WARN_STRICT =
 
 # Useful for debugging, as Genode::backtrace() need the frame pointer
 CC_OPT += -fno-omit-frame-pointer

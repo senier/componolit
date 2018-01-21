@@ -76,6 +76,7 @@ install_config {
 set boot_modules {
 	core init ld.lib.so
 	timer ram_fs
+    cxxthreads.lib.so
 	libc.lib.so libm.lib.so posix.lib.so pthread.lib.so stdcxx.lib.so
 	libbase.lib.so liblog.lib.so
 	rtc_drv

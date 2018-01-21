@@ -16,3 +16,6 @@ LIBLOG_TESTS_DIR := $(call select_from_ports,core)/system/core/liblog/tests
 vpath %.cpp $(LIBLOG_TESTS_DIR)
 
 LIBS += libc stdcxx gtest liblog libcore_includes libbase 
+
+# Code does not compile with effc++ flag enabled
+CC_CXX_WARN_STRICT =

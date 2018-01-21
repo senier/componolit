@@ -89,6 +89,7 @@ proc binary_name_libutils_tests_singleton2_so { } {
 set boot_modules {
 	core init ld.lib.so
 	timer ram_fs
+	cxxthreads.lib.so
 	libc.lib.so libm.lib.so
 	posix.lib.so pthread.lib.so stdcxx.lib.so
 	lwip.lib.so

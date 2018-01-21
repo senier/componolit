@@ -14,3 +14,5 @@ CC_OPT += -D__APPLE__
 
 # GetNativeBridgeStateString does not have a default return value.
 CC_OPT += -Wno-error=return-type
+
+CC_CXX_WARN_STRICT =

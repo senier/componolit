@@ -6,3 +6,5 @@ INC_DIR += $(LIBNATIVEBRIDGE_TESTS_DIR)
 LIBS += libc libnativebridge libnativehelper libcore_includes
 
 SHARED_LIB = yes
+
+CC_CXX_WARN_STRICT =
