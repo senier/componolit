@@ -64,7 +64,7 @@ INC_DIR := $(INC_DIR) $(addprefix $(ANDROID_BASEDIR)/,$(sort $(INCLUDE_DIRS)))
 vpath % $(addprefix $(ANDROID_BASEDIR)/,$(ANDROID_SOURCES))
 
 # Include these libraries by default
-LIBS += libc cxx stdcxx pthread
+LIBS += libc cxx cxxthreads stdcxx pthread
 LIBS += $(filter-out $(ANDROID_EXCLUDE_LIBS),$($(ANDROID_NAME)_SHARED_LIBS) $($(ANDROID_NAME)_STATIC_LIBS))
 
 else
