@@ -18,7 +18,7 @@ struct Main {
 
     Main(Genode::Env &env) : _timer(env)
     {
-        cxxthread_env.initialize (env, 4096);
+        cxxthread_env.initialize (env, 100 * 4096);
         Genode::log("threads join: ", __func__);
         int x = 0;
         std::thread t(test, &x, &_timer);
