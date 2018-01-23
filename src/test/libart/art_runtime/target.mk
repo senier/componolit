@@ -21,4 +21,4 @@ $(warning SUPPRESSING WARNINGS - REMOVE FOR PRODUCTION!)
 CC_OPT += -w
 
 SRC_CC += main.cc
-LIBS   += gtest posix valgrind dlmalloc libcore_includes libart icu
+LIBS   += gtest posix valgrind dlmalloc libcore_includes libart icu unwind
