@@ -70,7 +70,7 @@ install_config {
 # Create Android framework tarball
 
 if {![info exists ::env(ANDROID_FRAMEWORK_DIR)]} {
-	puts "\nPlease set USB_FRAMEWORK_DIR environment variable.\n"
+	puts "\nPlease set ANDROID_FRAMEWORK_DIR environment variable.\n"
 	exit 0
 }
 
