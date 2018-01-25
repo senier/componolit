@@ -86,6 +86,8 @@ set boot_modules {
 	core init ld.lib.so
 	timer ram_fs
 	libc.lib.so libm.lib.so
+	unwind.lib.so
+	cxxthreads.lib.so
 	posix.lib.so pthread.lib.so stdcxx.lib.so
 	lwip.lib.so
 	liblog.lib.so libbase.lib.so libutils.lib.so libcutils.lib.so
