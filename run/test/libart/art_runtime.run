@@ -5,6 +5,7 @@
 set build_components {
 	core init
 	drivers/timer
+	drivers/rtc
 	server/ram_fs
 	test/libart/art_runtime
 }
@@ -42,6 +43,11 @@ install_config {
 		<provides> <service name="Timer"/> </provides>
 	</start>
 
+	<start name="rtc_drv">
+		<resource name="RAM" quantum="1M"/>
+		<provides> <service name="Rtc"/> </provides>
+	</start>
+
 	<start name="ram_fs">
 		<resource name="RAM" quantum="128M"/>
 		<provides> <service name="File_system"/> </provides>
@@ -57,12 +63,13 @@ install_config {
 				<dir name="tmp"> <fs/> </dir>
 				<dir name="dev">
 					<log/>
+					<rtc/>
 				</dir>
 				<dir name="framework">
 					<tar name="framework.tar"/>
 				</dir>
 			</vfs>
-			<libc stdout="/dev/log" stderr="/dev/log" />
+			<libc stdout="/dev/log" stderr="/dev/log" rtc="/dev/rtc" />
 		</config>
 	</start>
 </config>}
@@ -85,6 +92,7 @@ exec tar cfv bin/framework.tar -h -C $::env(ANDROID_FRAMEWORK_DIR) core-oj-hostd
 set boot_modules {
 	core init ld.lib.so
 	timer ram_fs
+	rtc_drv
 	libc.lib.so libm.lib.so
 	unwind.lib.so
 	cxxthreads.lib.so
