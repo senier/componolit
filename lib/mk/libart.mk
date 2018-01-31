@@ -23,7 +23,7 @@ vpath % $(GENDIR) $(call select_from_repositories,src/lib/libart)
 SRC_C += $(OUTPUT)
 
 # Genode implementations
-SRC_C += signal.c pthread.c runtime_genode.cc thread_genode.cc
+SRC_C += signal.c runtime_genode.cc thread_genode.cc
 
 # Linux monitoring implementation is a dummy, so reuse it
 SRC_C += monitor_linux.cc
