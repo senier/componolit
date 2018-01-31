@@ -5,10 +5,10 @@
 namespace art {
 
 void Thread::SetUpAlternateSignalStack() {
-	Genode::log("SetUpAlternateSignalStack() called");
+	Genode::log("SetUpAlternateSignalStack(): Not implemented");
 }
 void Thread::TearDownAlternateSignalStack() {
-	Genode::log("TearDownAlternateSignalStack() called");
+	Genode::log("TearDownAlternateSignalStack(): Not implemented ");
 }
 
 void Thread::SetNativePriority(int) {
