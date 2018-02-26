@@ -77,7 +77,7 @@ std::string Backtrace::FormatFrameData(const backtrace_frame_data_t* frame)
 	return "<dummy>";
 }
 
-std::string Backtrace::GetFunctionName(uintptr_t pc, uintptr_t* offset)
+std::string Backtrace::GetFunctionName(uintptr_t pc, uintptr_t* offset, const backtrace_map_t* map)
 {
 	Genode::warning(__func__, " not implemented");
 	return "";
