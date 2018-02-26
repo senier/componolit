@@ -15,7 +15,7 @@ CC_OPT += -Wno-error=unused-function
 CC_OPT += -D'EXPECT_DEATH(a,b)'
 CC_OPT += -D'ASSERT_DEATH(a,b)'
 
-LIBS += gtest libfakeatomic libbacktrace
+LIBS += gtest libbacktrace
 
 # FIXME: SUPPRESS WARNINGS! DEVELOPMENT ONLY - REMOVE FOR PRODUCTION!
 $(warning SUPPRESSING WARNINGS - REMOVE FOR PRODUCTION!)

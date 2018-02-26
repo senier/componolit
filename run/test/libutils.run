@@ -95,6 +95,7 @@ set boot_modules {
 	lwip.lib.so
 	liblog.lib.so libbase.lib.so libutils.lib.so libcutils.lib.so
 	libfakeatomic.lib.so libbacktrace.lib.so
+	zlib.lib.so
 	rtc_drv
 	libutils_tests_singleton1.so
 	libutils_tests_singleton2.so
