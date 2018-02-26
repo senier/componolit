@@ -4,4 +4,4 @@ DOWNLOADS := libart.git
 
 URL(libart) := https://github.com/Componolit/android_platform_art.git
 DIR(libart) := art
-REV(libart) := componolit-stable
+REV(libart) := oreo-mr1-release

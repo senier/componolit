@@ -4,4 +4,4 @@ DOWNLOADS := core.git
 
 URL(core) := https://github.com/Componolit/android_platform_system_core.git
 DIR(core) := system/core
-REV(core) := componolit-stable
+REV(core) := oreo-mr1-release

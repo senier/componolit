@@ -4,4 +4,4 @@ DOWNLOADS := liblz4.git
 
 URL(liblz4) := https://github.com/Componolit/android_platform_external_lz4.git
 DIR(liblz4) := lz4/lib
-REV(liblz4) := componolit-stable
+REV(liblz4) := oreo-mr1-release
