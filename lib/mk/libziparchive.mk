@@ -6,3 +6,4 @@ ANDROID_SECTIONS     = /cc_library[@name=libziparchive] /cc_library[@name=libzip
 include $(call select_from_repositories,lib/mk/android-lib.inc)
 
 LIBS += zlib
+CC_OPT += -Wno-error=unused-variable
