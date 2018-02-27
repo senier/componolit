@@ -14,7 +14,7 @@ void Libc::Component::construct(Libc::Env &env)
 
 		unlink ("/tmp/nonexistent");
 
-    	char *result = realpath ("/tmp/nonexistent/", NULL);
+    	char *result = realpath ("/tmp/nonexistent", NULL);
     	if (result == NULL)
     	{
 			Genode::log ("OK");
