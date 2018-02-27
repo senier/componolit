@@ -25,8 +25,7 @@ extern "C" void InitializeSignalChain() {
 	Genode::warning(__func__, " not implemented");
 }
 
-extern "C" void EnsureFrontOfChain(int signal ATTRIBUTE_UNUSED,
-                                   struct sigaction* expected_action ATTRIBUTE_UNUSED) {
+extern "C" void EnsureFrontOfChain(int signal ATTRIBUTE_UNUSED) {
 	Genode::warning(__func__, " not implemented");
 }
 }
