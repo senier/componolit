@@ -28,4 +28,13 @@ extern "C" void InitializeSignalChain() {
 extern "C" void EnsureFrontOfChain(int signal ATTRIBUTE_UNUSED) {
 	Genode::warning(__func__, " not implemented");
 }
+
+extern "C" void AddSpecialSignalHandlerFn(int signal ATTRIBUTE_UNUSED, SigchainAction* sa ATTRIBUTE_UNUSED) {
+	Genode::warning(__func__, " not implemented");
+}
+
+extern "C" void RemoveSpecialSignalHandlerFn(int signal ATTRIBUTE_UNUSED, bool (*fn)(int, siginfo_t*, void*) ATTRIBUTE_UNUSED) {
+	Genode::warning(__func__, " not implemented");
+}
+
 }
